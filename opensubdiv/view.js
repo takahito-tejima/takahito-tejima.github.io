@@ -1186,7 +1186,7 @@ $(function(){
 
     var modelSelect = $("#modelSelect").get(0);
     modelSelect.onclick = function(e){
-        loadModel(modelSelect.value+".json");
+        loadModel("objs/"+modelSelect.value+".json");
         redraw();
     }
 
@@ -1242,7 +1242,7 @@ $(function(){
     redraw();
     }
     */
-    loadModel("cube.json");
+    loadModel("objs/cube.json");
     resizeCanvas();
 });
 
