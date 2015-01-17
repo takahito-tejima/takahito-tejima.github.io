@@ -1140,6 +1140,49 @@ $(function(){
 
     var button = false;
     var prev_position;
+
+    var move = function() {
+        var p = [event.pageX, event.pageY];
+        if (button > 0) {
+            var d = vec3.subtract(p, prev_position, vec3.create());
+            prev_position = p;
+            if (button == 1) {
+                camera.rx += d[0];
+                camera.ry += d[1];
+                if(camera.ry > 90) camera.ry = 90;
+                if(camera.ry < -90) camera.ry = -90;
+            }
+            else if(button == 3){
+                camera.dolly -= 0.01*d[0];
+                if (camera.dolly < 0.1) camera.dolly = 0.001;
+            }
+            redraw();
+        }
+    };
+
+    $("#main").bind("mousemove", move);
+    $("#main").bind("touchmove", move);
+    $("#main").bind("touchstart", function() {
+        button = 1;
+        event.preventDefault();
+        prev_position = [event.changedTouches[0].pageX,
+                         event.changedTouches[1].pageY];
+    });
+    $("#main").bind("touchend", function() {
+        button = false;
+    });
+    canvas.onmousedown = function(e){
+        var event = windowEvent();
+        button = event.button + 1;
+        prev_position = getMousePosition();
+        return false; // keep cursor shape
+    };
+    document.onmouseup = function(e){
+        button = false;
+        return false; // prevent context menu
+    }
+
+/*
     document.onmousemove = function(e){
         var event = windowEvent();
         var p = getMousePosition();
@@ -1160,6 +1203,8 @@ $(function(){
         }
         return false;
     };
+*/
+
 /*
     document.onmousewheel = function(e){
         var event = windowEvent();
@@ -1169,16 +1214,6 @@ $(function(){
         return false;
     };
 */
-    canvas.onmousedown = function(e){
-        var event = windowEvent();
-        button = event.button + 1;
-        prev_position = getMousePosition();
-        return false; // keep cursor shape
-    };
-    document.onmouseup = function(e){
-        button = false;
-        return false; // prevent context menu
-    }
     document.oncontextmenu = function(e){
         return false;
     }
