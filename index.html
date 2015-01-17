@@ -1,0 +1,240 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>OpenSubdiv 3.0 WebGL viewer</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="./glMatrix-0.9.5.min.js" type="text/javascript"></script>
+    <script src="./view.js" type="text/javascript" ></script>
+
+    <script id="shaderutil" type="x-shader/x-vertex">
+    </script>
+
+    <script id="cageVS" type="x-shader/x-vertex">
+      attribute vec3 position;
+      uniform mat4 mvpMatrix;
+      void main() {
+        gl_Position = mvpMatrix * vec4(position, 1);
+      }
+    </script>
+    <script id="cageFS" type="x-shader/x-vertex">
+      void main() {
+        gl_FragColor = vec4(1, 1, 0, 1);
+      }
+    </script>
+
+    <script id="vshader" type="x-shader/x-vertex">
+      precision highp float;
+
+      uniform mat4 mvpMatrix;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projMatrix;
+
+      attribute vec3 position;
+      attribute vec3 inNormal;
+      attribute vec4 inUV;
+      attribute vec3 inColor;
+      varying vec3 normal;
+      varying vec4 uv;
+      varying vec3 color;
+
+      void main(){
+        vec3 p = (modelViewMatrix * vec4(position.xyz, 1)).xyz;
+        normal = (modelViewMatrix * vec4(normalize(inNormal.xyz), 0)).xyz;
+        uv = inUV;
+        color = inColor;
+        gl_Position = projMatrix * vec4(p, 1);
+      }
+    </script>
+    <script id="fshader" type="x-shader/x-fragment">
+      #extension GL_OES_standard_derivatives : enable
+
+      precision highp float;
+      varying vec3 normal;
+      varying vec4 uv;
+      varying vec3 color;
+
+      uniform int displayMode;
+
+      void main()
+      {
+         float d = dot(normal, vec3(0, 0, 1));
+
+         vec4 c = vec4(1);
+
+         if (displayMode != 0) {
+            c.rgb = color;
+         }
+         c = vec4(d*c.rgb,1);
+
+         if (displayMode == 3) c = vec4(normal, 1);
+         else if (displayMode == 4) c = vec4(uv.x, uv.y, 1, 1);
+
+         if (displayMode == 2) { // wire
+           vec2 vRel = fract(uv.zw);
+           float edge = max(1.0-vRel.x, max(1.0-vRel.y, max(vRel.x, vRel.y)));
+
+           vec2 d = fwidth(vRel);
+           vec2 a2 = smoothstep(vec2(0), d*1.0, vRel);
+           edge = 1.0 -(a2.x + a2.y)*0.5;
+           c = mix(c, vec4(0,0,0,1), edge);
+         }
+         gl_FragColor = c;
+      }
+    </script>
+
+    <style type="text/css">
+      html {
+      height: 98%;
+      }
+      body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #303030;
+      color:white;
+      font-size: 10pt;
+      }
+      div#control
+      {
+      float: right;
+      }
+      .ui-button-text {
+      font-size: 6pt !important;
+      }
+      #modelSelect {
+      background-color: #303030;
+      color:white;
+      }
+
+      #container {
+      width: 96%;
+      height: 96%;
+      margin: 0 auto;
+      }
+
+      #header {
+      background-color: black;
+      }
+
+      #nav {
+      float: left;
+      width: 230px;
+      }
+
+      #content {
+      height:90%;
+      margin-left: 240px;
+      }
+
+      #footer {
+      clear: left;
+      width: 100%;
+      background-color: black;
+      }
+
+      canvas#main
+      {
+      width: 100%;
+      height: 100%;
+      cursor: default;
+      background-color: #101020;
+      border-color: gray;
+      border-style: solid;
+      border-width: 1px;
+      }
+    </style>
+  </head>
+
+  <body >
+
+    <div id="container">
+      <div id="header">
+        <h3>OpenSubdiv 3.0 WebGL viewer</h3>
+      </div>
+      
+      <div id="nav">
+        <input id="deformCheckbox" type="checkbox"><label for="deformCheckbox">Animation</label><br>
+        <br>
+        Tess factor
+        <div id="tessFactorRadio">
+          <input type="radio" id="tf1" name="tessFactorRadio" checked="checked"><label for="tf1">1</label>
+          <input type="radio" id="tf2" name="tessFactorRadio"><label for="tf2">2</label>
+          <input type="radio" id="tf3" name="tessFactorRadio"><label for="tf3">3</label>
+          <input type="radio" id="tf4" name="tessFactorRadio"><label for="tf4">4</label>
+          <input type="radio" id="tf5" name="tessFactorRadio"><label for="tf5">5</label>
+          <input type="radio" id="tf6" name="tessFactorRadio"><label for="tf6">6</label>
+          <input type="radio" id="tf7" name="tessFactorRadio"><label for="tf7">7</label>
+        </div>
+
+        Display style
+        <div id="radio">
+          <input type="radio" id="displayShade" name="radio"><label for="displayShade">Shade</label>
+          <input type="radio" id="displayPatchColor" name="radio" checked="checked"><label for="displayPatchColor">Patch</label>
+          <input type="radio" id="displayWire" name="radio"><label for="displayWire">Wire</label>
+          <input type="radio" id="displayNormal" name="radio"><label for="displayNormal">Normal</label>
+          <input type="radio" id="displayPatchCoord" name="radio"><label for="displayPatchCoord">Coord</label>
+        </div>
+
+        <br>
+        <input id="hullCheckbox" type="checkbox" checked><label for="hullCheckbox">Hull</label><br>
+        <br>
+
+        Model
+        <div>
+          <select id="modelSelect" style="width:200px" size=35>
+            <option value="cube" selected>cube</option>
+            <option value="torus">torus</option>
+            <option value="dino">dino</option>
+            <option value="face">face</option>
+            <option value="catmark_cube_creases0">catmark_cube_creases0</option>
+            <option value="catmark_cube_creases1">catmark_cube_creases1</option>
+            <option value="catmark_cube_corner0">catmark_cube_corner0</option>
+            <option value="catmark_cube_corner1">catmark_cube_corner1</option>
+            <option value="catmark_cube_corner2">catmark_cube_corner2</option>
+            <option value="catmark_cube_corner3">catmark_cube_corner3</option>
+            <option value="catmark_dart_edgecorner">catmark_dart_edgecorner</option>
+            <option value="catmark_dart_edgeonly">catmark_dart_edgeonly</option>
+            <option value="catmark_gregory_test1">catmark_gregory_test1</option>
+            <option value="catmark_gregory_test2">catmark_gregory_test2</option>
+            <option value="catmark_gregory_test3">catmark_gregory_test3</option>
+            <option value="catmark_gregory_test4">catmark_gregory_test4</option>
+            <option value="catmark_gregory_test5">catmark_gregory_test5</option>
+            <option value="catmark_gregory_test6">catmark_gregory_test6</option>
+            <option value="catmark_gregory_test7">catmark_gregory_test7</option>
+            <option value="catmark_pyramid_creases0">catmark_pyramid_creases0</option>
+            <option value="catmark_pyramid_creases1">catmark_pyramid_creases1</option>
+            <option value="catmark_pyramid_creases2">catmark_pyramid_creases2</option>
+            <option value="catmark_torus">catmark_torus</option>
+            <option value="catmark_torus_creases0">catmark_torus_creases0</option>
+            <option value="catmark_chaikin0">catmark_chaikin0</option>
+            <option value="catmark_chaikin1">catmark_chaikin1</option>
+            <option value="catmark_chaikin2">catmark_chaikin2</option>
+            <option value="catmark_hole_test1">catmark_hole_test1</option>
+            <option value="catmark_hole_test2">catmark_hole_test2</option>
+            <option value="catmark_hole_test3">catmark_hole_test3</option>
+            <option value="catmark_hole_test4">catmark_hole_test4</option>
+            <option value="catmark_helmet">catmark_helmet</option>
+            <option value="catmark_car">catmark_car</option>
+            <option value="catmark_bishop">catmark_bishop</option>
+            <option value="catmark_rook">catmark_rook</option>
+            <option value="catmark_pawn">catmark_pawn</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div id="content">
+        <canvas id="main"></canvas>
+      </div>
+
+      <div id="footer">
+        <span id="triangles"></span> triangles /
+        <span id="fps"></span> fps
+      </div>
+    </div>
+  </body>
+</html>
