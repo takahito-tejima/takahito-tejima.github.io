@@ -11,7 +11,7 @@ var camera = {
 
 var center = [0, 0, 0];
 var time = 0;
-var model = null;
+var model = {};
 var deform = false;
 var drawHull = true;
 var uvMapping = false;
@@ -148,6 +148,7 @@ function initialize()
 function deleteModel()
 {
     if (model == null) return;
+    if (model.batches == null) return;
 
     for(var i=0; i<model.batches.length; ++i) {
         gl.deleteBuffer(model.batches[i].ibo);
@@ -1184,11 +1185,26 @@ $(function(){
 
     window.addEventListener('resize', resizeCanvas);
 
+    $("#modelSelect").selectmenu( {
+        change: function(event, ui) {
+            loadModel("objs/"+this.value+".json");
+            redraw();
+        } }).selectmenu("menuWidget").addClass("overflow");
+/*
     var modelSelect = $("#modelSelect").get(0);
-    modelSelect.onclick = function(e){
+    modelSelect.onchange = function(e){
+        if (model.name == modelSelect.value) return;
         loadModel("objs/"+modelSelect.value+".json");
+        model.name = modelSelect.value;
         redraw();
     }
+    modelSelect.onclick = function(e){
+        if (model.name == modelSelect.value) return;
+        loadModel("objs/"+modelSelect.value+".json");
+        model.name = modelSelect.value;
+        redraw();
+    }
+*/
 
     $( "#tessFactorRadio" ).buttonset();
     $( 'input[name="tessFactorRadio"]:radio' ).change(

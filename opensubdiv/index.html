@@ -3,6 +3,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <link media="only screen and (max-device-width:480px)"
+          href="smartstyle.css" type="text/css" rel="stylesheet" />
+    <link media="screen and (min-device-width:481px)" href="fullstyle.css"
+          type="text/css" rel="stylesheet" />
+    <!--[if IE]>
+        <link href="fullstyle.css" type="text/css" rel="stylesheet" />
+    <![endif]-->
+
     <title>OpenSubdiv 3.0 WebGL viewer</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
@@ -85,68 +96,6 @@
          gl_FragColor = c;
       }
     </script>
-
-    <style type="text/css">
-      html {
-      height: 98%;
-      }
-      body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      background-color: #303030;
-      color:white;
-      font-size: 10pt;
-      }
-      div#control
-      {
-      float: right;
-      }
-      .ui-button-text {
-      font-size: 6pt !important;
-      }
-      #modelSelect {
-      background-color: #303030;
-      color:white;
-      }
-
-      #container {
-      width: 96%;
-      height: 96%;
-      margin: 0 auto;
-      }
-
-      #header {
-      background-color: black;
-      }
-
-      #nav {
-      float: left;
-      width: 230px;
-      }
-
-      #content {
-      height:90%;
-      margin-left: 240px;
-      }
-
-      #footer {
-      clear: left;
-      width: 100%;
-      background-color: black;
-      }
-
-      canvas#main
-      {
-      width: 100%;
-      height: 100%;
-      cursor: default;
-      background-color: #101020;
-      border-color: gray;
-      border-style: solid;
-      border-width: 1px;
-      }
-    </style>
   </head>
 
   <body >
