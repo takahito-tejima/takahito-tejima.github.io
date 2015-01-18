@@ -9,6 +9,10 @@ var camera = {
     fov : 60
 };
 
+var button = false;
+var prev_position = [0, 0];
+var prev_pinch = 0;
+
 var center = [0, 0, 0];
 var time = 0;
 var model = {};
@@ -87,7 +91,7 @@ function getMousePosition()
     canvasOffsetY = canvas.offsetTop;
     var x = event.pageX - canvasOffsetX;
     var y = event.pageY - canvasOffsetY;
-    return vec3.create([x, y, 0]);
+    return [x, y];
 }
 
 function buildProgram(vertexShader, fragmentShader)
@@ -1026,7 +1030,7 @@ function redraw() {
     var mvpMatrix = mat4.create();
     mat4.multiply(proj, modelView, mvpMatrix);
 
-    if (drawHull) {
+    if (drawHull && model.cageLines != null) {
         gl.useProgram(cageProgram);
         gl.uniformMatrix4fv(cageProgram.mvpMatrix, false, mvpMatrix);
 
@@ -1050,6 +1054,7 @@ function redraw() {
     gl.enableVertexAttribArray(1);
     gl.enableVertexAttribArray(2);
     gl.enableVertexAttribArray(3);
+    if (model.batches != null)
     for (var i = 0; i < model.batches.length; ++i) {
         var batch = model.batches[i];
         gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
@@ -1138,13 +1143,36 @@ $(function(){
 
     initialize();
 
-    var button = false;
-    var prev_position;
+    button = false;
 
-    var move = function() {
+    $("#main").bind({"touchmove mousemove": function(event) {
         var p = [event.pageX, event.pageY];
+        var d = [p[0]-prev_position[0], p[1]-prev_position[1]];
+
+        if (event.type == "touchmove") {
+            p = [event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY];
+            d = [p[0]-prev_position[0], p[1]-prev_position[1]];
+
+            //console.log(event.originalEvent);
+            if (event.originalEvent.touches.length > 1) {
+                var t = event.originalEvent.touches;
+                var v = [t[1].pageX-t[0].pageX, t[1].pageY-t[0].pageY];
+                v = Math.sqrt(v[0]*v[0]+v[1]*v[1]);
+                if (button == 1) {
+                    button = 3;
+                    d[0] = 0;
+                    prev_pinch = v;
+                } else if (button == 3) {
+                    d[0] = v - prev_pinch;
+                    prev_pinch = v;
+                }
+            } else {
+                if (button == 3) {
+                    button = 0;  // better than set to 1
+                }
+            }
+        }
         if (button > 0) {
-            var d = vec3.subtract(p, prev_position, vec3.create());
             prev_position = p;
             if (button == 1) {
                 camera.rx += d[0];
@@ -1152,58 +1180,40 @@ $(function(){
                 if(camera.ry > 90) camera.ry = 90;
                 if(camera.ry < -90) camera.ry = -90;
             }
-            else if(button == 3){
+            else if(button == 3) {
                 camera.dolly -= 0.01*d[0];
                 if (camera.dolly < 0.1) camera.dolly = 0.001;
             }
             redraw();
         }
-    };
+        }});
 
-    $("#main").bind("mousemove", move);
-    $("#main").bind("touchmove", move);
-    $("#main").bind("touchstart", function() {
-        button = 1;
+    $("#main").bind("touchstart", function(event) {
+        prev_position = [event.originalEvent.changedTouches[0].pageX,
+                         event.originalEvent.changedTouches[0].pageY];
+        if (event.originalEvent.changedTouches.length > 1) {
+            button = 3;
+            var t = event.originalEvent.changedTouches;
+            var v = [t[1].pageX-t[0].pageX, t[1].pageY-t[0].pageY];
+            prev_pinch = Math.sqrt(v[0]*v[0]+v[1]*v[1]);
+        } else {
+            button = 1;
+        }
         event.preventDefault();
-        prev_position = [event.changedTouches[0].pageX,
-                         event.changedTouches[1].pageY];
+    });
+    $("#main").bind("mousedown", function(event) {
+        button = event.button+1;
+        prev_position = [event.pageX, event.pageY];
+        event.preventDefault();
     });
     $("#main").bind("touchend", function() {
+        if (event.changedTouches.length == 0) {
+            button = false;
+        }
+    });
+    $("#main").bind("mouseup", function() {
         button = false;
     });
-    canvas.onmousedown = function(e){
-        var event = windowEvent();
-        button = event.button + 1;
-        prev_position = getMousePosition();
-        return false; // keep cursor shape
-    };
-    document.onmouseup = function(e){
-        button = false;
-        return false; // prevent context menu
-    }
-
-/*
-    document.onmousemove = function(e){
-        var event = windowEvent();
-        var p = getMousePosition();
-        if (button > 0) {
-            var d = vec3.subtract(p, prev_position, vec3.create());
-            prev_position = p;
-            if (button == 1) {
-                camera.rx += d[0];
-                camera.ry += d[1];
-                if(camera.ry > 90) camera.ry = 90;
-                if(camera.ry < -90) camera.ry = -90;
-            }
-            else if(button == 3){
-                camera.dolly -= 0.01*d[0];
-                if (camera.dolly < 0.1) camera.dolly = 0.001;
-            }
-            redraw();
-        }
-        return false;
-    };
-*/
 
 /*
     document.onmousewheel = function(e){

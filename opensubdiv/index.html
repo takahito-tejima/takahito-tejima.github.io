@@ -106,17 +106,21 @@
       </div>
       
       <div id="nav">
-        <input id="deformCheckbox" type="checkbox"><label for="deformCheckbox">Animation</label><br>
-        <br>
-        Tess factor
-        <div id="tessFactorRadio">
-          <input type="radio" id="tf1" name="tessFactorRadio" checked="checked"><label for="tf1">1</label>
-          <input type="radio" id="tf2" name="tessFactorRadio"><label for="tf2">2</label>
-          <input type="radio" id="tf3" name="tessFactorRadio"><label for="tf3">3</label>
-          <input type="radio" id="tf4" name="tessFactorRadio"><label for="tf4">4</label>
-          <input type="radio" id="tf5" name="tessFactorRadio"><label for="tf5">5</label>
-          <input type="radio" id="tf6" name="tessFactorRadio"><label for="tf6">6</label>
-          <input type="radio" id="tf7" name="tessFactorRadio"><label for="tf7">7</label>
+        <div>
+          <input id="deformCheckbox" type="checkbox"><label for="deformCheckbox">Animation</label>
+          <input id="hullCheckbox" type="checkbox" checked><label for="hullCheckbox">Hull</label>
+        </div>
+        <div>
+          Tess factor
+          <div id="tessFactorRadio">
+            <input type="radio" id="tf1" name="tessFactorRadio" checked="checked"><label for="tf1">1</label>
+            <input type="radio" id="tf2" name="tessFactorRadio"><label for="tf2">2</label>
+            <input type="radio" id="tf3" name="tessFactorRadio"><label for="tf3">3</label>
+            <input type="radio" id="tf4" name="tessFactorRadio"><label for="tf4">4</label>
+            <input type="radio" id="tf5" name="tessFactorRadio"><label for="tf5">5</label>
+            <input type="radio" id="tf6" name="tessFactorRadio"><label for="tf6">6</label>
+            <input type="radio" id="tf7" name="tessFactorRadio"><label for="tf7">7</label>
+          </div>
         </div>
 
         Display style
@@ -127,10 +131,6 @@
           <input type="radio" id="displayNormal" name="radio"><label for="displayNormal">Normal</label>
           <input type="radio" id="displayPatchCoord" name="radio"><label for="displayPatchCoord">Coord</label>
         </div>
-
-        <br>
-        <input id="hullCheckbox" type="checkbox" checked><label for="hullCheckbox">Hull</label><br>
-        <br>
 
         Model
         <div>
