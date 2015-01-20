@@ -481,6 +481,8 @@ PatchEvaluator.prototype.evalBSpline = function(indices, u, v)
         var p = model.patchVerts[indices[i]];
         vec3.set(this.verts[i+vofs], p[0], p[1], p[2]);
     }
+
+    // mirroring boundary vertices.
     if (border) {
         vec3.scale(this.verts[0], this.verts[4], 2);
         vec3.scale(this.verts[1], this.verts[5], 2);

@@ -237,7 +237,7 @@ function setModel(data)
 
     fitCamera();
 
-    updateGeom();
+    updateGeom(tessFactor);
 }
 
 function animate(time)
@@ -260,8 +260,13 @@ function animate(time)
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
-function updateGeom()
+function updateGeom(tf)
 {
+    if (tf != null) {
+        tessFactor = tf;
+        tessellateIndex();
+    }
+
     refine();
     tessellate();
     redraw();
@@ -286,15 +291,13 @@ function refine()
     }
 }
 
-function appendVBO(points, indices)
+function appendBatch(indices, nPoints)
 {
     var batch = {}
+    batch.nPoints = nPoints;
 
-    var pdata = new Float32Array(points.length);
-    for (i = 0; i < points.length; i++) {
-        pdata[i] = points[i];
-    }
-    batch.nPoints = pdata.length/3;
+    var pdata = new Float32Array(nPoints * 13); // xyz, normal, uv(4), color(3)
+    batch.pData = pdata;
     var idata = new Uint16Array(indices.length);
     for (i = 0; i < indices.length; i++) {
         idata[i] = indices[i];
@@ -304,10 +307,6 @@ function appendVBO(points, indices)
     batch.vbo = gl.createBuffer();
     batch.ibo = gl.createBuffer();
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, pdata, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idata, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
@@ -315,21 +314,32 @@ function appendVBO(points, indices)
     model.batches.push(batch);
 }
 
-function addPoints(points, pn, u, v, iu, iv, color)
+function setPoint(batchIndex, vid, pn, u, v, iu, iv, color)
 {
-    points.push(pn[0][0]);
-    points.push(pn[0][1]);
-    points.push(pn[0][2]);
-    points.push(pn[1][0]);
-    points.push(pn[1][1]);
-    points.push(pn[1][2]);
-    points.push(u);
-    points.push(v);
-    points.push(iu);
-    points.push(iv);
-    points.push(color[0]);
-    points.push(color[1]);
-    points.push(color[2]);
+    var pdata = model.batches[batchIndex].pData;
+    var ofs = vid * 13;
+    pdata[ofs++] = pn[0][0];
+    pdata[ofs++] = pn[0][1];
+    pdata[ofs++] = pn[0][2];
+    pdata[ofs++] = pn[1][0];
+    pdata[ofs++] = pn[1][1];
+    pdata[ofs++] = pn[1][2];
+    pdata[ofs++] = u;
+    pdata[ofs++] = v;
+    pdata[ofs++] = iu;
+    pdata[ofs++] = iv;
+    pdata[ofs++] = color[0];
+    pdata[ofs++] = color[1];
+    pdata[ofs++] = color[2];
+}
+
+function finalizeBatches()
+{
+    for (var i = 0; i < model.batches.length; i++) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, model.batches[i].vbo);
+        gl.bufferData(gl.ARRAY_BUFFER, model.batches[i].pData, gl.STATIC_DRAW);
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
 function getTransitionParams(pattern, rotation)
@@ -374,17 +384,67 @@ function getTransitionParams(pattern, rotation)
     }
 }
 
+function tessellateIndex() {
+    if (model == null) return;
+    model.batches = []
+
+    var indices = [];
+    var vid = 0;
+
+    for (var i = 0; i < model.patches.length; i++) {
+        var ncp = model.patches[i].length;
+
+        if (i >= model.patchParams.length) continue;
+        var p = model.patchParams[i];
+        if (p == null) continue;
+
+        var level = tessFactor - p[0]/*depth*/;
+
+        if (level <= 0 && p[3] != 0/*transition*/) {
+            // under tessellated transition patch. need triangle patterns.
+            var params = getTransitionParams(p[3]-1, p[4]);
+            for (var j = 0; j < params.length; ++j) {
+                indices.push(vid++);
+            }
+        } else {
+            if (level < 0) level = 0;
+            var div = (1 << level) + 1;
+            for (iu = 0; iu < div; iu++) {
+                for (iv = 0; iv < div; iv++) {
+                    if (iu != 0 && iv != 0) {
+                        indices.push(vid);
+                        indices.push(vid-div);
+                        indices.push(vid-div-1);
+                        indices.push(vid-1);
+                        indices.push(vid-div-1);
+                        indices.push(vid);
+                    }
+                    ++vid;
+                }
+            }
+        }
+
+        // if it reached to 64K vertices, move to next batch
+        if (vid > 60000) {
+            appendBatch(indices, vid);
+            indices = [];
+            vid = 0;
+        }
+    }
+
+    // residual
+    appendBatch(indices, vid);
+}
+
 function tessellate() {
     if (model == null) return;
 
-    model.batches = []
-
     var points = [];
-    var indices = [];
     var vid = 0;
     var quadOffset = 0;
 
     var evaluator = new PatchEvaluator();
+    var batchIndex = 0;
 
     for (var i = 0; i < model.patches.length; i++) {
         var ncp = model.patches[i].length;
@@ -408,49 +468,38 @@ function tessellate() {
                 var iu = edgeparams[j%3][0];
                 var iv = edgeparams[j%3][1];
                 pn = evaluator.evalBSpline(model.patches[i], u, v);
-                addPoints(points, pn, u, v, iu, iv, color);
-                indices.push(vid++);
+                setPoint(batchIndex, vid, pn, u, v, iu, iv, color);
+                vid++;
             }
         } else {
             if (level < 0) level = 0;
-        var div = (1 << level) + 1;
-        for (iu = 0; iu < div; iu++) {
-            for (iv = 0; iv < div; iv++) {
-                var u = iu/(div-1);
-                var v = iv/(div-1);
-                if (ncp == 4) {
-                    pn = evalGregory(model.patches[i], p[2], quadOffset, u, v);
-                } else {
-                    pn = evaluator.evalBSpline(model.patches[i], u, v);
+            var div = (1 << level) + 1;
+            for (iu = 0; iu < div; iu++) {
+                for (iv = 0; iv < div; iv++) {
+                    var u = iu/(div-1);
+                    var v = iv/(div-1);
+                    if (ncp == 4) {
+                        pn = evalGregory(model.patches[i], p[2], quadOffset, u, v);
+                    } else {
+                        pn = evaluator.evalBSpline(model.patches[i], u, v);
+                    }
+                    setPoint(batchIndex, vid, pn, u, v, iu, iv, color);
+                    ++vid;
                 }
-                addPoints(points, pn, u, v, iu, iv, color);
-                if (iu != 0 && iv != 0) {
-                    indices.push(vid);
-                    indices.push(vid-div);
-                    indices.push(vid-div-1);
-                    indices.push(vid-1);
-                    indices.push(vid-div-1);
-                    indices.push(vid);
-                }
-                ++vid;
             }
         }
-}
         if (ncp == 4) {
             quadOffset += 4;
         }
 
         // if it reached to 64K vertices, move to next batch
         if (vid > 60000) {
-            appendVBO(points, indices);
+            batchIndex++;
             points = [];
-            indices = [];
             vid = 0;
         }
     }
-
-    // residual
-    appendVBO(points, indices);
+    finalizeBatches();
 }
 
 function syncbuffer()
@@ -727,8 +776,8 @@ $(function(){
     $( "#tessFactorRadio" ).buttonset();
     $( 'input[name="tessFactorRadio"]:radio' ).change(
         function() {
-            tessFactor = ({tf1:1, tf2:2, tf3:3, tf4:4, tf5:5, tf6:6, tf7:7 })[this.id];
-            updateGeom();
+            var tf = ({tf1:1, tf2:2, tf3:3, tf4:4, tf5:5, tf6:6, tf7:7 })[this.id];
+            updateGeom(tf);
         });
 
     $( "#radio" ).buttonset();
