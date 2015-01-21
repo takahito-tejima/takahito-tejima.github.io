@@ -508,12 +508,12 @@ PatchEvaluator.prototype.evalBSpline = function(indices, u, v)
         vec3.scale(this.verts[11], this.verts[10], 2);
         vec3.scale(this.verts[15], this.verts[14], 2);
         vec3.sub(this.verts[0], this.verts[0], this.verts[8]);
-        vec3.sub(this.verts[0], this.verts[1], this.verts[9]);
-        vec3.sub(this.verts[0], this.verts[2], this.verts[10]);
-        vec3.sub(this.verts[0], this.verts[3], this.verts[9]);
-        vec3.sub(this.verts[0], this.verts[7], this.verts[5]);
-        vec3.sub(this.verts[0], this.verts[11], this.verts[9]);
-        vec3.sub(this.verts[0], this.verts[15], this.verts[13]);
+        vec3.sub(this.verts[1], this.verts[1], this.verts[9]);
+        vec3.sub(this.verts[2], this.verts[2], this.verts[10]);
+        vec3.sub(this.verts[3], this.verts[3], this.verts[9]);
+        vec3.sub(this.verts[7], this.verts[7], this.verts[5]);
+        vec3.sub(this.verts[11], this.verts[11], this.verts[9]);
+        vec3.sub(this.verts[15], this.verts[15], this.verts[13]);
     }
 
     evalCubicBSpline(u, this.B, this.D);
