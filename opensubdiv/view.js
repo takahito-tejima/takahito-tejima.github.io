@@ -265,7 +265,7 @@ function updateGeom(tf)
 {
     if (tf != null) {
         tessFactor = tf;
-        tessellateIndex();
+        tessellateIndexAndUnvarying();
     }
 
     refine();
@@ -292,46 +292,47 @@ function refine()
     }
 }
 
-function appendBatch(indices, nPoints)
+function appendBatch(indices, primVars, nPoints)
 {
     var batch = {}
     batch.nPoints = nPoints;
 
-    var pdata = new Float32Array(nPoints * 13); // xyz, normal, uv(4), color(3)
+    var pdata = new Float32Array(nPoints * 6); // xyz, normal
+    var uvdata = new Float32Array(nPoints * 7); // uv(4), color(3)
     batch.pData = pdata;
     var idata = new Uint16Array(indices.length);
     for (i = 0; i < indices.length; i++) {
         idata[i] = indices[i];
     }
+    for (i = 0; i < primVars.length; i++) {
+        uvdata[i] = primVars[i];
+    }
     batch.nTris = idata.length/3;
 
     batch.vbo = gl.createBuffer();
+    batch.vboUnvarying = gl.createBuffer();
     batch.ibo = gl.createBuffer();
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idata, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
+    gl.bufferData(gl.ARRAY_BUFFER, uvdata, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     model.batches.push(batch);
 }
 
-function setPoint(batchIndex, vid, pn, u, v, iu, iv, color)
+function setPoint(batchIndex, vid, pn)
 {
     var pdata = model.batches[batchIndex].pData;
-    var ofs = vid * 13;
+    var ofs = vid * 6;
     pdata[ofs++] = pn[0][0];
     pdata[ofs++] = pn[0][1];
     pdata[ofs++] = pn[0][2];
     pdata[ofs++] = pn[1][0];
     pdata[ofs++] = pn[1][1];
     pdata[ofs++] = pn[1][2];
-    pdata[ofs++] = u;
-    pdata[ofs++] = v;
-    pdata[ofs++] = iu;
-    pdata[ofs++] = iv;
-    pdata[ofs++] = color[0];
-    pdata[ofs++] = color[1];
-    pdata[ofs++] = color[2];
 }
 
 function finalizeBatches()
@@ -389,11 +390,12 @@ function getTransitionParams(pattern, rotation)
     }
 }
 
-function tessellateIndex() {
+function tessellateIndexAndUnvarying() {
     if (model == null) return;
     model.batches = []
 
     var indices = [];
+    var primVars = [];
     var vid = 0;
 
     for (var i = 0; i < model.patches.length; i++) {
@@ -404,11 +406,26 @@ function tessellateIndex() {
         if (p == null) continue;
 
         var level = tessFactor - p[0]/*depth*/;
+        var color = (p[3] == 0) ?
+            patchColors[0][p[2]-6] :
+            patchColors[p[2]-6+1][p[3]-1];
 
         if (level <= 0 && p[3] != 0/*transition*/) {
             // under tessellated transition patch. need triangle patterns.
             var params = getTransitionParams(p[3]-1, p[4]);
+            var edgeparams = [[0,0],[1,0],[0,1]];
             for (var j = 0; j < params.length; ++j) {
+                var u = params[j][0];
+                var v = params[j][1];
+                var iu = edgeparams[j%3][0];
+                var iv = edgeparams[j%3][1];
+                primVars.push(u);
+                primVars.push(v);
+                primVars.push(iu);
+                primVars.push(iv);
+                primVars.push(color[0]);
+                primVars.push(color[1]);
+                primVars.push(color[2]);
                 indices.push(vid++);
             }
         } else {
@@ -416,6 +433,15 @@ function tessellateIndex() {
             var div = (1 << level) + 1;
             for (iu = 0; iu < div; iu++) {
                 for (iv = 0; iv < div; iv++) {
+                    var u = iu/(div-1);
+                    var v = iv/(div-1);
+                    primVars.push(u);
+                    primVars.push(v);
+                    primVars.push(iu);
+                    primVars.push(iv);
+                    primVars.push(color[0]);
+                    primVars.push(color[1]);
+                    primVars.push(color[2]);
                     if (iu != 0 && iv != 0) {
                         indices.push(vid);
                         indices.push(vid-div);
@@ -431,24 +457,23 @@ function tessellateIndex() {
 
         // if it reached to 64K vertices, move to next batch
         if (vid > 60000) {
-            appendBatch(indices, vid);
+            appendBatch(indices, primVars, vid);
             indices = [];
+            primVars = [];
             vid = 0;
         }
     }
 
     // residual
-    appendBatch(indices, vid);
+    appendBatch(indices, primVars, vid);
 }
 
 function tessellate() {
     if (model == null) return;
 
-    var points = [];
+    var evaluator = new PatchEvaluator();
     var vid = 0;
     var quadOffset = 0;
-
-    var evaluator = new PatchEvaluator();
     var batchIndex = 0;
 
     for (var i = 0; i < model.patches.length; i++) {
@@ -458,22 +483,15 @@ function tessellate() {
         var p = model.patchParams[i];
         if (p == null) continue;
 
-        var color = (p[3] == 0) ?
-            patchColors[0][p[2]-6] :
-            patchColors[p[2]-6+1][p[3]-1];
-
         var level = tessFactor - p[0]/*depth*/;
         if (level <= 0 && p[3] != 0/*transition*/) {
             // under tessellated transition patch. need triangle patterns.
             var params = getTransitionParams(p[3]-1, p[4]);
-            var edgeparams = [[0,0],[1,0],[0,1]];
             for (var j = 0; j < params.length; ++j) {
                 var u = params[j][0];
                 var v = params[j][1];
-                var iu = edgeparams[j%3][0];
-                var iv = edgeparams[j%3][1];
                 pn = evaluator.evalBSpline(model.patches[i], u, v);
-                setPoint(batchIndex, vid, pn, u, v, iu, iv, color);
+                setPoint(batchIndex, vid, pn);
                 vid++;
             }
         } else {
@@ -488,7 +506,7 @@ function tessellate() {
                     } else {
                         pn = evaluator.evalBSpline(model.patches[i], u, v);
                     }
-                    setPoint(batchIndex, vid, pn, u, v, iu, iv, color);
+                    setPoint(batchIndex, vid, pn);
                     ++vid;
                 }
             }
@@ -500,7 +518,6 @@ function tessellate() {
         // if it reached to 64K vertices, move to next batch
         if (vid > 60000) {
             batchIndex++;
-            points = [];
             vid = 0;
         }
     }
@@ -584,12 +601,13 @@ function redraw() {
     if (model.batches != null)
     for (var i = 0; i < model.batches.length; ++i) {
         var batch = model.batches[i];
-        gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
-        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 13*4, 0);    // XYZ
-        gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 13*4, 3*4);  // normal
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 13*4, 6*4);  // uv, iuiv
-        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 13*4, 10*4); // color
+        gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, 0);    // XYZ
+        gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, 3*4);  // normal
+        gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
+        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 7*4, 0);  // uv, iuiv
+        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 7*4, 4*4); // color
 
         gl.drawElements(gl.TRIANGLES, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
 
