@@ -12,6 +12,7 @@ var camera = {
 var button = false;
 var prev_position = [0, 0];
 var prev_pinch = 0;
+var gpuTess = false;
 
 var center = [0, 0, 0];
 var time = 0;
@@ -28,6 +29,7 @@ var uvimage = new Image();
 var uvtex = null;
 
 var program = null;
+var tessProgram = null;
 var cageProgram = null;
 
 var interval = null;
@@ -126,6 +128,63 @@ function buildProgram(vertexShader, fragmentShader)
     return program;
 }
 
+function createTextureBuffer(data, format, reso)
+{
+    if (format == gl.LUMINANCE) {
+        data.length = reso*reso;
+    } else if(format == gl.LUMINANCE_ALPHA) {
+        data.length = reso*reso*2;
+    } else if(format == gl.RGB) {
+        data.length = reso*reso*3;
+    } else if(format == gl.RGBA) {
+        data.length = reso*reso*4;
+    }
+
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.texImage2D(gl.TEXTURE_2D, 0, format, reso, reso,
+                  0, format, gl.FLOAT, data);
+
+    return texture;
+}
+
+function createTextureBuffer()
+{
+    var texture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return texture;
+}
+
+function createVertexTexture(reso)
+{
+    var texture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    var data = new Array();
+    data.length = reso*3;
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, reso, 1,
+                  0, gl.RGB, gl.FLOAT, new Float32Array(data));
+    return texture;
+}
+
 function dumpFrameBuffer()
 {
     var buffer = new ArrayBuffer(reso*reso*4);
@@ -138,11 +197,18 @@ function initialize()
 {
     // surface program
     if (program != null) gl.deleteProgram(program);
-    program = buildProgram('#vshader', '#fshader');
+    program = buildProgram('#vertexShader', '#fshader');
     program.mvpMatrix = gl.getUniformLocation(program, "mvpMatrix");
     program.modelViewMatrix = gl.getUniformLocation(program, "modelViewMatrix");
     program.projMatrix = gl.getUniformLocation(program, "projMatrix");
     program.displayMode = gl.getUniformLocation(program, "displayMode");
+
+    if (tessProgram != null) gl.deleteProgram(tessProgram);
+    tessProgram = buildProgram('#tessVertexShader', '#fshader');
+    tessProgram.mvpMatrix = gl.getUniformLocation(tessProgram, "mvpMatrix");
+    tessProgram.modelViewMatrix = gl.getUniformLocation(tessProgram, "modelViewMatrix");
+    tessProgram.projMatrix = gl.getUniformLocation(tessProgram, "projMatrix");
+    tessProgram.displayMode = gl.getUniformLocation(tessProgram, "displayMode");
 
     // cage program
     if (cageProgram != null) gl.deleteProgram(cageProgram);
@@ -159,6 +225,7 @@ function deleteModel()
         gl.deleteBuffer(model.batches[i].ibo);
         gl.deleteBuffer(model.batches[i].vbo);
     }
+    if (model.vTexture) gl.deleteTexture(model.vTexture);
 }
 
 function fitCamera()
@@ -191,7 +258,7 @@ function setModel(data)
     // XXX: release buffers!
     deleteModel(model);
     model = {};
-    model.patchVerts    = [];
+    model.patchVerts  = new Float32Array(3*(data.points.length + data.stencilIndices.length));
 
     // control cage
     model.animVerts   = new Float32Array(3*data.points.length)
@@ -203,7 +270,9 @@ function setModel(data)
         model.animVerts[i*3+0] = data.points[i][0];
         model.animVerts[i*3+1] = data.points[i][1];
         model.animVerts[i*3+2] = data.points[i][2];
-        model.patchVerts[i] = data.points[i];
+        model.patchVerts[i*3+0] = data.points[i][0];
+        model.patchVerts[i*3+1] = data.points[i][1];
+        model.patchVerts[i*3+2] = data.points[i][2];
     }
     model.cageLines   = new Int16Array(data.hull.length)
     for (i = 0; i < data.hull.length; i++) {
@@ -236,6 +305,20 @@ function setModel(data)
     model.valenceTable = data.vertexValences;
     model.quadOffsets = data.quadOffsets;
 
+    // patch indices texture
+    var nPatches = model.patches.length;
+    model.patchIndexTexture = createTextureBuffer();
+    var data = [];
+    for (var i = 0; i < nPatches; ++i) {
+        var ncp = model.patches[i].length;
+        for (var j = 0; j < 16; ++j) {
+            if (j < ncp) data.push(model.patches[i][j]);
+            else data.push(-1);
+        }
+    }
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, 16, nPatches,
+                  0, gl.LUMINANCE, gl.FLOAT, new Float32Array(data));
+
     fitCamera();
 
     updateGeom(tessFactor);
@@ -251,9 +334,9 @@ function animate(time)
         model.animVerts[i+0] = x * Math.cos(r*y) + z * Math.sin(r*y);
         model.animVerts[i+1] = y;
         model.animVerts[i+2] = - x * Math.sin(r*y) + z * Math.cos(r*y);
-        model.patchVerts[i/3] = [model.animVerts[i+0],
-                               model.animVerts[i+1],
-                               model.animVerts[i+2]];
+        model.patchVerts[i+0] = model.animVerts[i+0];
+        model.patchVerts[i+1] = model.animVerts[i+1];
+        model.patchVerts[i+2] = model.animVerts[i+2];
     }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, model.hullVerts);
@@ -266,10 +349,13 @@ function updateGeom(tf)
     if (tf != null) {
         tessFactor = tf;
         tessellateIndexAndUnvarying();
+        tessellate();
     }
 
     refine();
-    tessellate();
+    if (!gpuTess) {
+        tessellate();
+    }
     redraw();
 }
 
@@ -288,7 +374,20 @@ function refine()
             y += model.animVerts[vindex*3+1] * weight;
             z += model.animVerts[vindex*3+2] * weight;
         }
-        model.patchVerts[i + model.cageVerts.length/3] = [x,y,z];
+        model.patchVerts[model.cageVerts.length + i*3+0] = x;
+        model.patchVerts[model.cageVerts.length + i*3+1] = y;
+        model.patchVerts[model.cageVerts.length + i*3+2] = z;
+    }
+
+    if (gpuTess) {
+        // CP texture update
+        var nPoints = model.patchVerts.length/3;
+        if (model.vTexture == null) {
+            model.vTexture = createVertexTexture(nPoints);
+        }
+        gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, nPoints, 1,
+                         gl.RGB, gl.FLOAT, new Float32Array(model.patchVerts));
     }
 }
 
@@ -298,7 +397,7 @@ function appendBatch(indices, primVars, nPoints)
     batch.nPoints = nPoints;
 
     var pdata = new Float32Array(nPoints * 6); // xyz, normal
-    var uvdata = new Float32Array(nPoints * 7); // uv(4), color(3)
+    var uvdata = new Float32Array(nPoints * 8); // uv(4), color(3)+patchIndex
     batch.pData = pdata;
     var idata = new Uint16Array(indices.length);
     for (i = 0; i < indices.length; i++) {
@@ -426,6 +525,7 @@ function tessellateIndexAndUnvarying() {
                 primVars.push(color[0]);
                 primVars.push(color[1]);
                 primVars.push(color[2]);
+                primVars.push(i+0.0);
                 indices.push(vid++);
             }
         } else {
@@ -442,6 +542,7 @@ function tessellateIndexAndUnvarying() {
                     primVars.push(color[0]);
                     primVars.push(color[1]);
                     primVars.push(color[2]);
+                    primVars.push(i+0.0);
                     if (iu != 0 && iv != 0) {
                         indices.push(vid);
                         indices.push(vid-div);
@@ -587,11 +688,28 @@ function redraw() {
     }
 
     // ---------------------------
-    gl.useProgram(program);
-    gl.uniformMatrix4fv(program.modelViewMatrix, false, modelView);
-    gl.uniformMatrix4fv(program.projMatrix, false, proj);
-    gl.uniformMatrix4fv(program.mvpMatrix, false, mvpMatrix);
-    gl.uniform1i(program.displayMode, displayMode);
+    if (gpuTess) {
+        gl.useProgram(tessProgram);
+        gl.uniformMatrix4fv(tessProgram.modelViewMatrix, false, modelView);
+        gl.uniformMatrix4fv(tessProgram.projMatrix, false, proj);
+        gl.uniformMatrix4fv(tessProgram.mvpMatrix, false, mvpMatrix);
+        gl.uniform1i(tessProgram.displayMode, displayMode);
+        // GPUtess texture
+        gl.uniform1f(gl.getUniformLocation(tessProgram, "numPatches"), model.patches.length);
+        gl.uniform1f(gl.getUniformLocation(tessProgram, "numPoints"), model.patchVerts.length/3);
+        gl.uniform1i(gl.getUniformLocation(tessProgram, "texCP"), 0);
+        gl.uniform1i(gl.getUniformLocation(tessProgram, "texPatch"), 1);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
+    } else {
+        gl.useProgram(program);
+        gl.uniformMatrix4fv(program.modelViewMatrix, false, modelView);
+        gl.uniformMatrix4fv(program.projMatrix, false, proj);
+        gl.uniformMatrix4fv(program.mvpMatrix, false, mvpMatrix);
+        gl.uniform1i(program.displayMode, displayMode);
+    }
 
     var drawTris = 0;
     gl.enableVertexAttribArray(0);
@@ -606,10 +724,11 @@ function redraw() {
         gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, 0);    // XYZ
         gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, 3*4);  // normal
         gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 7*4, 0);  // uv, iuiv
-        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 7*4, 4*4); // color
+        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 8*4, 0);  // uv, iuiv
+        gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 8*4, 4*4); // color, patchIndex
 
         gl.drawElements(gl.TRIANGLES, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
+        //gl.drawElements(gl.POINTS, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
 
         drawTris += batch.nTris;
     }
@@ -671,10 +790,11 @@ function resizeCanvas() {
 
 $(function(){
     var canvas = $("#main").get(0);
-    $.each(["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"], function(i, name){
+    $.each(["webgl2", "experimental-webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"], function(i, name){
         try {
             gl = canvas.getContext(name);
             gl.getExtension('OES_standard_derivatives');
+            //console.log(name);
         }
         catch (e) {
         }
@@ -803,6 +923,13 @@ $(function(){
         function() {
             var tf = ({tf1:1, tf2:2, tf3:3, tf4:4, tf5:5, tf6:6, tf7:7 })[this.id];
             updateGeom(tf);
+        });
+
+    $( "#tessKernelRadio" ).buttonset();
+    $( 'input[name="tessKernelRadio"]:radio' ).change(
+        function() {
+            gpuTess = ({tk1:false, tk2:true })[this.id];
+            updateGeom();
         });
 
     $( "#radio" ).buttonset();

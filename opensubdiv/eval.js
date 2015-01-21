@@ -44,6 +44,11 @@ function csf(n, j)
     }
 }
 
+function readVertex(verts, vid)
+{
+    return [verts[vid*3+0], verts[vid*3+1], verts[vid*3+2]];
+}
+
 function evalGregory(indices, type, quadOffset, u, v)
 {
     var boundary = (type == 11)
@@ -75,7 +80,7 @@ function evalGregory(indices, type, quadOffset, u, v)
         valences[vid] = ivalence;
 
         // read vertexID
-        pos = verts[vertexID];
+        pos = readVertex(verts, vertexID);
         org[vid] = [pos[0], pos[1], pos[2]];
 
         rp = vid*maxValence;
@@ -92,11 +97,11 @@ function evalGregory(indices, type, quadOffset, u, v)
             var idx_neighbor_m = valenceTable[valenceTableOffset + 2*im + 0 + 1];
             var idx_diagonal_m = valenceTable[valenceTableOffset + 2*im + 1 + 1];
 
-            var neighbor   = verts[idx_neighbor];
-            var diagonal   = verts[idx_diagonal];
-            var neighbor_p = verts[idx_neighbor_p];
-            var neighbor_m = verts[idx_neighbor_m];
-            var diagonal_m = verts[idx_diagonal_m];
+            var neighbor   = readVertex(verts, idx_neighbor);
+            var diagonal   = readVertex(verts, idx_diagonal);
+            var neighbor_p = readVertex(verts, idx_neighbor_p);
+            var neighbor_m = readVertex(verts, idx_neighbor_m);
+            var diagonal_m = readVertex(verts, idx_diagonal_m);
 
             if (boundary) {
                 var valenceNeighbor = valenceTable[idx_neighbor * (2*maxValence+1)];
@@ -164,8 +169,8 @@ function evalGregory(indices, type, quadOffset, u, v)
             if (ivalence < 0) {
                 for (var k = 0; k < 3; ++k) {
                     if (valence > 2) {
-                        opos[vid][k] = (verts[boundaryEdgeNeighbors[0]][k]
-                                        + verts[boundaryEdgeNeighbors[1]][k] +
+                        opos[vid][k] = (readVertex(verts, boundaryEdgeNeighbors[0])[k]
+                                        + readVertex(verts, boundaryEdgeNeighbors[1])[k] +
                                    4 * pos[k])/6.0;
                     } else {
                         opos[vid][k] = pos[k];
@@ -182,14 +187,14 @@ function evalGregory(indices, type, quadOffset, u, v)
                 var idx_diagonal = valenceTable[valenceTableOffset + 2*zerothNeighbors[vid]  + 1 + 1];
                 idx_diagonal = Math.abs(idx_diagonal);
 
-                var diagonal   = verts[idx_diagonal];
+                var diagonal   = readVertex(verts, idx_diagonal);
 
                 for (var k = 0; k < 3; ++k) {
-                    e0[vid][k] = (verts[boundaryEdgeNeighbors[0]][k] -
-                                  verts[boundaryEdgeNeighbors[1]][k])/6.0;
+                    e0[vid][k] = (readVertex(verts, boundaryEdgeNeighbors[0])[k] -
+                                  readVertex(verts, boundaryEdgeNeighbors[1])[k])/6.0;
                     e1[vid][k] = gamma * pos[k]
-                        + alpha_0k * verts[boundaryEdgeNeighbors[0]][k]
-                        + alpha_0k * verts[boundaryEdgeNeighbors[1]][k]
+                        + alpha_0k * readVertex(verts, boundaryEdgeNeighbors[0])[k]
+                        + alpha_0k * readVertex(verts, boundaryEdgeNeighbors[1])[k]
                         + beta_0 * diagonal[k];
                 }
 
@@ -201,9 +206,9 @@ function evalGregory(indices, type, quadOffset, u, v)
 
                     var idx_neighbor = valenceTable[valenceTableOffset + 2*curri + 0 + 1];
                     idx_neighbor = Math.abs(idx_neighbor);
-                    var neighbor = verts[idx_neighbor];
+                    var neighbor = readVertex(verts, idx_neighbor);
                     idx_diagonal = valenceTable[valenceTableOffset + 2*curri + 1 + 1];
-                    var diagonal = verts[idx_diagonal];
+                    var diagonal = readVertex(verts, idx_diagonal);
 
                     for (var k = 0; k < 3; ++k) {
                         e1[vid][k] += alpha * neighbor[k] + beta * diagonal[k];
@@ -478,8 +483,10 @@ PatchEvaluator.prototype.evalBSpline = function(indices, u, v)
     var corner = (indices.length == 9);
     var vofs = (border || corner) ? 4 : 0;
     for (var i = 0; i < indices.length; ++i) {
-        var p = model.patchVerts[indices[i]];
-        vec3.set(this.verts[i+vofs], p[0], p[1], p[2]);
+        var x = model.patchVerts[indices[i]*3+0];
+        var y = model.patchVerts[indices[i]*3+1];
+        var z = model.patchVerts[indices[i]*3+2];
+        vec3.set(this.verts[i+vofs], x, y, z);
     }
 
     // mirroring boundary vertices.
