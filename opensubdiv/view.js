@@ -710,7 +710,7 @@ $(function(){
                 if(camera.ry < -90) camera.ry = -90;
             }
             else if(button == 3) {
-                camera.dolly -= 0.01*d[0];
+                camera.dolly -= 0.005*d[0]*model.diag;
                 if (camera.dolly < 0.1) camera.dolly = 0.001;
             }
             redraw();
