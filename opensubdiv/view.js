@@ -19,6 +19,7 @@ var model = {};
 var deform = false;
 var drawHull = true;
 var uvMapping = false;
+var dpr = 1;
 
 var prevTime = 0;
 var fps = 0;
@@ -533,8 +534,8 @@ function redraw() {
     gl.depthFunc(gl.LEQUAL);
 
     var canvas = $('#main');
-    var w = canvas.width();
-    var h = canvas.height();
+    var w = canvas.width()*dpr;
+    var h = canvas.height()*dpr;
     var aspect = w / h;
     gl.viewport(0, 0, w, h);
 
@@ -631,17 +632,19 @@ function loadModel(url)
 
 function resizeCanvas() {
     var canvas = $("#main").get(0);
-   // only change the size of the canvas if the size it's being displayed
-   // has changed.
-   var width = canvas.clientWidth;
-   var height = canvas.clientHeight;
-   if (canvas.width != width ||
-       canvas.height != height) {
-     // Change the size of the canvas to match the size it's being displayed
-     canvas.width = width;
-     canvas.height = height;
-       redraw();
-   }
+
+    dpr = window.devicePixelRatio || 1;
+
+    // only change the size of the canvas if the size it's being displayed
+    // has changed.
+    var width = canvas.clientWidth;
+    var height = canvas.clientHeight;
+    if (canvas.width != width*dpr || canvas.height != height*dpr) {
+        // Change the size of the canvas to match the size it's being displayed
+        canvas.width = width*dpr;
+        canvas.height = height*dpr;
+        redraw();
+    }
 }
 
 $(function(){
