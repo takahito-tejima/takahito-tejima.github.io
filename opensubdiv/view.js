@@ -797,6 +797,7 @@ function loadModel(url)
         responseType:type,
         success: function(data) {
             setModel(data.model);
+            displaceScale = 0;
             $("#loading").hide();
         }
     });
@@ -989,7 +990,11 @@ $(function(){
         min: 0,
         max: 100,
         change: function(event, ui){
-            displaceScale = ui.value/100.0;
+            displaceScale = model.diag*ui.value*0.0001;
+            redraw();
+        },
+        slide: function(event, ui){
+            displaceScale = model.diag*ui.value*0.0001;
             redraw();
         }});
 
