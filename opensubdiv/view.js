@@ -117,10 +117,14 @@ function buildProgram(vertexShader, fragmentShader)
     gl.attachShader(program, vshader);
     gl.attachShader(program, fshader);
 
-    gl.bindAttribLocation(program, 0, "position");
-    gl.bindAttribLocation(program, 1, "inNormal");
-    gl.bindAttribLocation(program, 2, "inUV");
-    gl.bindAttribLocation(program, 3, "inColor");
+    if (vertexShader == "#cageVS") {
+        gl.bindAttribLocation(program, 0, "position");
+    } else {
+        gl.bindAttribLocation(program, 0, "inUV");
+        gl.bindAttribLocation(program, 1, "inColor");
+        gl.bindAttribLocation(program, 2, "position");
+        gl.bindAttribLocation(program, 3, "inNormal");
+    }
 
     gl.linkProgram(program)
     if (!gl.getProgramParameter(program, gl.LINK_STATUS))
@@ -451,12 +455,10 @@ function setPoint(batchIndex, vid, pn)
     pdata[ofs++] = pn[1][2];
 }
 
-function finalizeBatches()
+function finalizeBatches(batch)
 {
-    for (var i = 0; i < model.batches.length; i++) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, model.batches[i].vbo);
-        gl.bufferData(gl.ARRAY_BUFFER, model.batches[i].pData, gl.STATIC_DRAW);
-    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, batch.pData, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
@@ -632,8 +634,8 @@ function tessellate(gregoryOnly) {
             pid += 6; // xyz, normal
             uvid += 8; // uv, color
         }
+        finalizeBatches(batch);
     }
-    finalizeBatches();
 }
 
 function syncbuffer()
@@ -690,15 +692,18 @@ function redraw() {
         gl.useProgram(cageProgram);
         gl.uniformMatrix4fv(cageProgram.mvpMatrix, false, mvpMatrix);
 
+        gl.enableVertexAttribArray(0);
         gl.bindBuffer(gl.ARRAY_BUFFER, model.hullVerts);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.hullIndices);
-        gl.enableVertexAttribArray(0);
         gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
 
         gl.drawElements(gl.LINES, model.cageLines.length, gl.UNSIGNED_SHORT, 0);
     }
 
     // ---------------------------
+    gl.enableVertexAttribArray(0);
+    gl.enableVertexAttribArray(1);
+
     if (model.batches != null) {
         var drawTris = 0;
         for (var i = 0; i < model.batches.length; ++i) {
@@ -727,30 +732,27 @@ function redraw() {
                 gl.uniform1i(program.displayMode, displayMode);
             }
 
-            gl.enableVertexAttribArray(0);
-            gl.enableVertexAttribArray(1);
             gl.enableVertexAttribArray(2);
             gl.enableVertexAttribArray(3);
             var batch = model.batches[i];
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
-            gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
-            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, 0);    // XYZ
-            gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, 3*4);  // normal
             gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
-            gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 8*4, 0);  // uv, iuiv
-            gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 8*4, 4*4); // color, patchIndex
+            gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 8*4, 0);  // uv, iuiv
+            gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 8*4, 4*4); // color, patchIndex
+            gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+            gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 6*4, 0);    // XYZ
+            gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 6*4, 3*4);  // normal
 
             gl.drawElements(gl.TRIANGLES, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
-        //gl.drawElements(gl.POINTS, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
+            //gl.drawElements(gl.POINTS, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
 
             drawTris += batch.nTris;
-
-            gl.disableVertexAttribArray(0);
-            gl.disableVertexAttribArray(1);
             gl.disableVertexAttribArray(2);
             gl.disableVertexAttribArray(3);
         }
     }
+
+    gl.disableVertexAttribArray(1);
 
     gl.finish();
 

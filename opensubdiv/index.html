@@ -45,10 +45,10 @@
       uniform mat4 modelViewMatrix;
       uniform mat4 projMatrix;
 
-      attribute vec3 position;
-      attribute vec3 inNormal;
-      attribute vec4 inUV;
-      attribute vec3 inColor;
+      attribute vec4 inUV;     // 0
+      attribute vec3 inColor;  // 1
+      attribute vec3 position; // 2
+      attribute vec3 inNormal; // 3
       varying vec3 normal;
       varying vec4 uv;
       varying vec3 color;
