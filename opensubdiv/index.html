@@ -78,14 +78,18 @@
       varying vec3 color;
       uniform sampler2D texCP;
       uniform sampler2D texPatch;
-      uniform float numPatches;
-      uniform float numPoints;
+      uniform float patchRes; // square, *16
+      uniform float pointRes; // squre
 
-      vec2 getUV(float patchIndex, float cpIndex) {
-        float u = (cpIndex+0.5)/16.0;
-        float v = (patchIndex+0.5)/numPatches;
-        u = (texture2D(texPatch, vec2(u,v)).x+0.5)/numPoints;
-        v = 0.5;
+      float getVertexIndex(float patchIndex, float cpIndex) {
+        float u = fract(patchIndex*16.0/patchRes) + (cpIndex+0.5)/patchRes;
+        float v = (floor(patchIndex*16.0/patchRes)+0.5)/patchRes;
+        return texture2D(texPatch, vec2(u,v)).x;
+      }
+
+      vec2 getUV(float vid) {
+        float u = fract(vid / pointRes) + 0.5/pointRes;
+        float v = (float(floor(vid/pointRes))+0.5)/pointRes;
         return vec2(u, v);
       }
 
@@ -107,9 +111,45 @@
       void main(){
         float patchIndex = inColor.w;
         vec3 cp[16];
+        float vids[16];
         for (int i = 0; i < 16; ++i) {
-          cp[i] = texture2D(texCP, getUV(patchIndex, float(i))).xyz;
+          float vid = getVertexIndex(patchIndex, float(i));
+          vids[i] = vid;
         }
+        if (vids[9] == -1.0) {
+          // corner
+          for (int i = 0; i < 9; ++i) {
+            cp[i+4] = texture2D(texCP, getUV(vids[i])).xyz;
+          }
+          cp[14] = cp[12];
+          cp[13] = cp[11];
+          cp[12] = cp[10];
+          cp[10] = cp[9];
+          cp[9] = cp[8];
+          cp[8] = cp[7];
+          cp[0] = cp[4]*2.0 - cp[8];
+          cp[1] = cp[5]*2.0 - cp[9];
+          cp[2] = cp[6]*2.0 - cp[10];
+          cp[3] = cp[6]*2.0 - cp[9];
+          cp[7] = cp[6]*2.0 - cp[5];
+          cp[11] = cp[10]*2.0 - cp[9];
+          cp[15] = cp[14]*2.0 - cp[13];
+        } else if (vids[15] == -1.0) {
+          // boundary
+          for (int i = 0; i < 12; ++i) {
+            cp[i+4] = texture2D(texCP, getUV(vids[i])).xyz;
+          }
+          cp[0] = cp[4]*2.0 - cp[8];
+          cp[1] = cp[5]*2.0 - cp[9];
+          cp[2] = cp[6]*2.0 - cp[10];
+          cp[3] = cp[7]*2.0 - cp[11];
+        } else {
+          // regular
+          for (int i = 0; i < 16; ++i) {
+            cp[i] = texture2D(texCP, getUV(vids[i])).xyz;
+          }
+        }
+
         float B[4], D[4];
         vec3 BUCP[4], DUCP[4];
         BUCP[0] = BUCP[1] = BUCP[2] = BUCP[3] = vec3(0);
@@ -192,7 +232,6 @@
       <div id="header">
         <h3>OpenSubdiv 3.0 WebGL viewer</h3>
       </div>
-      
       <div id="nav">
         <div>
           <input id="deformCheckbox" type="checkbox"><label for="deformCheckbox">Animation</label>
@@ -205,7 +244,7 @@
         <div>
           Tess factor
           <div id="tessFactorRadio">
-            <input type="radio" id="tf1" name="tessFactorRadio" checked="checked"><label for="tf1">1</label>
+            <input type="radio" id="tf1" name="tessFactorRadio"><label for="tf1">1</label>
             <input type="radio" id="tf2" name="tessFactorRadio"><label for="tf2">2</label>
             <input type="radio" id="tf3" name="tessFactorRadio"><label for="tf3">3</label>
             <input type="radio" id="tf4" name="tessFactorRadio"><label for="tf4">4</label>
@@ -218,7 +257,7 @@
         Display style
         <div id="radio">
           <input type="radio" id="displayShade" name="radio"><label for="displayShade">Shade</label>
-          <input type="radio" id="displayPatchColor" name="radio" checked="checked"><label for="displayPatchColor">Patch</label>
+          <input type="radio" id="displayPatchColor" name="radio"><label for="displayPatchColor">Patch</label>
           <input type="radio" id="displayWire" name="radio"><label for="displayWire">Wire</label>
           <input type="radio" id="displayNormal" name="radio"><label for="displayNormal">Normal</label>
           <input type="radio" id="displayPatchCoord" name="radio"><label for="displayPatchCoord">Coord</label>
@@ -226,7 +265,7 @@
 
         Model
         <div>
-          <select id="modelSelect" style="width:200px" size=35>
+          <select id="modelSelect" style="width:200px" size="35">
             <option value="cube" selected>cube</option>
             <option value="torus">torus</option>
             <option value="dino">dino</option>
@@ -268,10 +307,12 @@
 
       </div>
 
+      <div id="loading" style="display:none">
+        <img src="gif-load.gif">
+      </div>
       <div id="content">
         <canvas id="main"></canvas>
       </div>
-
       <div id="footer">
         <span id="triangles"></span> triangles /
         <span id="fps"></span> fps

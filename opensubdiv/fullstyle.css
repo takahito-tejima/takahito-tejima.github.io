@@ -17,9 +17,17 @@ div#control
     font-size: 6pt !important;
 }
 
-#modelSelect {
-    background-color: #303030;
-    color:white;
+.ui-state-active .ui-button-text
+{
+    background-color: gold;
+}
+.ui-button-text
+{
+    background-image: none;
+}
+
+#modelSelect-button
+{
     font-size: 6pt;
 }
 .overflow {
@@ -43,6 +51,11 @@ div#control
 
 #content {
     height:90%;
+    margin-left: 240px;
+}
+
+#loading {
+    position: absolute;
     margin-left: 240px;
 }
 
