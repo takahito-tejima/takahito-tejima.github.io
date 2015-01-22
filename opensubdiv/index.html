@@ -80,6 +80,7 @@
       uniform sampler2D texPatch;
       uniform float patchRes; // square, *16
       uniform float pointRes; // squre
+      uniform float displaceScale;
 
       vec2 getVertexIndex(float patchIndex, float cpIndex) {
         float u = fract(patchIndex*16.0/patchRes) + (cpIndex+0.5)/patchRes;
@@ -101,6 +102,9 @@
         BU[1] = A0 - A1;
         BU[2] = A1 - A2;
         BU[3] = A2;
+      }
+      float displacement(vec2 uv) {
+         return displaceScale*sin(10.0*uv.x)*cos(10.0*uv.y);
       }
       void main(){
         float patchIndex = inColor.w;
@@ -169,8 +173,12 @@
           Tangent   += B[k] * DUCP[k];
           BiTangent += D[k] * BUCP[k];
         }
-                           //WorldPos.xyz = cp[0].xyz;
         vec3 n = cross(BiTangent, Tangent);
+
+        // apply displacement
+        float d = displacement(inUV.xy);
+        WorldPos.xyz += d*n;
+
         vec3 p = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
         normal = (modelViewMatrix * vec4(normalize(n.xyz), 0)).xyz;
         uv = inUV;
@@ -299,7 +307,8 @@
             <option value="catmark_pawn">catmark_pawn</option>
           </select>
         </div>
-
+        Displacement (WIP)
+        <div id="displaceScale"></div>
       </div>
 
       <div id="loading" style="display:none">

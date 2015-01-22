@@ -21,6 +21,7 @@ var deform = false;
 var drawHull = true;
 var uvMapping = false;
 var dpr = 1;
+var displaceScale = 0;
 
 var prevTime = 0;
 var fps = 0;
@@ -727,6 +728,8 @@ function redraw() {
                              model.nPatchRes);
                 gl.uniform1f(gl.getUniformLocation(tessProgram, "pointRes"),
                              model.nPointRes);
+                gl.uniform1f(gl.getUniformLocation(tessProgram, "displaceScale"),
+                             displaceScale);
                 gl.uniform1i(gl.getUniformLocation(tessProgram, "texCP"), 0);
                 gl.uniform1i(gl.getUniformLocation(tessProgram, "texPatch"), 1);
                 gl.activeTexture(gl.TEXTURE0);
@@ -982,6 +985,13 @@ $(function(){
             }
             redraw();
         });
+    $("#displaceScale").slider({
+        min: 0,
+        max: 100,
+        change: function(event, ui){
+            displaceScale = ui.value/100.0;
+            redraw();
+        }});
 
     /*
     uvimage.onload = function() {
