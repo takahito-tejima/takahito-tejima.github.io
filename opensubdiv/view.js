@@ -134,7 +134,9 @@ function buildProgram(vertexShader, fragmentShader)
 
 function getPOT(n)
 {
-    var r = 1+Math.round(Math.sqrt(n));
+    var r = Math.ceil(Math.sqrt(n));
+
+    //return r + (32-r%32);
     if (r < 32) r = 32;
     else if (r < 64) r = 64;
     else if (r < 128) r = 128;
@@ -311,6 +313,11 @@ function setModel(data)
     var r = getPOT(nPatches*16);
     model.patchIndexTexture = createTextureBuffer();
     model.nPatchRes = r;
+
+    model.nPoints = model.patchVerts.length/3;
+    var r2 = getPOT(model.nPoints);
+    model.nPointRes = r2;
+
     var data = [];
     for (var i = 0; i < nPatches; ++i) {
         var ncp = model.patches[i].length;
@@ -319,13 +326,19 @@ function setModel(data)
             else data.push(-1);
         }
     }
-    var fd = new Float32Array(r*r);
-    for (var i = 0; i < data.length;++i) {
-        fd[i] = data[i];
+    var fd = new Float32Array(r*r*3);
+    for (var i = 0; i < data.length; ++i) {
+        if (data[i] == -1) {
+          fd[i*3+0] = -1;
+          fd[i*3+1] = -1;
+        } else {
+          fd[i*3+0] = (data[i]%r2+0.5)/r2;
+          fd[i*3+1] = (Math.floor(data[i]/r2)+0.5)/r2;
+        }
     }
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, r, r,
-                  0, gl.LUMINANCE, gl.FLOAT, fd);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, r, r,
+                  0, gl.RGB, gl.FLOAT, fd);
 
     fitCamera();
 
@@ -391,11 +404,7 @@ function refine()
 
     if (gpuTess) {
         // CP texture update
-        var nPoints = model.patchVerts.length/3;
-        // round up to POT
-        var r = getPOT(nPoints);
-        model.nPointRes = r;
-
+        var r = model.nPointRes;
         if (model.vTexture == null) {
             model.vTexture = createVertexTexture(r);
         }

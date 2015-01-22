@@ -81,16 +81,10 @@
       uniform float patchRes; // square, *16
       uniform float pointRes; // squre
 
-      float getVertexIndex(float patchIndex, float cpIndex) {
+      vec2 getVertexIndex(float patchIndex, float cpIndex) {
         float u = fract(patchIndex*16.0/patchRes) + (cpIndex+0.5)/patchRes;
         float v = (floor(patchIndex*16.0/patchRes)+0.5)/patchRes;
-        return texture2D(texPatch, vec2(u,v)).x;
-      }
-
-      vec2 getUV(float vid) {
-        float u = fract(vid / pointRes) + 0.5/pointRes;
-        float v = (float(floor(vid/pointRes))+0.5)/pointRes;
-        return vec2(u, v);
+        return texture2D(texPatch, vec2(u,v)).xy;
       }
 
       void evalCubicBSpline(in float u, out float B[4], out float BU[4]) {
@@ -111,15 +105,14 @@
       void main(){
         float patchIndex = inColor.w;
         vec3 cp[16];
-        float vids[16];
+        vec2 vids[16];
         for (int i = 0; i < 16; ++i) {
-          float vid = getVertexIndex(patchIndex, float(i));
-          vids[i] = vid;
+          vids[i] = getVertexIndex(patchIndex, float(i));
         }
-        if (vids[9] == -1.0) {
+        if (vids[9].x == -1.0) {
           // corner
           for (int i = 0; i < 9; ++i) {
-            cp[i+4] = texture2D(texCP, getUV(vids[i])).xyz;
+            cp[i+4] = texture2D(texCP, vids[i]).xyz;
           }
           cp[14] = cp[12];
           cp[13] = cp[11];
@@ -134,10 +127,10 @@
           cp[7] = cp[6]*2.0 - cp[5];
           cp[11] = cp[10]*2.0 - cp[9];
           cp[15] = cp[14]*2.0 - cp[13];
-        } else if (vids[15] == -1.0) {
+        } else if (vids[15].x == -1.0) {
           // boundary
           for (int i = 0; i < 12; ++i) {
-            cp[i+4] = texture2D(texCP, getUV(vids[i])).xyz;
+            cp[i+4] = texture2D(texCP, vids[i]).xyz;
           }
           cp[0] = cp[4]*2.0 - cp[8];
           cp[1] = cp[5]*2.0 - cp[9];
@@ -146,7 +139,7 @@
         } else {
           // regular
           for (int i = 0; i < 16; ++i) {
-            cp[i] = texture2D(texCP, getUV(vids[i])).xyz;
+            cp[i] = texture2D(texCP, vids[i]).xyz;
           }
         }
 
@@ -176,12 +169,14 @@
           Tangent   += B[k] * DUCP[k];
           BiTangent += D[k] * BUCP[k];
         }
+                           //WorldPos.xyz = cp[0].xyz;
         vec3 n = cross(BiTangent, Tangent);
         vec3 p = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
         normal = (modelViewMatrix * vec4(normalize(n.xyz), 0)).xyz;
         uv = inUV;
         color = inColor.xyz;
         gl_Position = projMatrix * vec4(p, 1);
+                           gl_PointSize=10.0;
       }
     </script>
 
