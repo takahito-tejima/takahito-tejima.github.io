@@ -1,3 +1,6 @@
+//
+//   Copyright 2014 Takahito Tejima (tejimaya@gmail.com)
+//
 
 function evalCubicBezier(u, B, BU)
 {
@@ -35,57 +38,114 @@ function evalCubicBSpline(u, B, BU)
     BU[3] = A2;
 }
 
-function csf(n, j)
+function csf0(n, j)
 {
-    if (j%2 == 0) {
-        return Math.cos((2.0 * Math.PI * ((j-0)/2.0))/(n + 3.0));
-    } else {
-        return Math.sin((2.0 * Math.PI * ((j-1)/2.0))/(n + 3.0));
+    return Math.cos((2.0 * Math.PI * j)/n);
+}
+function csf1(n, j)
+{
+    return Math.sin((2.0 * Math.PI * j)/n);
+}
+
+function readVertex(out, verts, vid)
+{
+    return vec3.set(out, verts[vid*3+0], verts[vid*3+1], verts[vid*3+2]);
+}
+
+function PatchEvaluator(maxValence) {
+    this.B = vec4.create();
+    this.D = vec4.create();
+    this.BU = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.DU = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.verts = new Array(16);
+    for (var i = 0; i < 16; ++i) this.verts[i] = vec3.create();
+    this.Q = vec3.fromValues(0,0,0);
+    this.N = vec3.fromValues(0,0,0);
+    this.QU = vec3.fromValues(0,0,0);
+    this.QV = vec3.fromValues(0,0,0);
+
+    this.GP = new Array(20);
+    for (var i = 0; i < 20; ++i) this.GP[i] = vec3.create();
+    this.GQ = new Array(16);
+    for (var i = 0; i < 16; ++i) this.GQ[i] = vec3.create();
+    this.opos = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.org = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.e0 = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.e1 = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.Ep = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.Em = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.Fp = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.Fm = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+    this.Etmp = vec3.create();
+    this.Em_ip = vec3.create();
+    this.Ep_im = vec3.create();
+    this.f = [];
+    this.r = [];
+    this.maxValence = maxValence;
+    for (var i = 0; i < maxValence; ++i) {
+        this.f.push(vec3.create());
+        for (var j = 0; j < 4; ++j) {
+            this.r.push(vec3.create());
+        }
     }
+    this.ef_small = [0.813008, 0.500000, 0.363636, 0.287505,
+                     0.238692, 0.204549, 0.179211, 0.159657,
+                     0.144042, 0.131276, 0.120632, 0.111614,
+                     0.103872, 0.09715, 0.0912559, 0.0860444,
+                     0.0814022, 0.0772401, 0.0734867, 0.0700842,
+                     0.0669851, 0.0641504, 0.0615475, 0.0591488,
+                     0.0569311, 0.0548745, 0.0529621];
+    this.valences = [0, 0, 0, 0];
 }
 
-function readVertex(verts, vid)
+PatchEvaluator.prototype.evalGregory =
+    function(vertsIndices, patchIndex, type, quadOffset, u, v)
 {
-    return [verts[vid*3+0], verts[vid*3+1], verts[vid*3+2]];
-}
-
-function evalGregory(indices, type, quadOffset, u, v)
-{
+    var valences = this.valences;
     var boundary = (type == 11)
-    var valences = [];
-    var maxValence = model.maxValence;
-
-    var ef_small = [0.813008, 0.500000, 0.363636, 0.287505,
-                    0.238692, 0.204549, 0.179211];
-
-    var r = [], e0 = [], e1 = [];
+    var ef_small = this.ef_small;
     var rp;
-    var f = [], pos, opos = [];
+    var pos = vec3.create();
     var valenceTable = model.valenceTable;
     var quadOffsets = model.quadOffsets;
     var verts = model.patchVerts;
     var zerothNeighbors = [];
-    var org = [];
+    var org = this.org;
+    var opos = this.opos;
+    var e0 = this.e0;
+    var e1 = this.e1;
+    var boundaryEdgeNeighbors = [-1,-1];
+    var f = this.f;
+    var r = this.r;
+    var maxValence = this.maxValence;
+    var Etmp = this.Etmp;
+
+    var neighbor   = vec3.create();
+    var diagonal   = vec3.create();
+    var neighbor_p = vec3.create();
+    var neighbor_m = vec3.create();
+    var diagonal_m = vec3.create();
 
     for (var vid=0; vid < 4; ++vid) {
-        var boundaryEdgeNeighbors = [-1,-1];
+        boundaryEdgeNeighbors[0] = -1;
+        boundaryEdgeNeighbors[1] = -1;
         var currNeighbor = 0;
         var ibefore = 0;
         zerothNeighbors[vid] = 0;
 
-        var vertexID = indices[vid];
+        var vertexID = vertsIndices[patchIndex*16 + vid];
         var valenceTableOffset = vertexID * (2*maxValence+1);
         var ivalence = valenceTable[valenceTableOffset];
         var valence = Math.abs(ivalence);
         valences[vid] = ivalence;
 
         // read vertexID
-        pos = readVertex(verts, vertexID);
-        org[vid] = [pos[0], pos[1], pos[2]];
+        readVertex(pos, verts, vertexID);
+        vec3.copy(org[vid], pos);
 
         rp = vid*maxValence;
         //var vofs = vid;
-        opos[vid] = [0,0,0];
+        vec3.set(opos[vid], 0, 0, 0);
 
         for (var i=0; i<valence; ++i) {
             var im = (i+valence-1)%valence;
@@ -97,11 +157,11 @@ function evalGregory(indices, type, quadOffset, u, v)
             var idx_neighbor_m = valenceTable[valenceTableOffset + 2*im + 0 + 1];
             var idx_diagonal_m = valenceTable[valenceTableOffset + 2*im + 1 + 1];
 
-            var neighbor   = readVertex(verts, idx_neighbor);
-            var diagonal   = readVertex(verts, idx_diagonal);
-            var neighbor_p = readVertex(verts, idx_neighbor_p);
-            var neighbor_m = readVertex(verts, idx_neighbor_m);
-            var diagonal_m = readVertex(verts, idx_diagonal_m);
+            readVertex(neighbor, verts, idx_neighbor);
+            readVertex(diagonal, verts, idx_diagonal);
+            readVertex(neighbor_p, verts, idx_neighbor_p);
+            readVertex(neighbor_m, verts, idx_neighbor_m);
+            readVertex(diagonal_m, verts, idx_diagonal_m);
 
             if (boundary) {
                 var valenceNeighbor = valenceTable[idx_neighbor * (2*maxValence+1)];
@@ -124,57 +184,61 @@ function evalGregory(indices, type, quadOffset, u, v)
                 }
             }
 
-            //float  *fp = f+i*3;
-            f[i] = [0,0,0];
-            //r[rp] = [0,0,0];
-            r[rp+i] = [0,0,0];
-            for (var k=0; k<3; ++k) {
-                f[i][k] = (pos[k]*valence
-                           + (neighbor_p[k]+neighbor[k])*2.0
-                           + diagonal[k])/(valence+5.0);
+            vec3.scale(f[i], pos, valence);
+            vec3.scaleAndAdd(f[i], f[i], neighbor_p, 2.0);
+            vec3.scaleAndAdd(f[i], f[i], neighbor,   2.0);
+            vec3.add(f[i], f[i], diagonal);
+            vec3.scale(f[i], f[i], 1.0/(valence+5.0));
 
-                opos[vid][k] += f[i][k];
-                r[rp+i][k] =(neighbor_p[k]-neighbor_m[k])/3.0
-                    + (diagonal[k]-diagonal_m[k])/6.0;
+            vec3.add(opos[vid], opos[vid], f[i]);
+
+            for (var k = 0; k < 3; ++k) {
+                r[rp+i][k] = (neighbor_p[k] - neighbor_m[k])/3.0 +
+                    (diagonal[k] - diagonal_m[k])/6.0;
             }
+            /*
+            vec3.sub(r[rp+i], neighbor_p, neighbor_m);
+            vec3.scale(r[rp+i], r[rp+i], 2);
+            vec3.add(r[rp+i], r[rp+i], diagonal);
+            vec3.sub(r[rp+i], r[rp+i], diagonal_m);
+            vec3.scale(r[rp+i], r[rp+i], 1.0/6.0);
+            */
         }
 
         // average opos
-        for (var k=0; k<3; ++k) {
-            opos[vid][k] /= valence;
-        }
+        vec3.scale(opos[vid], opos[vid], 1.0/valence);
 
         // compute e0, e1
-        e0[vid] = [0,0,0];
-        e1[vid] = [0,0,0];
+        vec3.set(e0[vid], 0,0,0);
+        vec3.set(e1[vid], 0,0,0);
         for (var i=0; i<valence; ++i) {
             var im = (i+valence-1)%valence;
-            for (var k=0; k<3; ++k) {
-                var e = 0.5*(f[i][k] + f[im][k]);
-                e0[vid][k] += csf(valence-3, 2*i) * e;
-                e1[vid][k] += csf(valence-3, 2*i+1) * e;
-            }
+
+            vec3.add(Etmp, f[i], f[im]);
+            vec3.scale(Etmp, Etmp, 0.5*csf0(valence, i));
+            vec3.add(e0[vid], e0[vid], Etmp);
+
+            vec3.add(Etmp, f[i], f[im]);
+            vec3.scale(Etmp, Etmp, 0.5*csf1(valence, i));
+            vec3.add(e1[vid], e1[vid], Etmp);
         }
-        for (var k=0; k<3; ++k) {
-            e0[vid][k] *= ef_small[valence-3];
-            e1[vid][k] *= ef_small[valence-3];
-        }
+        vec3.scale(e0[vid], e0[vid], ef_small[valence-3]);
+        vec3.scale(e1[vid], e1[vid], ef_small[valence-3]);
 
         if (boundary) {
-
             if (currNeighbor == 1) {
                 boundaryEdgeNeighbors[1] = boundaryEdgeNeighbors[0];
             }
 
             if (ivalence < 0) {
-                for (var k = 0; k < 3; ++k) {
-                    if (valence > 2) {
-                        opos[vid][k] = (readVertex(verts, boundaryEdgeNeighbors[0])[k]
-                                        + readVertex(verts, boundaryEdgeNeighbors[1])[k] +
-                                   4 * pos[k])/6.0;
-                    } else {
-                        opos[vid][k] = pos[k];
-                    }
+                if (valence > 2) {
+                    readVertex(Etmp, verts, boundaryEdgeNeighbors[0]);
+                    readVertex(opos[vid], verts, boundaryEdgeNeighbors[1]);
+                    vec3.add(opos[vid], opos[vid], Etmp);
+                    vec3.scaleAndAdd(opos[vid], opos[vid], pos, 4);
+                    vec3.scale(opos[vid], opos[vid], 1.0/6.0);
+                } else {
+                    vec3.copy(opos[vid], pos);
                 }
 
                 var fk = valence - 1;  // k is the number of faces
@@ -187,16 +251,19 @@ function evalGregory(indices, type, quadOffset, u, v)
                 var idx_diagonal = valenceTable[valenceTableOffset + 2*zerothNeighbors[vid]  + 1 + 1];
                 idx_diagonal = Math.abs(idx_diagonal);
 
-                var diagonal   = readVertex(verts, idx_diagonal);
+                readVertex(diagonal, verts, idx_diagonal);
 
-                for (var k = 0; k < 3; ++k) {
-                    e0[vid][k] = (readVertex(verts, boundaryEdgeNeighbors[0])[k] -
-                                  readVertex(verts, boundaryEdgeNeighbors[1])[k])/6.0;
-                    e1[vid][k] = gamma * pos[k]
-                        + alpha_0k * readVertex(verts, boundaryEdgeNeighbors[0])[k]
-                        + alpha_0k * readVertex(verts, boundaryEdgeNeighbors[1])[k]
-                        + beta_0 * diagonal[k];
-                }
+                readVertex(e0[vid], verts, boundaryEdgeNeighbors[0]);
+                readVertex(Etmp, verts, boundaryEdgeNeighbors[1]);
+                vec3.sub(e0[vid], e0[vid], Etmp);
+                vec3.scale(e0[vid], e0[vid], 1.0/6.0);
+
+                vec3.scale(e1[vid], pos, gamma);
+                readVertex(Etmp, verts, boundaryEdgeNeighbors[0]);
+                vec3.scaleAndAdd(e1[vid], e1[vid], Etmp, alpha_0k);
+                readVertex(Etmp, verts, boundaryEdgeNeighbors[1]);
+                vec3.scaleAndAdd(e1[vid], e1[vid], Etmp, alpha_0k);
+                vec3.scaleAndAdd(e1[vid], e1[vid], diagonal, beta_0);
 
                 for (var x = 1; x<valence - 1; ++x) {
                     var curri = ((x + zerothNeighbors[vid])%valence);
@@ -206,9 +273,9 @@ function evalGregory(indices, type, quadOffset, u, v)
 
                     var idx_neighbor = valenceTable[valenceTableOffset + 2*curri + 0 + 1];
                     idx_neighbor = Math.abs(idx_neighbor);
-                    var neighbor = readVertex(verts, idx_neighbor);
+                    readVertex(neighbor, verts, idx_neighbor);
                     idx_diagonal = valenceTable[valenceTableOffset + 2*curri + 1 + 1];
-                    var diagonal = readVertex(verts, idx_diagonal);
+                    readVertex(diagonal, verts, idx_diagonal);
 
                     for (var k = 0; k < 3; ++k) {
                         e1[vid][k] += alpha * neighbor[k] + beta * diagonal[k];
@@ -221,10 +288,12 @@ function evalGregory(indices, type, quadOffset, u, v)
             }
         }
     }
-    var Ep = [[],[],[],[]];
-    var Em = [[],[],[],[]];
-    var Fp = [[],[],[],[]];
-    var Fm = [[],[],[],[]];
+    var Ep = this.Ep;
+    var Em = this.Em;
+    var Fp = this.Fp;
+    var Fm = this.Fm;
+    var Em_ip = this.Em_ip;
+    var Ep_im = this.Ep_im;
 
     for (var vid=0; vid<4; ++vid) {
         var ip = (vid+1)%4;
@@ -242,36 +311,26 @@ function evalGregory(indices, type, quadOffset, u, v)
         var prev_p  = (quadOffsets[quadOffset + ip] & 0xff00) / 256;
 
         if (boundary) {
-            var Em_ip = [0,0,0];
-            var Ep_im = [0,0,0];
             if (valences[ip] < -2) {
                 var j = (np + prev_p - zerothNeighbors[ip]) % np;
-                for (var k=0; k < 3; ++k) {
-                    Em_ip[k] = opos[ip][k]
-                        + Math.cos((Math.PI*j)/(np-1))*e0[ip][k]
-                        + Math.sin((Math.PI*j)/(np-1))*e1[ip][k];
-                }
+                vec3.scaleAndAdd(Em_ip, opos[ip], e0[ip],
+                                 Math.cos((Math.PI*j)/(np-1)));
+                vec3.scaleAndAdd(Em_ip, Em_ip, e1[ip],
+                                 Math.sin((Math.PI*j)/(np-1)));
             } else {
-                for (var k=0; k < 3; ++k) {
-                    Em_ip[k] = opos[ip][k]
-                        + e0[ip][k]*csf(np-3, 2*prev_p)
-                        + e1[ip][k]*csf(np-3, 2*prev_p + 1);
-                }
+                vec3.scaleAndAdd(Em_ip, opos[ip], e0[ip], csf0(np, prev_p));
+                vec3.scaleAndAdd(Em_ip, Em_ip,    e1[ip], csf1(np, prev_p));
             }
 
             if (valences[im] < -2) {
                 var j = (nm + start_m - zerothNeighbors[im]) % nm;
-                for (var k=0; k < 3; ++k) {
-                    Ep_im[k] = opos[im][k]
-                        + Math.cos((Math.PI*j)/(nm-1))*e0[im][k]
-                        + Math.sin((Math.PI*j)/(nm-1))*e1[im][k];
-                }
+                vec3.scaleAndAdd(Ep_im, opos[im], e0[im],
+                                 Math.cos((Math.PI*j)/(nm-1)));
+                vec3.scaleAndAdd(Ep_im, Ep_im, e1[im],
+                                 Math.sin((Math.PI*j)/(nm-1)));
             } else {
-                for (var k = 0; k < 3; ++k) {
-                    Ep_im[k] = opos[im][k]
-                        + e0[im][k]*csf(nm-3, 2*start_m)
-                        + e1[im][k]*csf(nm-3, 2*start_m + 1);
-                }
+                vec3.scaleAndAdd(Ep_im, opos[im], e0[im], csf0(nm, start_m));
+                vec3.scaleAndAdd(Ep_im, Ep_im,    e1[im], csf1(nm, start_m));
             }
 
             if (valences[vid] < 0) {
@@ -286,29 +345,33 @@ function evalGregory(indices, type, quadOffset, u, v)
             rp = vid*maxValence;
 
             if (valences[vid] > 2) {
-                var s1 = 3.0 - 2.0*csf(n-3,2)-csf(np-3,2);
-                var s2 = 2.0*csf(n-3,2);
+                var s1 = 3.0 - 2.0*csf0(n,1)-csf0(np,1);
+                var s2 =       2.0*csf0(n,1);
                 var s3 = 3.0 - 2.0*Math.cos(2.0*Math.PI/n) - Math.cos(2.0*Math.PI/nm);
 
-                for (var k=0; k <3; ++k) {
-                    Ep[vid][k] = opos[vid][k]
-                        + e0[vid][k]*csf(n-3, 2*start)
-                        + e1[vid][k]*csf(n-3, 2*start + 1);
-                    Em[vid][k] = opos[vid][k]
-                        + e0[vid][k]*csf(n-3, 2*prev)
-                        + e1[vid][k]*csf(n-3, 2*prev + 1);
+                vec3.scaleAndAdd(Ep[vid], opos[vid], e0[vid], csf0(n, start));
+                vec3.scaleAndAdd(Ep[vid], Ep[vid],   e1[vid], csf1(n, start));
+                vec3.scaleAndAdd(Em[vid], opos[vid], e0[vid], csf0(n, prev));
+                vec3.scaleAndAdd(Em[vid], Em[vid],   e1[vid], csf1(n, prev));
 
-                    Fp[vid][k] = (csf(np-3,2)*opos[vid][k]
-                                  + s1*Ep[vid][k] + s2*Em_ip[k] + r[rp+start][k])/3.0;
-                    Fm[vid][k] = (csf(nm-3,2)*opos[vid][k]
-                                  + s3*Em[vid][k] + s2*Ep_im[k] - r[rp+prev][k])/3.0;
-                }
+                vec3.scale(Fp[vid], opos[vid], csf0(np,1));
+                vec3.scaleAndAdd(Fp[vid], Fp[vid], Ep[vid], s1);
+                vec3.scaleAndAdd(Fp[vid], Fp[vid], Em_ip, s2);
+                vec3.add(Fp[vid], Fp[vid], r[rp+start]);
+                vec3.scale(Fp[vid], Fp[vid], 1.0/3.0);
+
+                vec3.scale(Fm[vid], opos[vid], csf0(nm,1));
+                vec3.scaleAndAdd(Fm[vid], Fm[vid], Em[vid], s3);
+                vec3.scaleAndAdd(Fm[vid], Fm[vid], Ep_im, s2);
+                vec3.add(Fm[vid], Fm[vid], r[rp+prev]);
+                vec3.scale(Fm[vid], Fm[vid], 1.0/3.0);
+
             } else if (valences[vid] < -2) {
                 var jp = (ivalence + start - zerothNeighbors[vid]) % ivalence;
                 var jm = (ivalence + prev  - zerothNeighbors[vid]) % ivalence;
 
-                var s1 = 3-2*csf(n-3,2)-csf(np-3,2);
-                var s2 = 2*csf(n-3,2);
+                var s1 = 3-2*csf0(n,1)-csf0(np,1);
+                var s2 = 2*csf0(n,1);
                 var s3 = 3.0-2.0*Math.cos(2.0*Math.PI/n)-Math.cos(2.0*Math.PI/nm);
 
                 for (var k=0; k < 3; ++k){
@@ -318,79 +381,88 @@ function evalGregory(indices, type, quadOffset, u, v)
                     Em[vid][k] = opos[vid][k]
                         + Math.cos((Math.PI*jm)/(ivalence-1))*e0[vid][k]
                         + Math.sin((Math.PI*jm)/(ivalence-1))*e1[vid][k];
-                    Fp[vid][k] = (csf(np-3,2)*opos[vid][k]
+                    Fp[vid][k] = (csf0(np,1)*opos[vid][k]
                                   + s1*Ep[vid][k] + s2*Em_ip[k] + r[rp+start][k])/3.0;
-                    Fm[vid][k] = (csf(nm-3,2)*opos[vid][k]
+                    Fm[vid][k] = (csf0(nm,1)*opos[vid][k]
                                   + s3*Em[vid][k] + s2*Ep_im[k] - r[rp+prev][k])/3.0;
                 }
 
                 if (valences[im] <0) {
-                    s1 = 3-2*csf(n-3,2)-csf(np-3,2);
+                    s1 = 3-2*csf0(n,1)-csf0(np,1);
                     for (var k=0; k < 3; ++k){
                         Fp[vid][k] = Fm[vid][k] =
-                            (csf(np-3,2)*opos[vid][k]
+                            (csf0(np,1)*opos[vid][k]
                              + s1*Ep[vid][k] + s2*Em_ip[k] + r[rp+start][k])/3.0;
                     }
                 } else if (valences[ip] < 0) {
                     s1 = 3.0-2.0*Math.cos(2.0*Math.PI/n)-Math.cos(2.0*Math.PI/nm);
                     for (var k=0; k < 3; ++k){
                         Fm[vid][k] = Fp[vid][k] =
-                            (csf(nm-3,2)*opos[vid][k]
+                            (csf0(nm,1)*opos[vid][k]
                              + s1*Em[vid][k] + s2*Ep_im[k] - r[rp+prev][k])/3.0;
                     }
                 }
             } else if (valences[vid] == -2) {
-                for (var k=0; k < 3; ++k){
-                    Ep[vid][k] = (2.0 * org[vid][k] + org[ip][k])/3.0;
-                    Em[vid][k] = (2.0 * org[vid][k] + org[im][k])/3.0;
-                    Fp[vid][k] = Fm[vid][k] =
-                        (4.0 * org[vid][k] + org[(vid+2)%n][k]
-                         + 2.0 * org[ip][k] + 2.0 * org[im][k])/9.0;
-                }
+                vec3.scaleAndAdd(Ep[vid], org[ip], org[vid]*2);
+                vec3.scale(Ep[vid], Ep[vid], 1.0/3.0);
+                vec3.scaleAndAdd(Em[vid], org[im], org[vid]*2);
+                vec3.scale(Em[vid], Em[vid], 1.0/3.0);
+                vec3.scaleAndAdd(Fp[vid], org[(vid+2)%n], org[vid], 4);
+                vec3.scaleAndAdd(Fp[vid], Fp[vid], org[ip], 2);
+                vec3.scaleAndAdd(Fp[vid], Fp[vid], org[im], 2);
+                vec3.scale(Fp[vid], Fp[vid], 1.0/9.0);
+                vec3.copy(Fm[vid], Fp[vid]);
             }
         } else {
             // no-boundary
-            for (var k=0; k<3; ++k) {
-                Ep[vid][k] = opos[vid][k] + e0[vid][k] * csf(n-3, 2*start)
-                    + e1[vid][k]*csf(n-3, 2*start +1);
-                Em[vid][k] = opos[vid][k] + e0[vid][k] * csf(n-3, 2*prev )
-                    + e1[vid][k]*csf(n-3, 2*prev + 1);
-            }
+            vec3.scale(Ep[vid], e0[vid], csf0(n, start));
+            vec3.scale(Etmp,    e1[vid], csf1(n, start));
+            vec3.add(Ep[vid], opos[vid], Ep[vid]);
+            vec3.add(Ep[vid], Ep[vid], Etmp);
+
+            vec3.scale(Em[vid], e0[vid], csf0(n, prev));
+            vec3.scale(Etmp,    e1[vid], csf1(n, prev));
+            vec3.add(Em[vid], opos[vid], Em[vid]);
+            vec3.add(Em[vid], Em[vid], Etmp);
 
             var prev_p = (quadOffsets[quadOffset + ip] & 0xff00) / 256;
             var start_m = quadOffsets[quadOffset + im] & 0x00ff;
 
-            var Em_ip = [0,0,0];
-            var Ep_im = [0,0,0];
+            vec3.scale(Em_ip, e0[ip], csf0(np, prev_p));
+            vec3.scale(Etmp,  e1[ip], csf1(np, prev_p));
+            vec3.add(Em_ip, opos[ip], Em_ip);
+            vec3.add(Em_ip, Em_ip, Etmp);
+            vec3.scale(Ep_im, e0[im], csf0(nm, start_m));
+            vec3.scale(Etmp,  e1[im], csf1(nm, start_m));
+            vec3.add(Ep_im, opos[im], Ep_im);
+            vec3.add(Ep_im, Ep_im, Etmp);
 
-            for (var k=0; k<3; ++k) {
-                Em_ip[k] = opos[ip][k] + e0[ip][k]*csf(np-3, 2*prev_p)
-                    + e1[ip][k]*csf(np-3, 2*prev_p+1);
-                Ep_im[k] = opos[im][k] + e0[im][k]*csf(nm-3, 2*start_m)
-                    + e1[im][k]*csf(nm-3, 2*start_m+1);
-            }
-
-            var s1 = 3.0 - 2.0*csf(n-3,2)-csf(np-3,2);
-            var s2 = 2.0 * csf(n-3,2);
+            var s1 = 3.0 - 2.0*csf0(n,1)-csf0(np,1);
+            var s2 = 2.0 * csf0(n,1);
             var s3 = 3.0 - 2.0*Math.cos(2.0*Math.PI/n) - Math.cos(2.0*Math.PI/nm);
 
             rp = vid*maxValence;
-            for (var k=0; k<3; ++k) {
-                Fp[vid][k] = (csf(np-3,2)*opos[vid][k]
-                              + s1*Ep[vid][k] + s2*Em_ip[k] + r[rp+start][k])/3.0;
-                Fm[vid][k] = (csf(nm-3,2)*opos[vid][k]
-                              + s3*Em[vid][k] + s2*Ep_im[k] - r[rp+prev][k])/3.0;
-            }
+
+            vec3.scale(Fp[vid], opos[vid], csf0(np, 1));
+            vec3.scaleAndAdd(Fp[vid], Fp[vid], Ep[vid], s1);
+            vec3.scaleAndAdd(Fp[vid], Fp[vid], Em_ip, s2);
+            vec3.add(Fp[vid], Fp[vid], r[rp+start]);
+            vec3.scale(Fp[vid], Fp[vid], 1.0/3.0);
+
+            vec3.scale(Fm[vid], opos[vid], csf0(nm, 1));
+            vec3.scaleAndAdd(Fm[vid], Fm[vid], Em[vid], s3);
+            vec3.scaleAndAdd(Fm[vid], Fm[vid], Ep_im, s2);
+            vec3.sub(Fm[vid], Fm[vid], r[rp+prev]);
+            vec3.scale(Fm[vid], Fm[vid], 1.0/3.0);
         }
     }
 
-    var p = [];
     for (var i=0; i<4; ++i) {
-        p[i*5+0] = opos[i];
-        p[i*5+1] =   Ep[i];
-        p[i*5+2] =   Em[i];
-        p[i*5+3] =   Fp[i];
-        p[i*5+4] =   Fm[i];
+        vec3.copy(this.GP[i*5+0], opos[i]);
+        vec3.copy(this.GP[i*5+1], Ep[i]);
+        vec3.copy(this.GP[i*5+2], Em[i]);
+        vec3.copy(this.GP[i*5+3], Fp[i]);
+        vec3.copy(this.GP[i*5+4], Fm[i]);
     }
 
     var U = 1-u, V=1-v;
@@ -399,77 +471,60 @@ function evalGregory(indices, type, quadOffset, u, v)
     var d21 = u+V; if(u+V==0.0) d21 = 1.0;
     var d22 = U+V; if(U+V==0.0) d22 = 1.0;
 
-    var q = [];
-    for (var i= 0; i<16; ++i) q[i] = [0,0,0];
     for (var k=0; k<3; ++k) {
-        q[ 5][k] = (u*p[ 3][k] + v*p[ 4][k])/d11;
-        q[ 6][k] = (U*p[ 9][k] + v*p[ 8][k])/d12;
-        q[ 9][k] = (u*p[19][k] + V*p[18][k])/d21;
-        q[10][k] = (U*p[13][k] + V*p[14][k])/d22;
-
-        q[ 0][k] = p[ 0][k];
-        q[ 1][k] = p[ 1][k];
-        q[ 2][k] = p[ 7][k];
-        q[ 3][k] = p[ 5][k];
-        q[ 4][k] = p[ 2][k];
-        q[ 7][k] = p[ 6][k];
-        q[ 8][k] = p[16][k];
-        q[11][k] = p[12][k];
-        q[12][k] = p[15][k];
-        q[13][k] = p[17][k];
-        q[14][k] = p[11][k];
-        q[15][k] = p[10][k];
+        this.GQ[ 5][k] = (u*this.GP[ 3][k] + v*this.GP[ 4][k])/d11;
+        this.GQ[ 6][k] = (U*this.GP[ 9][k] + v*this.GP[ 8][k])/d12;
+        this.GQ[ 9][k] = (u*this.GP[19][k] + V*this.GP[18][k])/d21;
+        this.GQ[10][k] = (U*this.GP[13][k] + V*this.GP[14][k])/d22;
     }
+
+    vec3.copy(this.GQ[ 0], this.GP[ 0]);
+    vec3.copy(this.GQ[ 1], this.GP[ 1]);
+    vec3.copy(this.GQ[ 2], this.GP[ 7]);
+    vec3.copy(this.GQ[ 3], this.GP[ 5]);
+    vec3.copy(this.GQ[ 4], this.GP[ 2]);
+    vec3.copy(this.GQ[ 7], this.GP[ 6]);
+    vec3.copy(this.GQ[ 8], this.GP[16]);
+    vec3.copy(this.GQ[11], this.GP[12]);
+    vec3.copy(this.GQ[12], this.GP[15]);
+    vec3.copy(this.GQ[13], this.GP[17]);
+    vec3.copy(this.GQ[14], this.GP[11]);
+    vec3.copy(this.GQ[15], this.GP[10]);
 
     // bezier evaluation
+    vec3.set(this.BU[0],0,0,0);
+    vec3.set(this.BU[1],0,0,0);
+    vec3.set(this.BU[2],0,0,0);
+    vec3.set(this.BU[3],0,0,0);
+    vec3.set(this.DU[0],0,0,0);
+    vec3.set(this.DU[1],0,0,0);
+    vec3.set(this.DU[2],0,0,0);
+    vec3.set(this.DU[3],0,0,0);
+    vec3.set(this.Q,0,0,0);
+    vec3.set(this.N,0,0,0);
+    vec3.set(this.QU,0,0,0);
+    vec3.set(this.QV,0,0,0);
 
-    B = [0, 0, 0, 0];
-    D = [0, 0, 0, 0];
-    BU = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];
-    DU = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];
-
-    evalCubicBezier(u, B, D);
+    evalCubicBezier(u, this.B, this.D);
     for (var i = 0; i < 4; i++) {
-        for(var j=0;j<4;j++){
-            for(var k=0; k<3; k++){
-                BU[i][k] += q[i+j*4][k] * B[j];
-                DU[i][k] += q[i+j*4][k] * D[j];
-            }
+        for(var j=0;j < 4;j++){
+            vec3.scaleAndAdd(this.BU[i], this.BU[i], this.GQ[i+j*4], this.B[j]);
+            vec3.scaleAndAdd(this.DU[i], this.DU[i], this.GQ[i+j*4], this.D[j]);
         }
     }
-    evalCubicBezier(v, B, D);
-
-    var Q = vec3.fromValues(0,0,0);
-    var QU = vec3.fromValues(0,0,0);
-    var QV = vec3.fromValues(0,0,0);
+    evalCubicBezier(v, this.B, this.D);
     for(var i=0;i<4; i++){
-        Q  = vec3.scaleAndAdd(Q, Q, BU[i], B[i]);
-        QU = vec3.scaleAndAdd(QU, QU, DU[i], B[i]);
-        QV = vec3.scaleAndAdd(QV, QV, BU[i], D[i]);
+        vec3.scaleAndAdd(this.Q, this.Q, this.BU[i], this.B[i]);
+        vec3.scaleAndAdd(this.QU, this.QU, this.DU[i], this.B[i]);
+        vec3.scaleAndAdd(this.QV, this.QV, this.BU[i], this.D[i]);
     }
-    var N = vec3.cross(vec3.create(), QV, QU);
+    vec3.cross(this.N, this.QV, this.QU);
 
-    return [Q, N];
+    return [this.Q, this.N];
 }
 
-function PatchEvaluator() {
-    this.B = vec4.create();
-    this.D = vec4.create();
-    this.BU = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
-    this.DU = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
-    this.verts = new Array(16);
-    for (var i = 0; i < 16; ++i) this.verts[i] = vec3.create();
-    this.Q = vec3.fromValues(0,0,0);
-    this.N = vec3.fromValues(0,0,0);
-    this.QU = vec3.fromValues(0,0,0);
-    this.QV = vec3.fromValues(0,0,0);
-
-}
-
-PatchEvaluator.prototype.evalBSpline = function(indices, u, v)
+PatchEvaluator.prototype.evalBSpline = function(vertsIndices, patchIndex, u, v)
 {
-    vec3.set(this.B,0,0,0,0);
-    vec3.set(this.D,0,0,0,0);
     vec3.set(this.BU[0],0,0,0);
     vec3.set(this.BU[1],0,0,0);
     vec3.set(this.BU[2],0,0,0);
@@ -479,13 +534,18 @@ PatchEvaluator.prototype.evalBSpline = function(indices, u, v)
     vec3.set(this.DU[2],0,0,0);
     vec3.set(this.DU[3],0,0,0);
 
-    var border = (indices.length == 12);
-    var corner = (indices.length == 9);
+    var ncp = 16;
+    if (vertsIndices[patchIndex*16+4] == -1) ncp = 4;
+    else if (vertsIndices[patchIndex*16+9] == -1) ncp = 9;
+    else if (vertsIndices[patchIndex*16+12] == -1) ncp = 12;
+
+    var border = (ncp == 12);
+    var corner = (ncp == 9);
     var vofs = (border || corner) ? 4 : 0;
-    for (var i = 0; i < indices.length; ++i) {
-        var x = model.patchVerts[indices[i]*3+0];
-        var y = model.patchVerts[indices[i]*3+1];
-        var z = model.patchVerts[indices[i]*3+2];
+    for (var i = 0; i < ncp; ++i) {
+        var x = model.patchVerts[vertsIndices[patchIndex*16+i]*3+0];
+        var y = model.patchVerts[vertsIndices[patchIndex*16+i]*3+1];
+        var z = model.patchVerts[vertsIndices[patchIndex*16+i]*3+2];
         vec3.set(this.verts[i+vofs], x, y, z);
     }
 
@@ -526,9 +586,8 @@ PatchEvaluator.prototype.evalBSpline = function(indices, u, v)
     evalCubicBSpline(u, this.B, this.D);
     for (var i = 0; i < 4; i++) {
         for(var j=0;j < 4;j++){
-            var vid = indices[i+j*4];
-            this.BU[i] = vec3.scaleAndAdd(this.BU[i], this.BU[i], this.verts[i+j*4], this.B[j]);
-            this.DU[i] = vec3.scaleAndAdd(this.DU[i], this.DU[i], this.verts[i+j*4], this.D[j]);
+            vec3.scaleAndAdd(this.BU[i], this.BU[i], this.verts[i+j*4], this.B[j]);
+            vec3.scaleAndAdd(this.DU[i], this.DU[i], this.verts[i+j*4], this.D[j]);
         }
     }
     evalCubicBSpline(v, this.B, this.D);
@@ -538,9 +597,9 @@ PatchEvaluator.prototype.evalBSpline = function(indices, u, v)
     vec3.set(this.QU,0,0,0);
     vec3.set(this.QV,0,0,0);
     for(var i=0;i<4; i++){
-        this.Q  = vec3.scaleAndAdd(this.Q, this.Q, this.BU[i], this.B[i]);
-        this.QU = vec3.scaleAndAdd(this.QU, this.QU, this.DU[i], this.B[i]);
-        this.QV = vec3.scaleAndAdd(this.QV, this.QV, this.BU[i], this.D[i]);
+        vec3.scaleAndAdd(this.Q, this.Q, this.BU[i], this.B[i]);
+        vec3.scaleAndAdd(this.QU, this.QU, this.DU[i], this.B[i]);
+        vec3.scaleAndAdd(this.QV, this.QV, this.BU[i], this.D[i]);
     }
     vec3.cross(this.N, this.QV, this.QU);
 

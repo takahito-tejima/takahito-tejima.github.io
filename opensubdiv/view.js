@@ -262,22 +262,26 @@ function setModel(data)
 
     // XXX: release buffers!
     deleteModel(model);
+
+    var nCoarseVerts = data.points.length/3;
+    var nRefinedVerts = data.stencils.length/2;
+    var nTotalVerts = nCoarseVerts + nRefinedVerts;
     model = {};
-    model.patchVerts  = new Float32Array(3*(data.points.length + data.stencilIndices.length));
+    model.patchVerts  = new Float32Array(nTotalVerts * 3);
 
     // control cage
-    model.animVerts   = new Float32Array(3*data.points.length)
-    model.cageVerts   = new Float32Array(3*data.points.length)
+    model.animVerts   = new Float32Array(data.points.length)
+    model.cageVerts   = new Float32Array(data.points.length)
     for (i = 0; i < data.points.length; i++) {
-        model.cageVerts[i*3+0] = data.points[i][0];
-        model.cageVerts[i*3+1] = data.points[i][1];
-        model.cageVerts[i*3+2] = data.points[i][2];
-        model.animVerts[i*3+0] = data.points[i][0];
-        model.animVerts[i*3+1] = data.points[i][1];
-        model.animVerts[i*3+2] = data.points[i][2];
-        model.patchVerts[i*3+0] = data.points[i][0];
-        model.patchVerts[i*3+1] = data.points[i][1];
-        model.patchVerts[i*3+2] = data.points[i][2];
+        model.cageVerts[i*3+0] = data.points[i*3+0];
+        model.cageVerts[i*3+1] = data.points[i*3+1];
+        model.cageVerts[i*3+2] = data.points[i*3+2];
+        model.animVerts[i*3+0] = data.points[i*3+0];
+        model.animVerts[i*3+1] = data.points[i*3+1];
+        model.animVerts[i*3+2] = data.points[i*3+2];
+        model.patchVerts[i*3+0] = data.points[i*3+0];
+        model.patchVerts[i*3+1] = data.points[i*3+1];
+        model.patchVerts[i*3+2] = data.points[i*3+2];
     }
     model.cageLines   = new Int16Array(data.hull.length)
     for (i = 0; i < data.hull.length; i++) {
@@ -296,8 +300,8 @@ function setModel(data)
 
     model.hullIndices = ibuffer;
 
-    // patch vertices
-    var nPoints = data.stencilIndices.length;
+    // stencils
+    model.stencils = data.stencils;
     model.stencilIndices = data.stencilIndices;
     model.stencilWeights = data.stencilWeights;
 
@@ -310,7 +314,7 @@ function setModel(data)
     model.quadOffsets = data.quadOffsets;
 
     // patch indices texture
-    var nPatches = model.patches.length;
+    var nPatches = model.patches.length/16;
     var r = getPOT(nPatches*16);
     model.patchIndexTexture = createTextureBuffer();
     model.nPatchRes = r;
@@ -319,14 +323,7 @@ function setModel(data)
     var r2 = getPOT(model.nPoints);
     model.nPointRes = r2;
 
-    var data = [];
-    for (var i = 0; i < nPatches; ++i) {
-        var ncp = model.patches[i].length;
-        for (var j = 0; j < 16; ++j) {
-            if (j < ncp) data.push(model.patches[i][j]);
-            else data.push(-1);
-        }
-    }
+    var data = model.patches;
     var fd = new Float32Array(r*r*3);
     for (var i = 0; i < data.length; ++i) {
         if (data[i] == -1) {
@@ -371,10 +368,10 @@ function updateGeom(tf)
     if (tf != null) {
         tessFactor = tf;
         tessellateIndexAndUnvarying();
-        tessellate();
     }
 
     refine();
+
     if (gpuTess) {
         tessellate(true);
     } else {
@@ -387,13 +384,15 @@ function refine()
 {
     if (model == null) return;
 
-    for (i = 0; i < model.stencilIndices.length; i++) {
+    var nStencils = model.stencils.length/2;
+    for (i = 0; i < nStencils; ++i) {
         // apply stencil
         var x = 0, y = 0, z = 0;
-        var size = model.stencilIndices[i].length;
+        var ofs = model.stencils[i*2+0];
+        var size = model.stencils[i*2+1];
         for (j = 0; j < size; j++) {
-            var vindex = model.stencilIndices[i][j];
-            var weight = model.stencilWeights[i][j];
+            var vindex = model.stencilIndices[ofs+j];
+            var weight = model.stencilWeights[ofs+j];
             x += model.animVerts[vindex*3+0] * weight;
             y += model.animVerts[vindex*3+1] * weight;
             z += model.animVerts[vindex*3+2] * weight;
@@ -445,7 +444,11 @@ function appendBatch(indices, primVars, nPoints, gregory)
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idata, gl.STATIC_DRAW);
+
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, pdata, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
     gl.bufferData(gl.ARRAY_BUFFER, uvdata, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -526,9 +529,15 @@ function tessellateIndexAndUnvarying() {
     var primVars = [];
     var vid = 0;
     var gregory = false;
+    var edgeparams = [[0,0],[1,0],[0,1]];
 
-    for (var i = 0; i < model.patches.length; i++) {
-        var ncp = model.patches[i].length;
+    var nPatches = model.patches.length/16;
+    for (var i = 0; i < nPatches; ++i) {
+
+        var ncp = 16;
+        if (model.patches[i*16+4] == -1) ncp = 4;
+        else if (model.patches[i*16+9] == -1) ncp = 9;
+        else if (model.patches[i*16+12] == -1) ncp = 12;
 
         if (vid > 40000 ||
             (vid > 0 &&
@@ -542,32 +551,27 @@ function tessellateIndexAndUnvarying() {
         }
         gregory = (ncp == 4);
 
-        if (i >= model.patchParams.length) continue;
-        var p = model.patchParams[i];
-        if (p == null) continue;
+        // patchparam: depth, ptexRot, type, pattern, rotation
+        if (i*5 >= model.patchParams.length) continue;
+        var depth = model.patchParams[i*5+0];
+        var type = model.patchParams[i*5+2];
+        var pattern = model.patchParams[i*5+3];
+        var rotation = model.patchParams[i*5+4];
 
-        var level = tessFactor - p[0]/*depth*/;
-        var color = (p[3] == 0) ?
-            patchColors[0][p[2]-6] :
-            patchColors[p[2]-6+1][p[3]-1];
+        var level = tessFactor - depth;
+        var color = (pattern == 0) ?
+            patchColors[0][type-6] :
+            patchColors[type-6+1][pattern-1];
 
-        if (level <= 0 && p[3] != 0/*transition*/) {
+        if (level <= 0 && pattern != 0) {
             // under tessellated transition patch. need triangle patterns.
-            var params = getTransitionParams(p[3]-1, p[4]);
-            var edgeparams = [[0,0],[1,0],[0,1]];
+            var params = getTransitionParams(pattern-1, rotation);
             for (var j = 0; j < params.length; ++j) {
                 var u = params[j][0];
                 var v = params[j][1];
                 var iu = edgeparams[j%3][0];
                 var iv = edgeparams[j%3][1];
-                primVars.push(u);
-                primVars.push(v);
-                primVars.push(iu);
-                primVars.push(iv);
-                primVars.push(color[0]);
-                primVars.push(color[1]);
-                primVars.push(color[2]);
-                primVars.push(i+0.0);
+                primVars.push(u, v, iu, iv, color[0], color[1], color[2], i);
                 indices.push(vid++);
             }
         } else {
@@ -577,21 +581,14 @@ function tessellateIndexAndUnvarying() {
                 for (iv = 0; iv < div; iv++) {
                     var u = iu/(div-1);
                     var v = iv/(div-1);
-                    primVars.push(u);
-                    primVars.push(v);
-                    primVars.push(iu);
-                    primVars.push(iv);
-                    primVars.push(color[0]);
-                    primVars.push(color[1]);
-                    primVars.push(color[2]);
-                    primVars.push(i+0.0);
+                    primVars.push(u, v, iu, iv, color[0], color[1], color[2], i);
                     if (iu != 0 && iv != 0) {
-                        indices.push(vid);
-                        indices.push(vid-div);
-                        indices.push(vid-div-1);
-                        indices.push(vid-1);
-                        indices.push(vid-div-1);
-                        indices.push(vid);
+                        indices.push(vid,
+                                     vid-div,
+                                     vid-div-1,
+                                     vid-1,
+                                     vid-div-1,
+                                     vid);
                     }
                     ++vid;
                 }
@@ -606,7 +603,7 @@ function tessellateIndexAndUnvarying() {
 function tessellate(gregoryOnly) {
     if (model == null) return;
 
-    var evaluator = new PatchEvaluator();
+    var evaluator = new PatchEvaluator(model.maxValence);
     var vid = 0;
     var prevPatch = -1;
     var quadOffset = 0;
@@ -619,19 +616,22 @@ function tessellate(gregoryOnly) {
 
         for (var j = 0; j < batch.nPoints; ++j) {
             var patchIndex = batch.uvData[uvid+7];
-            var patch = model.patches[patchIndex];
-            var p = model.patchParams[patchIndex];
+            var type = model.patchParams[patchIndex*5 + 2];
 
             var u = batch.uvData[uvid+0];
             var v = batch.uvData[uvid+1];
-            var ncp = patch.length;
+
+            var ncp = 16;
+            if (model.patches[patchIndex*16+4] == -1) ncp = 4;
+            else if (model.patches[patchIndex*16+9] == -1) ncp = 9;
+            else if (model.patches[patchIndex*16+12] == -1) ncp = 12;
 
             if (ncp == 4) {
                 if (prevPatch != -1 && prevPatch != patchIndex) quadOffset +=4;
-                pn = evalGregory(patch, p[2], quadOffset, u, v);
+                pn = evaluator.evalGregory(model.patches, patchIndex, type, quadOffset, u, v);
                 prevPatch = patchIndex;
             } else {
-                pn = evaluator.evalBSpline(patch, u, v);
+                pn = evaluator.evalBSpline(model.patches, patchIndex, u, v);
             }
 
             batch.pData[pid+0] = pn[0][0];
@@ -779,16 +779,15 @@ function redraw() {
 
 function loadModel(url)
 {
-/*
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
-    xhr.responseType = 'arraybuffer';
     xhr.onload = function(e) {
-       setModelBin(this.response);
-       redraw();
+        var data = eval("("+this.response+")");
+        setModel(data.model);
+        redraw();
     }
     xhr.send();
-*/
+/*
     var type = "text";
     $("#loading").show();
     $.ajax({
@@ -796,11 +795,13 @@ function loadModel(url)
         url: url,
         responseType:type,
         success: function(data) {
+            console.log(data);
             setModel(data.model);
             displaceScale = 0;
             $("#loading").hide();
         }
     });
+*/
 }
 
 function resizeCanvas() {
