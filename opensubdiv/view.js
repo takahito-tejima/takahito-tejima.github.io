@@ -441,8 +441,23 @@ function evalGregory()
 
     var nGregoryPatches = model.nGregoryPatches;
     var evaluator = new PatchEvaluator(model.maxValence);
-//    for (var i = 0; i < nGreogryPatches; ++i) {
-//        pn = evaluator.evalGregory(model.patches, patchIndex, type, quadOffse    }
+    var patchOffset = model.patches.length/16;
+    var quadOffset = 0;
+    var vOut = model.gregoryVertsOffset*3;
+    for (var i = 0; i < nGregoryPatches; ++i) {
+        var patchIndex = i + patchOffset;
+        var type = model.patchParams[patchIndex*5+2];
+        evaluator.evalGregory(model.gregoryPatches,
+                              i, type, quadOffset);
+        quadOffset += 4;
+
+        // store GP[20]
+        for (var j = 0; j < 20; ++j) {
+            model.patchVerts[vOut++] = evaluator.GP[j][0];
+            model.patchVerts[vOut++] = evaluator.GP[j][1];
+            model.patchVerts[vOut++] = evaluator.GP[j][2];
+        }
+    }
 }
 
 function appendBatch(indices, primVars, nPoints, gregory)
@@ -646,10 +661,16 @@ function tessellate(gregoryOnly) {
             if (batch.gregory) {
                 var type = model.patchParams[patchIndex*5 + 2];
                 if (prevPatch != -1 && prevPatch != patchIndex) quadOffset +=4;
-                pn = evaluator.evalGregory(model.gregoryPatches,
-                                           patchIndex - model.patches.length/16,
-                                           type, quadOffset, u, v);
+                /*
+                pn = evaluator.evalGregoryDirect(model.gregoryPatches,
+                                                 patchIndex - model.patches.length/16,
+                                                 type, quadOffset, u, v);
                 prevPatch = patchIndex;
+                */
+
+                pn  = evaluator.evalGregoryBasis(model.gregoryEvalVerts,
+                                                 patchIndex - model.patches.length/16,
+                                                 u, v);
             } else {
                 pn = evaluator.evalBSpline(model.patches,
                                            patchIndex, u, v);

@@ -99,7 +99,7 @@ function PatchEvaluator(maxValence) {
 }
 
 PatchEvaluator.prototype.evalGregory =
-    function(vertsIndices, patchIndex, type, quadOffset, u, v)
+    function(vertsIndices, patchIndex, type, quadOffset)
 {
     var valences = this.valences;
     var boundary = (type == 11)
@@ -464,7 +464,11 @@ PatchEvaluator.prototype.evalGregory =
         vec3.copy(this.GP[i*5+3], Fp[i]);
         vec3.copy(this.GP[i*5+4], Fm[i]);
     }
+}
 
+PatchEvaluator.prototype.evalGregoryUV =
+    function(GP, u, v)
+{
     var U = 1-u, V=1-v;
     var d11 = u+v; if(u+v==0.0) d11 = 1.0;
     var d12 = U+v; if(U+v==0.0) d12 = 1.0;
@@ -472,24 +476,24 @@ PatchEvaluator.prototype.evalGregory =
     var d22 = U+V; if(U+V==0.0) d22 = 1.0;
 
     for (var k=0; k<3; ++k) {
-        this.GQ[ 5][k] = (u*this.GP[ 3][k] + v*this.GP[ 4][k])/d11;
-        this.GQ[ 6][k] = (U*this.GP[ 9][k] + v*this.GP[ 8][k])/d12;
-        this.GQ[ 9][k] = (u*this.GP[19][k] + V*this.GP[18][k])/d21;
-        this.GQ[10][k] = (U*this.GP[13][k] + V*this.GP[14][k])/d22;
+        this.GQ[ 5][k] = (u*GP[ 3][k] + v*GP[ 4][k])/d11;
+        this.GQ[ 6][k] = (U*GP[ 9][k] + v*GP[ 8][k])/d12;
+        this.GQ[ 9][k] = (u*GP[19][k] + V*GP[18][k])/d21;
+        this.GQ[10][k] = (U*GP[13][k] + V*GP[14][k])/d22;
     }
 
-    vec3.copy(this.GQ[ 0], this.GP[ 0]);
-    vec3.copy(this.GQ[ 1], this.GP[ 1]);
-    vec3.copy(this.GQ[ 2], this.GP[ 7]);
-    vec3.copy(this.GQ[ 3], this.GP[ 5]);
-    vec3.copy(this.GQ[ 4], this.GP[ 2]);
-    vec3.copy(this.GQ[ 7], this.GP[ 6]);
-    vec3.copy(this.GQ[ 8], this.GP[16]);
-    vec3.copy(this.GQ[11], this.GP[12]);
-    vec3.copy(this.GQ[12], this.GP[15]);
-    vec3.copy(this.GQ[13], this.GP[17]);
-    vec3.copy(this.GQ[14], this.GP[11]);
-    vec3.copy(this.GQ[15], this.GP[10]);
+    vec3.copy(this.GQ[ 0], GP[ 0]);
+    vec3.copy(this.GQ[ 1], GP[ 1]);
+    vec3.copy(this.GQ[ 2], GP[ 7]);
+    vec3.copy(this.GQ[ 3], GP[ 5]);
+    vec3.copy(this.GQ[ 4], GP[ 2]);
+    vec3.copy(this.GQ[ 7], GP[ 6]);
+    vec3.copy(this.GQ[ 8], GP[16]);
+    vec3.copy(this.GQ[11], GP[12]);
+    vec3.copy(this.GQ[12], GP[15]);
+    vec3.copy(this.GQ[13], GP[17]);
+    vec3.copy(this.GQ[14], GP[11]);
+    vec3.copy(this.GQ[15], GP[10]);
 
     // bezier evaluation
     vec3.set(this.BU[0],0,0,0);
@@ -521,6 +525,24 @@ PatchEvaluator.prototype.evalGregory =
     vec3.cross(this.N, this.QV, this.QU);
 
     return [this.Q, this.N];
+}
+
+PatchEvaluator.prototype.evalGregoryDirect =
+    function(vertsIndices, patchIndex, type, quadOffset, u, v)
+{
+    this.evalGregory(vertsIndices, patchIndex, type, quadOffset);
+
+    return this.evalGregoryUV(this.GP, u, v);
+}
+
+PatchEvaluator.prototype.evalGregoryBasis =
+    function(vertsIndices, patchIndex, u, v)
+{
+    for (var i = 0; i < 20; ++i) {
+        var vid = vertsIndices[patchIndex*20 + i]
+        vec3.set(this.GP[i], model.patchVerts[vid*3], model.patchVerts[vid*3+1], model.patchVerts[vid*3+2]);
+    }
+    return this.evalGregoryUV(this.GP, u, v);
 }
 
 PatchEvaluator.prototype.evalBSpline = function(vertsIndices, patchIndex, u, v)
