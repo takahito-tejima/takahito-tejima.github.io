@@ -103,8 +103,10 @@ function buildProgram(vertexShader, fragmentShader)
 {
     var define = "";
     if (uvMapping) define += "#define USE_UV_MAP\n";
-    var util = $('#shaderutil').text();
+    define += "#define DISPLAY_MODE " + displayMode +"\n";
+    if (displaceScale > 0) define += "#define DISPLACEMENT 1\n";
 
+    var util = $('#shaderutil').text();
     var program = gl.createProgram();
     var vshader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vshader, define+util+$(vertexShader).text());
@@ -186,6 +188,17 @@ function dumpFrameBuffer()
     var pixels = new Uint8Array(buffer);
     gl.readPixels(0, 0, reso, reso, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
     console.log(pixels);
+}
+
+function setDisplacementScale(scale)
+{
+    if ((displaceScale == 0 && scale > 0) ||
+        (displaceScale > 0 && scale == 0)) {
+        displaceScale = scale;
+        initialize();
+    } else {
+        displaceScale = scale;
+    }
 }
 
 function initialize()
@@ -485,23 +498,23 @@ function evalGregory()
     }
 }
 
-function appendBatch(indices, primVars, nPoints, gregory)
+function appendBatch(indices, primVars, nIndices, nPoints, gregory)
 {
     var batch = {}
 
     var pdata = new Float32Array(nPoints * 6); // xyz, normal
     var uvdata = new Float32Array(nPoints * 8); // uv(4), color(3)+patchIndex
-    var idata = new Uint16Array(indices.length);
-    for (i = 0; i < indices.length; i++) {
+    var idata = new Uint16Array(nIndices);
+    for (i = 0; i < nIndices; i++) {
         idata[i] = indices[i];
     }
-    for (i = 0; i < primVars.length; i++) {
+    for (i = 0; i < nPoints*8; i++) {
         uvdata[i] = primVars[i];
     }
     batch.pData = pdata;
     batch.uvData = uvdata;
     batch.nPoints = nPoints;
-    batch.nTris = idata.length/3;
+    batch.nTris = nIndices/3;
 
     batch.vbo = gl.createBuffer();
     batch.vboUnvarying = gl.createBuffer();
@@ -510,7 +523,6 @@ function appendBatch(indices, primVars, nPoints, gregory)
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idata, gl.STATIC_DRAW);
-
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
@@ -520,18 +532,6 @@ function appendBatch(indices, primVars, nPoints, gregory)
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     model.batches.push(batch);
-}
-
-function setPoint(batchIndex, vid, pn)
-{
-    var pdata = model.batches[batchIndex].pData;
-    var ofs = vid * 6;
-    pdata[ofs++] = pn[0][0];
-    pdata[ofs++] = pn[0][1];
-    pdata[ofs++] = pn[0][2];
-    pdata[ofs++] = pn[1][0];
-    pdata[ofs++] = pn[1][1];
-    pdata[ofs++] = pn[1][2];
 }
 
 function finalizeBatches(batch)
@@ -591,9 +591,10 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
 {
     if (patches == null) return;
 
-    var indices = [];
-    var primVars = [];
+    var indices = new Uint16Array(10*65536);
+    var primVars = new Float32Array(8*65536);
     var vid = 0;
+    var nIndices = 0;
     var edgeparams = [[0,0],[1,0],[0,1]];
 
     var nPatches = gregory ? patches.length/4 : patches.length/16;
@@ -609,14 +610,12 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
 
         var ncp = 16;
         if (type == 10 || type == 11) ncp = 4;
-        else if (patches[i*16+4] == -1) ncp = 4;
         else if (patches[i*16+9] == -1) ncp = 9;
         else if (patches[i*16+12] == -1) ncp = 12;
 
         if (vid > 40000) {
-            appendBatch(indices, primVars, vid, gregory);
-            indices = [];
-            primVars = [];
+            appendBatch(indices, primVars, nIndices, vid, gregory);
+            nIndices = 0;
             vid = 0;
         }
 
@@ -634,8 +633,15 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                 var iu = edgeparams[j%3][0];
                 var iv = edgeparams[j%3][1];
                 // gregory patch requires relative index for patchIndex
-                primVars.push(u, v, iu, iv, color[0], color[1], color[2], i);
-                indices.push(vid++);
+                primVars[vid*8+0] = u;
+                primVars[vid*8+1] = v;
+                primVars[vid*8+2] = iu;
+                primVars[vid*8+3] = iv;
+                primVars[vid*8+4] = color[0];
+                primVars[vid*8+5] = color[1];
+                primVars[vid*8+6] = color[2];
+                primVars[vid*8+7] = i;
+                indices[nIndices++] = vid++;
             }
         } else {
             if (level < 0) level = 0;
@@ -644,14 +650,22 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                 for (iv = 0; iv < div; iv++) {
                     var u = iu/(div-1);
                     var v = iv/(div-1);
-                    primVars.push(u, v, iu, iv, color[0], color[1], color[2], i);
+                    primVars[vid*8+0] = u;
+                    primVars[vid*8+1] = v;
+                    primVars[vid*8+2] = iu;
+                    primVars[vid*8+3] = iv;
+                    primVars[vid*8+4] = color[0];
+                    primVars[vid*8+5] = color[1];
+                    primVars[vid*8+6] = color[2];
+                    primVars[vid*8+7] = i;
                     if (iu != 0 && iv != 0) {
-                        indices.push(vid,
-                                     vid-div,
-                                     vid-div-1,
-                                     vid-1,
-                                     vid-div-1,
-                                     vid);
+                        indices[nIndices++] = vid;
+                        indices[nIndices++] = vid - div;
+                        indices[nIndices++] = vid - div - 1;
+                        indices[nIndices++] = vid - 1;
+                        indices[nIndices++] = vid - div - 1;
+                        indices[nIndices++] = vid;
+                        nIndices += 6;
                     }
                     ++vid;
                 }
@@ -660,7 +674,7 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
     }
 
     // residual
-    appendBatch(indices, primVars, vid, gregory);
+    appendBatch(indices, primVars, nIndices, vid, gregory);
 
 }
 
@@ -669,8 +683,6 @@ function tessellate(gregoryOnly) {
 
     var evaluator = new PatchEvaluator(model.maxValence);
     var vid = 0;
-    var prevPatch = -1;
-    var quadOffset = 0;
 
     for (var i = 0; i < model.batches.length; ++i) {
         var batch = model.batches[i];
@@ -685,15 +697,6 @@ function tessellate(gregoryOnly) {
             var v = batch.uvData[uvid+1];
 
             if (batch.gregory) {
-                var type = model.patchParams[patchIndex*5 + 2];
-                if (prevPatch != -1 && prevPatch != patchIndex) quadOffset +=4;
-                /*
-                pn = evaluator.evalGregoryDirect(model.gregoryPatches,
-                                                 patchIndex - model.patches.length/16,
-                                                 type, quadOffset, u, v);
-                prevPatch = patchIndex;
-                */
-
                 pn  = evaluator.evalGregoryBasis(model.gregoryEvalVerts,
                                                  patchIndex,
                                                  u, v);
@@ -714,12 +717,6 @@ function tessellate(gregoryOnly) {
         }
         finalizeBatches(batch);
     }
-}
-
-function syncbuffer()
-{
-    gl.flush();
-//    dumpFrameBuffer();
 }
 
 function idle() {
@@ -1042,6 +1039,7 @@ $(function(){
                 displayNormal:3,
                 displayPatchCoord:4
             })[this.id];
+            initialize();
             redraw();
         });
 
@@ -1067,11 +1065,11 @@ $(function(){
         min: 0,
         max: 100,
         change: function(event, ui){
-            displaceScale = model.diag*ui.value*0.0001;
+            setDisplacementScale(model.diag*ui.value*0.0001);
             redraw();
         },
         slide: function(event, ui){
-            displaceScale = model.diag*ui.value*0.0001;
+            setDisplacementScale(model.diag*ui.value*0.0001);
             redraw();
         }});
 
