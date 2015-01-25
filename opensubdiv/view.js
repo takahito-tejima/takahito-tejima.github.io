@@ -263,16 +263,21 @@ function setModel(data)
     // XXX: release buffers!
     deleteModel(model);
 
+    model = {};
+
     var nCoarseVerts = data.points.length/3;
     var nRefinedVerts = data.stencils.length/2;
-    var nTotalVerts = nCoarseVerts + nRefinedVerts;
-    model = {};
+
+    var nGregoryPatches = data.gregoryPatches.length/4;
+    var nTotalVerts = nCoarseVerts + nRefinedVerts + nGregoryPatches*20;
     model.patchVerts  = new Float32Array(nTotalVerts * 3);
+    model.gregoryVertsOffset = nCoarseVerts + nRefinedVerts;
+    model.nGregoryPatches = nGregoryPatches;
 
     // control cage
     model.animVerts   = new Float32Array(data.points.length)
     model.cageVerts   = new Float32Array(data.points.length)
-    for (i = 0; i < data.points.length; i++) {
+    for (var i = 0; i < data.points.length; i++) {
         model.cageVerts[i*3+0] = data.points[i*3+0];
         model.cageVerts[i*3+1] = data.points[i*3+1];
         model.cageVerts[i*3+2] = data.points[i*3+2];
@@ -284,7 +289,7 @@ function setModel(data)
         model.patchVerts[i*3+2] = data.points[i*3+2];
     }
     model.cageLines   = new Int16Array(data.hull.length)
-    for (i = 0; i < data.hull.length; i++) {
+    for (var i = 0; i < data.hull.length; i++) {
         model.cageLines[i] = data.hull[i];
     }
 
@@ -308,6 +313,7 @@ function setModel(data)
     // patch indices
     model.patches = data.patches;
     model.patchParams = data.patchParams;
+    model.gregoryPatches = data.gregoryPatches;
 
     model.maxValence = data.maxValence;
     model.valenceTable = data.vertexValences;
@@ -333,6 +339,12 @@ function setModel(data)
           fd[i*3+0] = (data[i]%r2+0.5)/r2;
           fd[i*3+1] = (Math.floor(data[i]/r2)+0.5)/r2;
         }
+    }
+
+    // gregory eval patch verts
+    model.gregoryEvalVerts = new Uint32Array(nGregoryPatches*20);
+    for (var i = 0; i < nGregoryPatches*20; ++i) {
+        model.gregoryEvalVerts[i] = i + model.gregoryVertsOffset;
     }
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, r, r,
@@ -367,10 +379,14 @@ function updateGeom(tf)
 {
     if (tf != null) {
         tessFactor = tf;
-        tessellateIndexAndUnvarying();
+        model.batches = []
+        tessellateIndexAndUnvarying(model.patches, model.patchParams, false, 0);
+        tessellateIndexAndUnvarying(model.gregoryPatches, model.patchParams,
+                                    true, model.patches.length/16);
     }
 
     refine();
+    evalGregory();
 
     if (gpuTess) {
         tessellate(true);
@@ -417,6 +433,16 @@ function refine()
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, r, r,
                          gl.RGB, gl.FLOAT, pv);
     }
+}
+
+function evalGregory()
+{
+    if (model == null) return;
+
+    var nGregoryPatches = model.nGregoryPatches;
+    var evaluator = new PatchEvaluator(model.maxValence);
+//    for (var i = 0; i < nGreogryPatches; ++i) {
+//        pn = evaluator.evalGregory(model.patches, patchIndex, type, quadOffse    }
 }
 
 function appendBatch(indices, primVars, nPoints, gregory)
@@ -521,42 +547,38 @@ function getTransitionParams(pattern, rotation)
     }
 }
 
-function tessellateIndexAndUnvarying() {
+function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
+{
     if (model == null) return;
-    model.batches = []
 
     var indices = [];
     var primVars = [];
     var vid = 0;
-    var gregory = false;
     var edgeparams = [[0,0],[1,0],[0,1]];
 
-    var nPatches = model.patches.length/16;
+    var nPatches = gregory ? patches.length/4 : patches.length/16;
+
     for (var i = 0; i < nPatches; ++i) {
+        // patchparam: depth, ptexRot, type, pattern, rotation
+        var patchIndex = i + patchOffset;
+        if (patchIndex*5 >= patchParams.length) continue;
+        var depth = patchParams[patchIndex*5+0];
+        var type = patchParams[patchIndex*5+2];
+        var pattern = patchParams[patchIndex*5+3];
+        var rotation = patchParams[patchIndex*5+4];
 
         var ncp = 16;
-        if (model.patches[i*16+4] == -1) ncp = 4;
-        else if (model.patches[i*16+9] == -1) ncp = 9;
-        else if (model.patches[i*16+12] == -1) ncp = 12;
+        if (type == 10 || type == 11) ncp = 4;
+        else if (patches[i*16+4] == -1) ncp = 4;
+        else if (patches[i*16+9] == -1) ncp = 9;
+        else if (patches[i*16+12] == -1) ncp = 12;
 
-        if (vid > 40000 ||
-            (vid > 0 &&
-            (gregory == false && ncp == 4) ||
-            (gregory == true && ncp != 4))) {
-
+        if (vid > 40000) {
             appendBatch(indices, primVars, vid, gregory);
             indices = [];
             primVars = [];
             vid = 0;
         }
-        gregory = (ncp == 4);
-
-        // patchparam: depth, ptexRot, type, pattern, rotation
-        if (i*5 >= model.patchParams.length) continue;
-        var depth = model.patchParams[i*5+0];
-        var type = model.patchParams[i*5+2];
-        var pattern = model.patchParams[i*5+3];
-        var rotation = model.patchParams[i*5+4];
 
         var level = tessFactor - depth;
         var color = (pattern == 0) ?
@@ -571,7 +593,7 @@ function tessellateIndexAndUnvarying() {
                 var v = params[j][1];
                 var iu = edgeparams[j%3][0];
                 var iv = edgeparams[j%3][1];
-                primVars.push(u, v, iu, iv, color[0], color[1], color[2], i);
+                primVars.push(u, v, iu, iv, color[0], color[1], color[2], patchIndex);
                 indices.push(vid++);
             }
         } else {
@@ -581,7 +603,7 @@ function tessellateIndexAndUnvarying() {
                 for (iv = 0; iv < div; iv++) {
                     var u = iu/(div-1);
                     var v = iv/(div-1);
-                    primVars.push(u, v, iu, iv, color[0], color[1], color[2], i);
+                    primVars.push(u, v, iu, iv, color[0], color[1], color[2], patchIndex);
                     if (iu != 0 && iv != 0) {
                         indices.push(vid,
                                      vid-div,
@@ -598,6 +620,7 @@ function tessellateIndexAndUnvarying() {
 
     // residual
     appendBatch(indices, primVars, vid, gregory);
+
 }
 
 function tessellate(gregoryOnly) {
@@ -616,22 +639,20 @@ function tessellate(gregoryOnly) {
 
         for (var j = 0; j < batch.nPoints; ++j) {
             var patchIndex = batch.uvData[uvid+7];
-            var type = model.patchParams[patchIndex*5 + 2];
 
             var u = batch.uvData[uvid+0];
             var v = batch.uvData[uvid+1];
 
-            var ncp = 16;
-            if (model.patches[patchIndex*16+4] == -1) ncp = 4;
-            else if (model.patches[patchIndex*16+9] == -1) ncp = 9;
-            else if (model.patches[patchIndex*16+12] == -1) ncp = 12;
-
-            if (ncp == 4) {
+            if (batch.gregory) {
+                var type = model.patchParams[patchIndex*5 + 2];
                 if (prevPatch != -1 && prevPatch != patchIndex) quadOffset +=4;
-                pn = evaluator.evalGregory(model.patches, patchIndex, type, quadOffset, u, v);
+                pn = evaluator.evalGregory(model.gregoryPatches,
+                                           patchIndex - model.patches.length/16,
+                                           type, quadOffset, u, v);
                 prevPatch = patchIndex;
             } else {
-                pn = evaluator.evalBSpline(model.patches, patchIndex, u, v);
+                pn = evaluator.evalBSpline(model.patches,
+                                           patchIndex, u, v);
             }
 
             batch.pData[pid+0] = pn[0][0];

@@ -133,7 +133,7 @@ PatchEvaluator.prototype.evalGregory =
         var ibefore = 0;
         zerothNeighbors[vid] = 0;
 
-        var vertexID = vertsIndices[patchIndex*16 + vid];
+        var vertexID = vertsIndices[patchIndex*4 + vid];
         var valenceTableOffset = vertexID * (2*maxValence+1);
         var ivalence = valenceTable[valenceTableOffset];
         var valence = Math.abs(ivalence);
