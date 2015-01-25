@@ -279,7 +279,7 @@ function setModel(data)
     var nCoarseVerts = data.points.length/3;
     var nRefinedVerts = data.stencils.length/2;
 
-    var nGregoryPatches = data.gregoryPatches.length/4;
+    var nGregoryPatches = data.gregoryPatches ? data.gregoryPatches.length/4 : 0;
     var nTotalVerts = nCoarseVerts + nRefinedVerts + nGregoryPatches*20;
     model.patchVerts  = new Float32Array(nTotalVerts * 3);
     model.gregoryVertsOffset = nCoarseVerts + nRefinedVerts;
@@ -589,7 +589,7 @@ function getTransitionParams(pattern, rotation)
 
 function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
 {
-    if (model == null) return;
+    if (patches == null) return;
 
     var indices = [];
     var primVars = [];

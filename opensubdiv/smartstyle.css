@@ -55,6 +55,11 @@ div#control
     margin: 0;
 }
 
+#displaceScale {
+    width: 70%;
+    margin-left: 50px;
+}
+
 #footer {
     clear: left;
     width: 100%;
