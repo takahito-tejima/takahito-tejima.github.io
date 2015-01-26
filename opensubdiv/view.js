@@ -28,7 +28,6 @@ var displaceScale = 0;
 var prevTime = 0;
 var fps = 0;
 
-var uvimage = new Image();
 var uvtex = null;
 
 var basicProgram = null;
@@ -286,7 +285,7 @@ function fitCamera()
     center = [(max[0]+min[0])*0.5, (max[1]+min[1])*0.5, (max[2]+min[2])*0.5];
 }
 
-function setModel(data)
+function setModel(data, modelName)
 {
     if (data == null) return;
 
@@ -401,18 +400,25 @@ function setModel(data)
         model.ptexChannel = data.ptexChannel;
 
         // ptex texel
+        var uvimage = new Image();
+        model.ptexTexture = gl.createTexture();
+        uvimage.onload = function() {
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, uvimage);
+        }
+        uvimage.src = "./objs/"+modelName+"_color.png";
+/*
         var format = gl.RGBA;
         if (model.ptexChannel == 3) format = gl.RGB;
-        model.ptexTexture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
-        gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, format, model.ptexDim[0],
                       model.ptexDim[1], 0, format, gl.UNSIGNED_BYTE,
                       model.ptexTexel);
+*/
     }
 
     fitCamera();
@@ -956,14 +962,15 @@ function redraw() {
     $('#triangles').text(drawTris);
 }
 
-function loadModel(url)
+function loadModel(modelName)
 {
+    var url = "objs/" + modelName + ".json";
     var xhr = new XMLHttpRequest();
     var now = new Date();
     xhr.open('GET', url + "?"+now.getTime(), true);
     xhr.onload = function(e) {
         var data = eval("("+this.response+")");
-        setModel(data.model);
+        setModel(data.model, modelName);
         initialize();
         redraw();
     }
@@ -1149,7 +1156,7 @@ $(function(){
 
     $("#modelSelect").selectmenu( {
         change: function(event, ui) {
-            loadModel("objs/"+this.value+".json");
+            loadModel(this.value);
             redraw();
         } }).selectmenu("menuWidget").addClass("overflow");
 
@@ -1235,9 +1242,9 @@ $(function(){
 
     var modelName = getUrlParameter("model");
     if (modelName == undefined) {
-        loadModel("objs/cube.json");
+        loadModel("cube");
     } else {
-        loadModel("objs/"+modelName+".json");
+        loadModel("modelName");
     }
 
     resizeCanvas();
