@@ -3,6 +3,8 @@
 //
 
 var camera = {
+    tx : 0,
+    ty : 0,
     rx : 0,
     ry : 0,
     dolly : 5,
@@ -848,7 +850,7 @@ function redraw() {
 
     var modelView = mat4.create();
     mat4.identity(modelView);
-    mat4.translate(modelView, modelView, vec3.fromValues(0, 0, -camera.dolly));
+    mat4.translate(modelView, modelView, vec3.fromValues(camera.tx, camera.ty, -camera.dolly));
     mat4.rotate(modelView, modelView, camera.ry*Math.PI*2/360, vec3.fromValues(1, 0, 0));
     mat4.rotate(modelView, modelView, camera.rx*Math.PI*2/360, vec3.fromValues(0, 1, 0));
     mat4.translate(modelView, modelView, vec3.fromValues(-center[0], -center[1], -center[2]));
@@ -1000,6 +1002,20 @@ function resizeCanvas() {
     }
 }
 
+function getUrlParameter(sParam)
+{
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) 
+    {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) 
+        {
+            return sParameterName[1];
+        }
+    }
+}
+
 $(function(){
     var canvas = $("#main").get(0);
     $.each(["webgl2", "experimental-webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"], function(i, name){
@@ -1020,9 +1036,25 @@ $(function(){
         alert("requires OES_texture_float extension");
     }
 
+    var tess = getUrlParameter("tessFactor");
+    if (tess != undefined) {
+        tessFactor = tess;
+    }
+    var dmode = getUrlParameter("displayMode");
+    if (dmode != undefined) {
+        displayMode = dmode;
+    }
+
     initialize();
 
     button = false;
+    $("#main").keypress(function(e) {
+        console.log(e.which);
+        if (e.which == "f") {
+            fitCamera();
+            redraw();
+        }
+    });
 
     $("#main").bind({"touchmove mousemove": function(event) {
         var p = [event.pageX, event.pageY];
@@ -1053,6 +1085,8 @@ $(function(){
         }
         if (button > 0) {
             prev_position = p;
+            if (event.shiftKey && button == 1) button = 2;
+
             if (button == 1) {
                 camera.rx += d[0];
                 camera.ry += d[1];
@@ -1062,6 +1096,10 @@ $(function(){
             else if(button == 3) {
                 camera.dolly -= 0.005*d[0]*model.diag;
                 if (camera.dolly < 0.1) camera.dolly = 0.001;
+            }
+            else if(button == 2){
+                camera.tx += d[0]*0.01*model.diag;
+                camera.ty -= d[1]*0.01*model.diag;
             }
             redraw();
         }
@@ -1134,7 +1172,8 @@ $(function(){
         });
 
     $( "#radio" ).buttonset();
-    $( "#displayWire" ).attr('checked', 'checked');
+    $(["#displayShade", "#displayPatchColor", "#displayWire", "#displayNormal",
+     "#displayPatchCoord"][displayMode]).attr('checked', 'checked');
     $( "#radio" ).buttonset('refresh');
     $( 'input[name="radio"]:radio' ).change(
         function() {
@@ -1192,8 +1231,15 @@ $(function(){
     redraw();
     }
     */
-    //loadModel("objs/barbarian.json");
-    loadModel("objs/cube.json");
+
+
+    var modelName = getUrlParameter("model");
+    if (modelName == undefined) {
+        loadModel("objs/cube.json");
+    } else {
+        loadModel("objs/"+modelName+".json");
+    }
+
     resizeCanvas();
 });
 
