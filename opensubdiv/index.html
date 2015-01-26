@@ -42,7 +42,8 @@
       uniform mat4 projMatrix;
       uniform float displaceScale;
 
-      uniform sampler2D texPtex;
+      uniform sampler2D texPtexColor;
+      uniform sampler2D texPtexDisplace;
 
       void evalCubicBSpline(in float u, out float B[4], out float BU[4]) {
         float t = u;
@@ -78,12 +79,15 @@
         D[3] = A2;
       }
       vec4 getPtexColor(vec4 ptexCoord) {
-      //return ptexCoord;
-        return vec4(texture2D(texPtex, ptexCoord.xy).xyz, 1);
+        return vec4(texture2D(texPtexColor, ptexCoord.xy).xyz, 1);
       }
 
       float displacement(vec2 uv) {
+      #ifdef PTEX_DISPLACE
+         return displaceScale*texture2D(texPtexDisplace, uv).x;
+      #else
          return displaceScale*(sin(40.0*uv.x)*cos(40.0*uv.y));
+      #endif
       }
     </script>
 
@@ -202,10 +206,13 @@
         }
         vec3 n = normalize(cross(BiTangent, Tangent));
 
+      // apply displacement
       #ifdef DISPLACEMENT
-        // apply displacement
-        //float d = displacement(inUV.xy);
+      #ifdef PTEX_DISPLACE
+        float d = displacement(inPtexCoord.zw);
+      #else
         float d = displacement(WorldPos.xz*4.0);
+      #endif
         WorldPos.xyz += d*n;
       #endif
 
@@ -311,10 +318,13 @@
         }
         vec3 n = normalize(cross(BiTangent, Tangent));
 
+      // apply displacement
       #ifdef DISPLACEMENT
-        // apply displacement
-        //float d = displacement(inUV.xy);
+      #ifdef PTEX_DISPLACE
+        float d = displacement(inPtexCoord.zw);
+      #else
         float d = displacement(WorldPos.xz*4.0);
+      #endif
         WorldPos.xyz += d*n;
       #endif
 

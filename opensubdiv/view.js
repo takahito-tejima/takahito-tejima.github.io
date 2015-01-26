@@ -22,6 +22,7 @@ var model = {};
 var deform = false;
 var drawHull = true;
 var usePtexColor = false;
+var usePtexDisplace = false;
 var dpr = 1;
 var displaceScale = 0;
 
@@ -104,6 +105,7 @@ function buildProgram(vertexShader, fragmentShader)
 {
     var define = "";
     if (usePtexColor) define += "#define PTEX_COLOR\n";
+    if (usePtexDisplace) define += "#define PTEX_DISPLACE\n";
     define += "#define DISPLAY_MODE " + displayMode +"\n";
     if (displaceScale > 0) define += "#define DISPLACEMENT 1\n";
 
@@ -255,13 +257,16 @@ function deleteModel()
     if (model.gregoryPatchIndexTexture)
         gl.deleteTexture(model.gregoryPatchIndexTexture);
 
-    if (model.ptexTexture)
-        gl.deleteTexture(model.ptexTexture);
+    if (model.ptexTexture_color)
+        gl.deleteTexture(model.ptexTexture_color);
+    if (model.ptexTexture_displace)
+        gl.deleteTexture(model.ptexTexture_displace);
 
     model.vTexture = null;
     model.patchIndexTexture = null;
     model.gregoryPatchIndexTexture = null;
-    model.ptexTexture = null;
+    model.ptexTexture_color = null;
+    model.ptexTexture_displace = null;
 }
 
 function fitCamera()
@@ -392,26 +397,47 @@ function setModel(data, modelName)
 
     // ptex layout
     usePtexColor = false;
-    if (data.ptexDim != undefined) {
+    usePtexDisplace = false;
+    if (data.ptexDim_color != undefined) {
         usePtexColor = true;
-        model.ptexDim = data.ptexDim;
-        model.ptexLayout = data.ptexLayout;
-        model.ptexTexel = data.ptexTexel;
-        model.ptexChannel = data.ptexChannel;
+        model.ptexDim_color = data.ptexDim_color;
+        model.ptexLayout_color = data.ptexLayout_color;
+        model.ptexTexture_color = gl.createTexture();
 
         // ptex texel
-        var uvimage = new Image();
-        model.ptexTexture = gl.createTexture();
-        uvimage.onload = function() {
-            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
+        var image = new Image();
+        image.onload = function() {
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, uvimage);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            redraw();
         }
-        uvimage.src = "./objs/"+modelName+"_color.png";
+        image.src = "./objs/"+modelName+"_color.png";
+    }
+    if (data.ptexDim_displace != undefined) {
+        usePtexDisplace = true;
+        model.ptexDim_displace = data.ptexDim_displace;
+        model.ptexLayout_displace = data.ptexLayout_displace;
+        model.ptexTexture_displace = gl.createTexture();
+
+        // ptex texel
+        var dimage = new Image();
+        dimage.onload = function() {
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, dimage);
+            redraw();
+        }
+        dimage.src = "./objs/"+modelName+"_displace.png";
+    }
 /*
         var format = gl.RGBA;
         if (model.ptexChannel == 3) format = gl.RGB;
@@ -419,7 +445,6 @@ function setModel(data, modelName)
                       model.ptexDim[1], 0, format, gl.UNSIGNED_BYTE,
                       model.ptexTexel);
 */
-    }
 
     fitCamera();
 
@@ -625,6 +650,38 @@ function getTransitionParams(pattern, rotation)
     }
 }
 
+function getPtexPacking(layout, dim, ptexFace)
+{
+    var ptexX = (layout[ptexFace*6 + 2]) / (dim[0]);
+    var ptexY = (layout[ptexFace*6 + 3]) / (dim[1]);
+    var wh = layout[ptexFace*6 + 5];
+    var ptexW = ((1<<(wh >> 8)))/(dim[0]);
+    var ptexH = ((1<<(wh & 0xff)))/(dim[1]);
+    return vec4.fromValues(ptexX, ptexY, ptexW, ptexH);
+}
+
+function getPtexCoord(u, v, ptexU, ptexV, ptexPacking, ptexRot, depth)
+{
+    var lv = 1 << depth;
+    var pu = v;
+    var pv = u;
+    if (ptexRot == 1) {
+        pu = 1-u;
+        pv = v;
+    } else if (ptexRot == 2){
+        pu = 1-v;
+        pv = 1-u;
+    } else if (ptexRot == 3){
+        pu = u;
+        pv = 1-v;
+    }
+    pu = pu / lv + ptexU/lv;
+    pv = pv / lv + ptexV/lv;
+    pu = ptexPacking[0] + pu * ptexPacking[2];
+    pv = ptexPacking[1] + pv * ptexPacking[3];
+    return vec2.fromValues(pu, pv);
+}
+
 function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
 {
     if (patches == null) return;
@@ -668,15 +725,20 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
         var ptexFace = patchParams[patchIndex*8+7];
 
         // resolve ptex coordinate here!
-        var ptexX, ptexY, ptexW, ptexH;
-        if (model.ptexLayout != undefined) {
-            ptexX = (model.ptexLayout[ptexFace*6 + 2]) / (model.ptexDim[0]);
-            ptexY = (model.ptexLayout[ptexFace*6 + 3]) / (model.ptexDim[1]);
-            var wh = model.ptexLayout[ptexFace*6 + 5];
-            ptexW = ((1<<(wh >> 8)))/(model.ptexDim[0]);
-            ptexH = ((1<<(wh & 0xff)))/(model.ptexDim[1]);
+        var ptexPackingColor, ptexPackingDisplace;
+        if (model.ptexLayout_color != undefined) {
+            ptexPackingColor = getPtexPacking(model.ptexLayout_color,
+                                              model.ptexDim_color,
+                                              ptexFace);
         } else {
-            ptexX = ptexY = ptexW = ptexH = 0;
+            ptexPackingColor = vec4.create();
+        }
+        if (model.ptexLayout_displace != undefined) {
+            ptexPackingDisplace = getPtexPacking(model.ptexLayout_displace,
+                                              model.ptexDim_displace,
+                                              ptexFace);
+        } else {
+            ptexPackingDisplace = vec4.create();
         }
 
         if (level <= 0 && pattern != 0) {
@@ -688,24 +750,10 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                 var iu = edgeparams[j%3][0];
                 var iv = edgeparams[j%3][1];
 
-                var lv = 1 << depth;
-                var pu = v;
-                var pv = u;
-                if (ptexRot == 1) {
-                    pu = 1-u;
-                    pv = v;
-                } else if (ptexRot == 2){
-                    pu = 1-v;
-                    pv = 1-u;
-                } else if (ptexRot == 3){
-                    pu = u;
-                    pv = 1-v;
-                }
-                pu = pu / lv + ptexU/lv;
-                pv = pv / lv + ptexV/lv;
-
-                pu = ptexX + pu * ptexW;
-                pv = ptexY + pv * ptexH;
+                var ptexCoordColor = getPtexCoord(
+                    u, v, ptexU, ptexV, ptexPackingColor, ptexRot, depth);
+                var ptexCoordDisplace = getPtexCoord(
+                    u, v, ptexU, ptexV, ptexPackingDisplace, ptexRot, depth);
 
                 // gregory patch requires relative index for patchIndex
                 primVars[vid*12+0] = u;
@@ -716,8 +764,10 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                 primVars[vid*12+5] = color[1];
                 primVars[vid*12+6] = color[2];
                 primVars[vid*12+7] = i;
-                primVars[vid*12+8] = pu;
-                primVars[vid*12+9] = pv;
+                primVars[vid*12+8] = ptexCoordColor[0];
+                primVars[vid*12+9] = ptexCoordColor[1];
+                primVars[vid*12+10] = ptexCoordDisplace[0];
+                primVars[vid*12+11] = ptexCoordDisplace[1];
                 indices[nIndices++] = vid++;
             }
         } else {
@@ -729,25 +779,12 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                     var u = iu/(div-1);
                     var v = iv/(div-1);
 
-                    var pu = v;
-                    var pv = u;
-                    if (ptexRot == 1) {
-                        pu = 1-u;
-                        pv = v;
-                    } else if (ptexRot == 2){
-                        pu = 1-v;
-                        pv = 1-u;
-                    } else if (ptexRot == 3){
-                        pu = u;
-                        pv = 1-v;
-                    }
-
-                    var lv = 1 << depth;
-                    pu = pu / lv + ptexU/lv;
-                    pv = pv / lv + ptexV/lv;
-
-                    pu = ptexX + pu * ptexW;
-                    pv = ptexY + pv * ptexH;
+                    var ptexCoordColor = getPtexCoord(
+                        u, v, ptexU, ptexV,
+                        ptexPackingColor, ptexRot, depth);
+                    var ptexCoordDisplace = getPtexCoord(
+                        u, v, ptexU, ptexV,
+                        ptexPackingDisplace, ptexRot, depth);
 
                     primVars[vid*12+0] = u;
                     primVars[vid*12+1] = v;
@@ -757,8 +794,10 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                     primVars[vid*12+5] = color[1];
                     primVars[vid*12+6] = color[2];
                     primVars[vid*12+7] = i;
-                    primVars[vid*12+8] = pu;
-                    primVars[vid*12+9] = pv;
+                    primVars[vid*12+8] = ptexCoordColor[0];
+                    primVars[vid*12+9] = ptexCoordColor[1];
+                    primVars[vid*12+10] = ptexCoordDisplace[0];
+                    primVars[vid*12+11] = ptexCoordDisplace[1];
                     if (iu != 0 && iv != 0) {
                         indices[nIndices++] = vid;
                         indices[nIndices++] = vid - div;
@@ -886,9 +925,13 @@ function redraw() {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
 
-        if (model.ptexTexture != undefined) {
+        if (model.ptexTexture_color != undefined) {
             gl.activeTexture(gl.TEXTURE2);
-            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
+        }
+        if (model.ptexTexture_displace != undefined) {
+            gl.activeTexture(gl.TEXTURE3);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
         }
 
         for (var i = 0; i < model.batches.length; ++i) {
@@ -907,7 +950,8 @@ function redraw() {
 
                 gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
                 gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
-                gl.uniform1i(gl.getUniformLocation(program, "texPtex"), 2);
+                gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
+                gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplace"), 3);
 
                 gl.activeTexture(gl.TEXTURE1);
                 if (model.batches[i].gregory) {
