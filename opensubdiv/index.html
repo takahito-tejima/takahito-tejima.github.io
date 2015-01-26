@@ -42,6 +42,9 @@
       uniform mat4 projMatrix;
       uniform float displaceScale;
 
+      uniform sampler2D texPtexLayout;
+      uniform sampler2D texPtex;
+
       void evalCubicBSpline(in float u, out float B[4], out float BU[4]) {
         float t = u;
         float s = 1.0 - u;
@@ -74,6 +77,13 @@
         D[1] = A0 - A1;
         D[2] = A1 - A2;
         D[3] = A2;
+      }
+      vec4 getPtexColor(vec2 ptexUV) {
+        float ptexIndex = 0.0;
+        vec4 layout = texture2D(texPtexLayout, vec2(ptexIndex, 0));
+        // layout = u, v, w, h
+        vec2 uv = ptexUV.xy * layout.zw + layout.xy;
+        return vec4(texture2D(texPtex, uv).xyz, 1);
       }
 
       float displacement(vec2 uv) {
@@ -324,7 +334,6 @@
       varying vec3 Peye;
 
       uniform int displayMode;
-      uniform float displaceScale;
 
       void main()
       {
@@ -339,6 +348,9 @@
          float d = dot(fnormal, vec3(0, 0, 1));
 
          vec4 c = vec4(color, 1);
+
+         c = getPtexColor(uv.xy);
+
       #if DISPLAY_MODE == 0
          c.rgb = vec3(1);
          c = vec4(d*c.rgb,1);

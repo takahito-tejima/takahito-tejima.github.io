@@ -114,7 +114,7 @@ function buildProgram(vertexShader, fragmentShader)
     if (!gl.getShaderParameter(vshader, gl.COMPILE_STATUS))
         alert(gl.getShaderInfoLog(vshader));
     var fshader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fshader, define+$(fragmentShader).text());
+    gl.shaderSource(fshader, define+util+$(fragmentShader).text());
     gl.compileShader(fshader);
     if (!gl.getShaderParameter(fshader, gl.COMPILE_STATUS))
         alert(gl.getShaderInfoLog(fshader));
@@ -282,7 +282,7 @@ function setModel(data)
 {
     if (data == null) return;
 
-    //console.log(data);
+    console.log(data);
 
     // XXX: release buffers!
     deleteModel(model);
@@ -353,15 +353,15 @@ function setModel(data)
     var r2 = getPOT(model.nPoints);
     model.nPointRes = r2;
 
-    var data = model.patches;
+    var dt = model.patches;
     var fd = new Float32Array(r*r*3);
-    for (var i = 0; i < data.length; ++i) {
-        if (data[i] == -1) {
+    for (var i = 0; i < dt.length; ++i) {
+        if (dt[i] == -1) {
           fd[i*3+0] = -1;
           fd[i*3+1] = -1;
         } else {
-          fd[i*3+0] = (data[i]%r2+0.5)/r2;
-          fd[i*3+1] = (Math.floor(data[i]/r2)+0.5)/r2;
+          fd[i*3+0] = (dt[i]%r2+0.5)/r2;
+          fd[i*3+1] = (Math.floor(dt[i]/r2)+0.5)/r2;
         }
     }
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, r, r, 0, gl.RGB, gl.FLOAT, fd);
@@ -382,6 +382,40 @@ function setModel(data)
     }
     model.nGregoryPatchRes = [20, nGregoryPatches];
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 20, nGregoryPatches, 0, gl.RGB, gl.FLOAT, fd);
+
+    // ptex layout
+    if (data.ptexDim != undefined) {
+        model.ptexDim = data.ptexDim;
+        model.ptexLayout = data.ptexLayout;
+        model.ptexTexel = data.ptexTexel;
+
+        model.ptexLayoutTexture = createTextureBuffer();
+        // layout conversion : [2],[3],
+        var nFace = model.ptexLayout.length/6;
+        var layout = new Float32Array(4*nFace);
+        for (var i = 0; i < nFace; i++) {
+            layout[i*4+0] = model.ptexLayout[i*6+2] / model.ptexDim[0];
+            layout[i*4+1] = model.ptexLayout[i*6+3] / model.ptexDim[1];
+            var wh = model.ptexLayout[i*6+5];
+            layout[i*4+2] = (1 << (wh>>8)) / model.ptexDim[0];
+            layout[i*4+3] = (1 << (wh & 0xff)) / model.ptexDim[1];
+        }
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, nFace, 1, 0,
+                      gl.RGBA, gl.FLOAT, layout);
+
+        // ptex texel
+        model.ptexTexture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, model.ptexDim[0],
+                      model.ptexDim[1], 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                      model.ptexTexel);
+    }
 
     fitCamera();
 
@@ -484,7 +518,7 @@ function evalGregory()
     var vOut = model.gregoryVertsOffset*3;
     for (var i = 0; i < nGregoryPatches; ++i) {
         var patchIndex = i + patchOffset;
-        var type = model.patchParams[patchIndex*5+2];
+        var type = model.patchParams[patchIndex*8+2];
         evaluator.evalGregory(model.gregoryPatches,
                               i, type, quadOffset);
         quadOffset += 4;
@@ -602,11 +636,11 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
     for (var i = 0; i < nPatches; ++i) {
         // patchparam: depth, ptexRot, type, pattern, rotation
         var patchIndex = i + patchOffset;
-        if (patchIndex*5 >= patchParams.length) continue;
-        var depth = patchParams[patchIndex*5+0];
-        var type = patchParams[patchIndex*5+2];
-        var pattern = patchParams[patchIndex*5+3];
-        var rotation = patchParams[patchIndex*5+4];
+        if (patchIndex*8 >= patchParams.length) continue;
+        var depth = patchParams[patchIndex*8+0];
+        var type = patchParams[patchIndex*8+2];
+        var pattern = patchParams[patchIndex*8+3];
+        var rotation = patchParams[patchIndex*8+4];
 
         var ncp = 16;
         if (type == 10 || type == 11) ncp = 4;
@@ -781,6 +815,17 @@ function redraw() {
 
     if (model.batches != null) {
         var drawTris = 0;
+        // common textures
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
+
+        if (model.ptexLayoutTexture != undefined) {
+            gl.activeTexture(gl.TEXTURE2);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexLayoutTexture);
+            gl.activeTexture(gl.TEXTURE3);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
+        }
+
         for (var i = 0; i < model.batches.length; ++i) {
             if (gpuTess) {
                 var program = model.batches[i].gregory ? gregoryProgram : tessProgram;
@@ -797,8 +842,9 @@ function redraw() {
 
                 gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
                 gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
-                gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
+                gl.uniform1i(gl.getUniformLocation(program, "texPtexLayout"), 2);
+                gl.uniform1i(gl.getUniformLocation(program, "texPtex"), 3);
+
                 gl.activeTexture(gl.TEXTURE1);
                 if (model.batches[i].gregory) {
                     gl.uniform2f(gl.getUniformLocation(program, "patchRes"),
