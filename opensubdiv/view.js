@@ -19,7 +19,7 @@ var time = 0;
 var model = {};
 var deform = false;
 var drawHull = true;
-var uvMapping = false;
+var usePtexColor = false;
 var dpr = 1;
 var displaceScale = 0;
 
@@ -102,7 +102,7 @@ function getMousePosition()
 function buildProgram(vertexShader, fragmentShader)
 {
     var define = "";
-    if (uvMapping) define += "#define USE_UV_MAP\n";
+    if (usePtexColor) define += "#define PTEX_COLOR\n";
     define += "#define DISPLAY_MODE " + displayMode +"\n";
     if (displaceScale > 0) define += "#define DISPLACEMENT 1\n";
 
@@ -253,9 +253,14 @@ function deleteModel()
         gl.deleteTexture(model.patchIndexTexture);
     if (model.gregoryPatchIndexTexture)
         gl.deleteTexture(model.gregoryPatchIndexTexture);
+
+    if (model.ptexTexture)
+        gl.deleteTexture(model.ptexTexture);
+
     model.vTexture = null;
     model.patchIndexTexture = null;
     model.gregoryPatchIndexTexture = null;
+    model.ptexTexture = null;
 }
 
 function fitCamera()
@@ -385,38 +390,22 @@ function setModel(data)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 20, nGregoryPatches, 0, gl.RGB, gl.FLOAT, fd);
 
     // ptex layout
+    usePtexColor = false;
     if (data.ptexDim != undefined) {
+        usePtexColor = true;
         model.ptexDim = data.ptexDim;
         model.ptexLayout = data.ptexLayout;
         model.ptexTexel = data.ptexTexel;
         model.ptexChannel = data.ptexChannel;
 
-/*
-        model.ptexLayoutTexture = createTextureBuffer();
-        // layout conversion : [2],[3],
-        var nFace = model.ptexLayout.length/6;
-        var layout = new Float32Array(4*nFace);
-        for (var i = 0; i < nFace; i++) {
-            layout[i*4+0] = model.ptexLayout[i*6+2] / model.ptexDim[0];
-            layout[i*4+1] = model.ptexLayout[i*6+3] / model.ptexDim[1];
-            var wh = model.ptexLayout[i*6+5];
-            layout[i*4+2] = (1 << (wh>>8)) / model.ptexDim[0];
-            layout[i*4+3] = (1 << (wh & 0xff)) / model.ptexDim[1];
-        }
-
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, nFace, 1, 0,
-                      gl.RGBA, gl.FLOAT, layout);
-*/
-
         // ptex texel
         var format = gl.RGBA;
         if (model.ptexChannel == 3) format = gl.RGB;
         model.ptexTexture = gl.createTexture();
-        console.log(model.ptexChannel);
         gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, format, model.ptexDim[0],
@@ -670,13 +659,17 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
         var ptexV = patchParams[patchIndex*8+6];
         var ptexFace = patchParams[patchIndex*8+7];
 
-
         // resolve ptex coordinate here!
-        var ptexX = (model.ptexLayout[ptexFace*6 + 2]-1) / model.ptexDim[0];
-        var ptexY = model.ptexLayout[ptexFace*6 + 3] / model.ptexDim[1];
-        var wh = model.ptexLayout[ptexFace*6 + 5];
-        var ptexW = (1<<(wh >> 8))/model.ptexDim[0];
-        var ptexH = (1<<(wh & 0xff))/model.ptexDim[1];
+        var ptexX, ptexY, ptexW, ptexH;
+        if (model.ptexLayout != undefined) {
+            ptexX = (model.ptexLayout[ptexFace*6 + 2]) / (model.ptexDim[0]);
+            ptexY = (model.ptexLayout[ptexFace*6 + 3]) / (model.ptexDim[1]);
+            var wh = model.ptexLayout[ptexFace*6 + 5];
+            ptexW = ((1<<(wh >> 8)))/(model.ptexDim[0]);
+            ptexH = ((1<<(wh & 0xff)))/(model.ptexDim[1]);
+        } else {
+            ptexX = ptexY = ptexW = ptexH = 0;
+        }
 
         if (level <= 0 && pattern != 0) {
             // under tessellated transition patch. need triangle patterns.
@@ -886,9 +879,7 @@ function redraw() {
         gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
 
         if (model.ptexTexture != undefined) {
-//            gl.activeTexture(gl.TEXTURE2);
-//            gl.bindTexture(gl.TEXTURE_2D, model.ptexLayoutTexture);
-            gl.activeTexture(gl.TEXTURE3);
+            gl.activeTexture(gl.TEXTURE2);
             gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
         }
 
@@ -908,8 +899,7 @@ function redraw() {
 
                 gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
                 gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
-                gl.uniform1i(gl.getUniformLocation(program, "texPtexLayout"), 2);
-                gl.uniform1i(gl.getUniformLocation(program, "texPtex"), 3);
+                gl.uniform1i(gl.getUniformLocation(program, "texPtex"), 2);
 
                 gl.activeTexture(gl.TEXTURE1);
                 if (model.batches[i].gregory) {
@@ -967,10 +957,12 @@ function redraw() {
 function loadModel(url)
 {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
+    var now = new Date();
+    xhr.open('GET', url + "?"+now.getTime(), true);
     xhr.onload = function(e) {
         var data = eval("("+this.response+")");
         setModel(data.model);
+        initialize();
         redraw();
     }
     xhr.send();

@@ -42,7 +42,6 @@
       uniform mat4 projMatrix;
       uniform float displaceScale;
 
-      uniform sampler2D texPtexLayout;
       uniform sampler2D texPtex;
 
       void evalCubicBSpline(in float u, out float B[4], out float BU[4]) {
@@ -356,10 +355,13 @@
 
          vec4 c = vec4(color, 1);
 
-         c = getPtexColor(ptexCoord);
 
       #if DISPLAY_MODE == 0
+      #ifdef PTEX_COLOR
+         c = getPtexColor(ptexCoord);
+      #else
          c.rgb = vec3(1);
+      #endif
          c = vec4(d*c.rgb,1);
       #elif DISPLAY_MODE == 1
          c = vec4(d*c.rgb,1);
