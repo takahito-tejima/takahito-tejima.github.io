@@ -128,6 +128,7 @@ function buildProgram(vertexShader, fragmentShader)
         gl.bindAttribLocation(program, 1, "inColor");
         gl.bindAttribLocation(program, 2, "position");
         gl.bindAttribLocation(program, 3, "inNormal");
+        gl.bindAttribLocation(program, 4, "inPtexCoord");
     }
 
     gl.linkProgram(program)
@@ -282,7 +283,7 @@ function setModel(data)
 {
     if (data == null) return;
 
-    console.log(data);
+    //console.log(data);
 
     // XXX: release buffers!
     deleteModel(model);
@@ -388,7 +389,9 @@ function setModel(data)
         model.ptexDim = data.ptexDim;
         model.ptexLayout = data.ptexLayout;
         model.ptexTexel = data.ptexTexel;
+        model.ptexChannel = data.ptexChannel;
 
+/*
         model.ptexLayoutTexture = createTextureBuffer();
         // layout conversion : [2],[3],
         var nFace = model.ptexLayout.length/6;
@@ -403,17 +406,21 @@ function setModel(data)
 
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, nFace, 1, 0,
                       gl.RGBA, gl.FLOAT, layout);
+*/
 
         // ptex texel
+        var format = gl.RGBA;
+        if (model.ptexChannel == 3) format = gl.RGB;
         model.ptexTexture = gl.createTexture();
+        console.log(model.ptexChannel);
         gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, model.ptexDim[0],
-                      model.ptexDim[1], 0, gl.RGBA, gl.UNSIGNED_BYTE,
+        gl.texImage2D(gl.TEXTURE_2D, 0, format, model.ptexDim[0],
+                      model.ptexDim[1], 0, format, gl.UNSIGNED_BYTE,
                       model.ptexTexel);
     }
 
@@ -537,12 +544,12 @@ function appendBatch(indices, primVars, nIndices, nPoints, gregory)
     var batch = {}
 
     var pdata = new Float32Array(nPoints * 6); // xyz, normal
-    var uvdata = new Float32Array(nPoints * 8); // uv(4), color(3)+patchIndex
+    var uvdata = new Float32Array(nPoints * 12); // uv(4), color(3)+patchIndex
     var idata = new Uint16Array(nIndices);
     for (i = 0; i < nIndices; i++) {
         idata[i] = indices[i];
     }
-    for (i = 0; i < nPoints*8; i++) {
+    for (i = 0; i < nPoints*12; i++) {
         uvdata[i] = primVars[i];
     }
     batch.pData = pdata;
@@ -626,7 +633,7 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
     if (patches == null) return;
 
     var indices = new Uint16Array(10*65536);
-    var primVars = new Float32Array(8*65536);
+    var primVars = new Float32Array(12*65536);
     var vid = 0;
     var nIndices = 0;
     var edgeparams = [[0,0],[1,0],[0,1]];
@@ -637,10 +644,11 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
         // patchparam: depth, ptexRot, type, pattern, rotation
         var patchIndex = i + patchOffset;
         if (patchIndex*8 >= patchParams.length) continue;
-        var depth = patchParams[patchIndex*8+0];
-        var type = patchParams[patchIndex*8+2];
-        var pattern = patchParams[patchIndex*8+3];
+        var depth    = patchParams[patchIndex*8+0];
+        var type     = patchParams[patchIndex*8+2];
+        var pattern  = patchParams[patchIndex*8+3];
         var rotation = patchParams[patchIndex*8+4];
+        var ptexRot  = patchParams[patchIndex*8+1];
 
         var ncp = 16;
         if (type == 10 || type == 11) ncp = 4;
@@ -658,6 +666,18 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
             patchColors[0][type-6] :
             patchColors[type-6+1][pattern-1];
 
+        var ptexU = patchParams[patchIndex*8+5];
+        var ptexV = patchParams[patchIndex*8+6];
+        var ptexFace = patchParams[patchIndex*8+7];
+
+
+        // resolve ptex coordinate here!
+        var ptexX = (model.ptexLayout[ptexFace*6 + 2]-1) / model.ptexDim[0];
+        var ptexY = model.ptexLayout[ptexFace*6 + 3] / model.ptexDim[1];
+        var wh = model.ptexLayout[ptexFace*6 + 5];
+        var ptexW = (1<<(wh >> 8))/model.ptexDim[0];
+        var ptexH = (1<<(wh & 0xff))/model.ptexDim[1];
+
         if (level <= 0 && pattern != 0) {
             // under tessellated transition patch. need triangle patterns.
             var params = getTransitionParams(pattern-1, rotation);
@@ -666,32 +686,78 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                 var v = params[j][1];
                 var iu = edgeparams[j%3][0];
                 var iv = edgeparams[j%3][1];
+
+                var lv = 1 << depth;
+                var pu = v;
+                var pv = u;
+                if (ptexRot == 1) {
+                    pu = 1-u;
+                    pv = v;
+                } else if (ptexRot == 2){
+                    pu = 1-v;
+                    pv = 1-u;
+                } else if (ptexRot == 3){
+                    pu = u;
+                    pv = 1-v;
+                }
+                pu = pu / lv + ptexU/lv;
+                pv = pv / lv + ptexV/lv;
+
+                pu = ptexX + pu * ptexW;
+                pv = ptexY + pv * ptexH;
+
                 // gregory patch requires relative index for patchIndex
-                primVars[vid*8+0] = u;
-                primVars[vid*8+1] = v;
-                primVars[vid*8+2] = iu;
-                primVars[vid*8+3] = iv;
-                primVars[vid*8+4] = color[0];
-                primVars[vid*8+5] = color[1];
-                primVars[vid*8+6] = color[2];
-                primVars[vid*8+7] = i;
+                primVars[vid*12+0] = u;
+                primVars[vid*12+1] = v;
+                primVars[vid*12+2] = iu;
+                primVars[vid*12+3] = iv;
+                primVars[vid*12+4] = color[0];
+                primVars[vid*12+5] = color[1];
+                primVars[vid*12+6] = color[2];
+                primVars[vid*12+7] = i;
+                primVars[vid*12+8] = pu;
+                primVars[vid*12+9] = pv;
                 indices[nIndices++] = vid++;
             }
         } else {
             if (level < 0) level = 0;
             var div = (1 << level) + 1;
+
             for (iu = 0; iu < div; iu++) {
                 for (iv = 0; iv < div; iv++) {
                     var u = iu/(div-1);
                     var v = iv/(div-1);
-                    primVars[vid*8+0] = u;
-                    primVars[vid*8+1] = v;
-                    primVars[vid*8+2] = iu;
-                    primVars[vid*8+3] = iv;
-                    primVars[vid*8+4] = color[0];
-                    primVars[vid*8+5] = color[1];
-                    primVars[vid*8+6] = color[2];
-                    primVars[vid*8+7] = i;
+
+                    var pu = v;
+                    var pv = u;
+                    if (ptexRot == 1) {
+                        pu = 1-u;
+                        pv = v;
+                    } else if (ptexRot == 2){
+                        pu = 1-v;
+                        pv = 1-u;
+                    } else if (ptexRot == 3){
+                        pu = u;
+                        pv = 1-v;
+                    }
+
+                    var lv = 1 << depth;
+                    pu = pu / lv + ptexU/lv;
+                    pv = pv / lv + ptexV/lv;
+
+                    pu = ptexX + pu * ptexW;
+                    pv = ptexY + pv * ptexH;
+
+                    primVars[vid*12+0] = u;
+                    primVars[vid*12+1] = v;
+                    primVars[vid*12+2] = iu;
+                    primVars[vid*12+3] = iv;
+                    primVars[vid*12+4] = color[0];
+                    primVars[vid*12+5] = color[1];
+                    primVars[vid*12+6] = color[2];
+                    primVars[vid*12+7] = i;
+                    primVars[vid*12+8] = pu;
+                    primVars[vid*12+9] = pv;
                     if (iu != 0 && iv != 0) {
                         indices[nIndices++] = vid;
                         indices[nIndices++] = vid - div;
@@ -819,9 +885,9 @@ function redraw() {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
 
-        if (model.ptexLayoutTexture != undefined) {
-            gl.activeTexture(gl.TEXTURE2);
-            gl.bindTexture(gl.TEXTURE_2D, model.ptexLayoutTexture);
+        if (model.ptexTexture != undefined) {
+//            gl.activeTexture(gl.TEXTURE2);
+//            gl.bindTexture(gl.TEXTURE_2D, model.ptexLayoutTexture);
             gl.activeTexture(gl.TEXTURE3);
             gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture);
         }
@@ -865,11 +931,13 @@ function redraw() {
 
             gl.enableVertexAttribArray(2);
             gl.enableVertexAttribArray(3);
+            gl.enableVertexAttribArray(4);
             var batch = model.batches[i];
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
             gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
-            gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 8*4, 0);  // uv, iuiv
-            gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 8*4, 4*4); // color, patchIndex
+            gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 12*4, 0);  // uv, iuiv
+            gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 12*4, 4*4); // color, patchIndex
+            gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 12*4, 8*4); // ptexFace, ptexU, ptexV
             gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
             gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 6*4, 0);    // XYZ
             gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 6*4, 3*4);  // normal

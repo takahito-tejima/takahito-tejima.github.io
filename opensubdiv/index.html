@@ -78,12 +78,9 @@
         D[2] = A1 - A2;
         D[3] = A2;
       }
-      vec4 getPtexColor(vec2 ptexUV) {
-        float ptexIndex = 0.0;
-        vec4 layout = texture2D(texPtexLayout, vec2(ptexIndex, 0));
-        // layout = u, v, w, h
-        vec2 uv = ptexUV.xy * layout.zw + layout.xy;
-        return vec4(texture2D(texPtex, uv).xyz, 1);
+      vec4 getPtexColor(vec4 ptexCoord) {
+      //return ptexCoord;
+        return vec4(texture2D(texPtex, ptexCoord.xy).xyz, 1);
       }
 
       float displacement(vec2 uv) {
@@ -96,10 +93,12 @@
       attribute vec3 inColor;  // 1
       attribute vec3 position; // 2
       attribute vec3 inNormal; // 3
+      attribute vec4 inPtexCoord; // 4
       varying vec3 normal;
       varying vec4 uv;
       varying vec3 color;
       varying vec3 Peye;
+      varying vec4 ptexCoord;
 
       void main(){
         vec3 p = (modelViewMatrix * vec4(position.xyz, 1)).xyz;
@@ -107,6 +106,7 @@
         uv = inUV;
         color = inColor;
         Peye = p;
+        ptexCoord = inPtexCoord;
         gl_Position = projMatrix * vec4(p, 1);
       }
     </script>
@@ -116,10 +116,12 @@
       attribute vec4 inColor;
       attribute vec3 position;
       attribute vec3 inNormal;
+      attribute vec4 inPtexCoord; // 4
       varying vec3 normal;
       varying vec4 uv;
       varying vec3 color;
       varying vec3 Peye;
+      varying vec4 ptexCoord;
 
       uniform sampler2D texCP;
       uniform sampler2D texPatch;
@@ -213,6 +215,7 @@
         uv = inUV;
         color = inColor.xyz;
         Peye = p;
+        ptexCoord = inPtexCoord;
         gl_Position = projMatrix * vec4(p, 1);
                            gl_PointSize=10.0;
       }
@@ -223,10 +226,12 @@
       attribute vec4 inColor;
       attribute vec3 position;
       attribute vec3 inNormal;
+      attribute vec4 inPtexCoord; // 4
       varying vec3 normal;
       varying vec4 uv;
       varying vec3 color;
       varying vec3 Peye;
+      varying vec4 ptexCoord;
 
       uniform sampler2D texCP;
       uniform sampler2D texPatch;
@@ -319,6 +324,7 @@
         uv = inUV;
         color = inColor.xyz;
         Peye = pos;
+        ptexCoord = inPtexCoord;
         gl_Position = projMatrix * vec4(pos, 1);
                            gl_PointSize=10.0;
       }
@@ -332,6 +338,7 @@
       varying vec4 uv;
       varying vec3 color;
       varying vec3 Peye;
+      varying vec4 ptexCoord;
 
       uniform int displayMode;
 
@@ -349,7 +356,7 @@
 
          vec4 c = vec4(color, 1);
 
-         c = getPtexColor(uv.xy);
+         c = getPtexColor(ptexCoord);
 
       #if DISPLAY_MODE == 0
          c.rgb = vec3(1);
