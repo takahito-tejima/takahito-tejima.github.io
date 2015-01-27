@@ -853,7 +853,7 @@ function tessellate(gregoryOnly) {
             batch.pData[pid+5] = pn[1][2];
 
             pid += 6; // xyz, normal
-            uvid += 8; // uv, color
+            uvid += 12; // uv, color
         }
         finalizeBatches(batch);
     }
