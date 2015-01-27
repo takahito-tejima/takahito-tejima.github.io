@@ -351,17 +351,57 @@
 
       uniform int displayMode;
 
+      vec3
+      perturbNormalFromDisplacement(vec3 position, vec3 normal, vec2 uv)
+      {
+        vec3 vSigmaS = dFdx(position);
+        vec3 vSigmaT = dFdy(position);
+        vec3 vN = normal;
+        vec3 vR1 = cross(vSigmaT, vN);
+        vec3 vR2 = cross(vN, vSigmaS);
+        float fDet = dot(vSigmaS, vR1);
+
+        vec2 texDx = dFdx(uv);
+        vec2 texDy = dFdy(uv);
+
+        // limit forward differencing to the width of ptex gutter
+        const float resolution = 128.0;
+        float d = 1.0;//min(1.0, (0.5/resolution)/max(length(texDx), length(texDy)));
+
+        vec2 STll = uv;
+        vec2 STlr = uv + d * vec2(texDx.x, texDx.y);
+        vec2 STul = uv + d * vec2(texDy.x, texDy.y);
+
+        float Hll = displacement(STll);
+        float Hlr = displacement(STlr);
+        float Hul = displacement(STul);
+
+        float dBs = (Hlr - Hll)/d;
+        float dBt = (Hul - Hll)/d;
+
+        vec3 vSurfGrad = sign(fDet) * (dBs * vR1 + dBt * vR2);
+        return normalize(abs(fDet) * vN - vSurfGrad);
+      }
+
       void main()
       {
          vec3 fnormal = normal;
       #ifdef DISPLACEMENT
          if (displaceScale > 0.0) {
+      #ifdef FLAT_NORMAL
            vec3 X = 100.0*dFdx(Peye);
            vec3 Y = 100.0*dFdy(Peye);
            fnormal = normalize( cross(X, Y) );
+      #else
+           fnormal = perturbNormalFromDisplacement(Peye,
+                             fnormal, ptexCoord.zw);
+      #endif
          }
       #endif
-         float d = dot(fnormal, vec3(0, 0, 1));
+         vec3 l = normalize(vec3(-0.3,0.5,1));
+         float d = max(0.0, dot(fnormal, l));
+         vec3 h = normalize(l + vec3(0,0,1));    // directional viewer
+         float s = pow(max(0.0, dot(fnormal, h)), 64.0);
 
          vec4 c = vec4(color, 1);
 
@@ -370,9 +410,11 @@
       #ifdef PTEX_COLOR
          c = getPtexColor(ptexCoord);
       #else
-         c.rgb = vec3(1);
+         c.rgb = vec3(0.4, 0.4, 0.8);
       #endif
-         c = vec4(d*c.rgb,1);
+
+         c = vec4(d*c.rgb + s*vec3(0.7),1);
+
       #elif DISPLAY_MODE == 1
          c = vec4(d*c.rgb,1);
       #elif DISPLAY_MODE == 2
@@ -472,6 +514,7 @@
             <option value="catmark_bishop">catmark_bishop</option>
             <option value="catmark_rook">catmark_rook</option>
             <option value="catmark_pawn">catmark_pawn</option>
+            <option value="barbarian">barbarian</option>
           </select>
         </div>
         Displacement (WIP)
