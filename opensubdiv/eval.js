@@ -96,6 +96,13 @@ function PatchEvaluator(maxValence) {
                      0.0669851, 0.0641504, 0.0615475, 0.0591488,
                      0.0569311, 0.0548745, 0.0529621];
     this.valences = [0, 0, 0, 0];
+    this.pos = vec3.create();
+    this.neighbor   = vec3.create();
+    this.diagonal   = vec3.create();
+    this.neighbor_p = vec3.create();
+    this.neighbor_m = vec3.create();
+    this.diagonal_m = vec3.create();
+
 }
 
 PatchEvaluator.prototype.evalGregory =
@@ -105,7 +112,6 @@ PatchEvaluator.prototype.evalGregory =
     var boundary = (type == 11)
     var ef_small = this.ef_small;
     var rp;
-    var pos = vec3.create();
     var valenceTable = model.valenceTable;
     var quadOffsets = model.quadOffsets;
     var verts = model.patchVerts;
@@ -120,11 +126,12 @@ PatchEvaluator.prototype.evalGregory =
     var maxValence = this.maxValence;
     var Etmp = this.Etmp;
 
-    var neighbor   = vec3.create();
-    var diagonal   = vec3.create();
-    var neighbor_p = vec3.create();
-    var neighbor_m = vec3.create();
-    var diagonal_m = vec3.create();
+    var pos = this.pos;
+    var neighbor   = this.neighbor;
+    var diagonal   = this.diagonal;
+    var neighbor_p = this.neighbor_p;
+    var neighbor_m = this.neighbor_m;
+    var diagonal_m = this.diagonal_m;
 
     for (var vid=0; vid < 4; ++vid) {
         boundaryEdgeNeighbors[0] = -1;
