@@ -403,6 +403,7 @@ function setModel(data, modelName)
         model.ptexDim_color = data.ptexDim_color;
         model.ptexLayout_color = data.ptexLayout_color;
         model.ptexTexture_color = gl.createTexture();
+        var now = new Date();
 
         // ptex texel
         var image = new Image();
@@ -416,15 +417,36 @@ function setModel(data, modelName)
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
             redraw();
         }
-        image.src = "./objs/"+modelName+"_color.png";
+        image.src = "./objs/"+modelName+"_color.png?"+now.getTime();
     }
     if (data.ptexDim_displace != undefined) {
         usePtexDisplace = true;
         model.ptexDim_displace = data.ptexDim_displace;
         model.ptexLayout_displace = data.ptexLayout_displace;
         model.ptexTexture_displace = gl.createTexture();
+        var now = new Date();
 
         // ptex texel
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', "./objs/"+modelName+"_displace.raw?"+now.getTime());
+        xhr.responseType = "arraybuffer";
+
+        xhr.onload = function(e) {
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE,
+                          model.ptexDim_displace[0], model.ptexDim_displace[1],
+                          0, gl.LUMINANCE, gl.FLOAT,
+                          new Float32Array(this.response));
+
+        }
+        xhr.send();
+
+/*
         var dimage = new Image();
         dimage.onload = function() {
             gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
@@ -436,7 +458,8 @@ function setModel(data, modelName)
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, dimage);
             redraw();
         }
-        dimage.src = "./objs/"+modelName+"_displace.png";
+        dimage.src = "./objs/"+modelName+"_displace.raw";
+*/
     }
 /*
         var format = gl.RGBA;
@@ -935,6 +958,8 @@ function redraw() {
         }
 
         for (var i = 0; i < model.batches.length; ++i) {
+            var batch = model.batches[i];
+            if (batch.vboUnvarying == null) continue;
             if (gpuTess) {
                 var program = model.batches[i].gregory ? gregoryProgram : tessProgram;
                 gl.useProgram(program);
@@ -974,7 +999,6 @@ function redraw() {
             gl.enableVertexAttribArray(2);
             gl.enableVertexAttribArray(3);
             gl.enableVertexAttribArray(4);
-            var batch = model.batches[i];
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
             gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
             gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 12*4, 0);  // uv, iuiv
@@ -990,6 +1014,7 @@ function redraw() {
             drawTris += batch.nTris;
             gl.disableVertexAttribArray(2);
             gl.disableVertexAttribArray(3);
+            gl.disableVertexAttribArray(4);
         }
     }
 
@@ -1011,7 +1036,7 @@ function loadModel(modelName)
     var url = "objs/" + modelName + ".json";
     var xhr = new XMLHttpRequest();
     var now = new Date();
-    xhr.open('GET', url + "?"+now.getTime(), true);
+    xhr.open('GET', url + "?"+now.getTime());
     xhr.onload = function(e) {
         var data = eval("("+this.response+")");
         setModel(data.model, modelName);
