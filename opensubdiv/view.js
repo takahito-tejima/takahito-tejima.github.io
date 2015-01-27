@@ -42,6 +42,7 @@ var framebuffer = null;
 var displayMode = 2;
 
 var tessFactor = 4;
+var floatFilter = 0;
 
 var patchColors = [[[1.0,  1.0,  1.0,  1.0],   // regular
                     [1.0,  0.5,  0.5,  1.0],   // single crease
@@ -434,8 +435,8 @@ function setModel(data, modelName)
             model.ptexTexture_displace = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE,
@@ -1087,6 +1088,11 @@ $(function(){
     }
     if(!gl.getExtension('OES_texture_float')){
         alert("requires OES_texture_float extension");
+    }
+    if(gl.getExtension('OES_texture_float_linear')){
+        floatFilter = gl.LINEAR;
+    } else {
+        floatFilter = gl.NEAREST;
     }
 
     var tess = getUrlParameter("tessFactor");
