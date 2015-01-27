@@ -402,12 +402,12 @@ function setModel(data, modelName)
         usePtexColor = true;
         model.ptexDim_color = data.ptexDim_color;
         model.ptexLayout_color = data.ptexLayout_color;
-        model.ptexTexture_color = gl.createTexture();
         var now = new Date();
 
         // ptex texel
         var image = new Image();
         image.onload = function() {
+            model.ptexTexture_color = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -423,15 +423,15 @@ function setModel(data, modelName)
         usePtexDisplace = true;
         model.ptexDim_displace = data.ptexDim_displace;
         model.ptexLayout_displace = data.ptexLayout_displace;
-        model.ptexTexture_displace = gl.createTexture();
         var now = new Date();
 
         // ptex texel
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', "./objs/"+modelName+"_displace.raw?"+now.getTime());
+        xhr.open('GET', "./objs/"+modelName+"_displace.raw?"+now.getTime(), true);
         xhr.responseType = "arraybuffer";
 
         xhr.onload = function(e) {
+            model.ptexTexture_displace = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -442,32 +442,9 @@ function setModel(data, modelName)
                           model.ptexDim_displace[0], model.ptexDim_displace[1],
                           0, gl.LUMINANCE, gl.FLOAT,
                           new Float32Array(this.response));
-
         }
         xhr.send();
-
-/*
-        var dimage = new Image();
-        dimage.onload = function() {
-            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
-            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, dimage);
-            redraw();
-        }
-        dimage.src = "./objs/"+modelName+"_displace.raw";
-*/
     }
-/*
-        var format = gl.RGBA;
-        if (model.ptexChannel == 3) format = gl.RGB;
-        gl.texImage2D(gl.TEXTURE_2D, 0, format, model.ptexDim[0],
-                      model.ptexDim[1], 0, format, gl.UNSIGNED_BYTE,
-                      model.ptexTexel);
-*/
 
     fitCamera();
 
@@ -512,9 +489,8 @@ function updateGeom(tf)
 
     if (gpuTess) {
         uploadRefinedVerts();
-        //tessellate(true);
     } else {
-        tessellate(false);
+        tessellate();
     }
     redraw();
 }
@@ -609,13 +585,11 @@ function appendBatch(indices, primVars, nIndices, nPoints, gregory)
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idata, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
     gl.bufferData(gl.ARRAY_BUFFER, pdata, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
     gl.bufferData(gl.ARRAY_BUFFER, uvdata, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     model.batches.push(batch);
 }
@@ -673,17 +647,17 @@ function getTransitionParams(pattern, rotation)
     }
 }
 
-function getPtexPacking(layout, dim, ptexFace)
+function getPtexPacking(ret, layout, dim, ptexFace)
 {
     var ptexX = (layout[ptexFace*6 + 2]) / (dim[0]);
     var ptexY = (layout[ptexFace*6 + 3]) / (dim[1]);
     var wh = layout[ptexFace*6 + 5];
     var ptexW = ((1<<(wh >> 8)))/(dim[0]);
     var ptexH = ((1<<(wh & 0xff)))/(dim[1]);
-    return vec4.fromValues(ptexX, ptexY, ptexW, ptexH);
+    vec4.set(ret, ptexX, ptexY, ptexW, ptexH);
 }
 
-function getPtexCoord(u, v, ptexU, ptexV, ptexPacking, ptexRot, depth)
+function getPtexCoord(ret, u, v, ptexU, ptexV, ptexPacking, ptexRot, depth)
 {
     var lv = 1 << depth;
     var pu = v;
@@ -702,7 +676,7 @@ function getPtexCoord(u, v, ptexU, ptexV, ptexPacking, ptexRot, depth)
     pv = pv / lv + ptexV/lv;
     pu = ptexPacking[0] + pu * ptexPacking[2];
     pv = ptexPacking[1] + pv * ptexPacking[3];
-    return vec2.fromValues(pu, pv);
+    vec2.set(ret, pu, pv);
 }
 
 function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
@@ -717,7 +691,13 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
 
     var nPatches = gregory ? patches.length/4 : patches.length/16;
 
+    var ptexPackingColor = vec4.create();
+    var ptexPackingDisplace = vec4.create();
+    var ptexCoordColor = vec2.create();
+    var ptexCoordDisplace = vec2.create();
+
     for (var i = 0; i < nPatches; ++i) {
+        if (i%1000==0) console.log(i, nPatches);
         // patchparam: depth, ptexRot, type, pattern, rotation
         var patchIndex = i + patchOffset;
         if (patchIndex*8 >= patchParams.length) continue;
@@ -748,20 +728,17 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
         var ptexFace = patchParams[patchIndex*8+7];
 
         // resolve ptex coordinate here!
-        var ptexPackingColor, ptexPackingDisplace;
         if (model.ptexLayout_color != undefined) {
-            ptexPackingColor = getPtexPacking(model.ptexLayout_color,
-                                              model.ptexDim_color,
-                                              ptexFace);
-        } else {
-            ptexPackingColor = vec4.create();
+            getPtexPacking(ptexPackingColor,
+                           model.ptexLayout_color,
+                           model.ptexDim_color,
+                           ptexFace);
         }
         if (model.ptexLayout_displace != undefined) {
-            ptexPackingDisplace = getPtexPacking(model.ptexLayout_displace,
-                                              model.ptexDim_displace,
-                                              ptexFace);
-        } else {
-            ptexPackingDisplace = vec4.create();
+            getPtexPacking(ptexPackingDisplace,
+                           model.ptexLayout_displace,
+                           model.ptexDim_displace,
+                           ptexFace);
         }
 
         if (level <= 0 && pattern != 0) {
@@ -773,10 +750,12 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                 var iu = edgeparams[j%3][0];
                 var iv = edgeparams[j%3][1];
 
-                var ptexCoordColor = getPtexCoord(
-                    u, v, ptexU, ptexV, ptexPackingColor, ptexRot, depth);
-                var ptexCoordDisplace = getPtexCoord(
-                    u, v, ptexU, ptexV, ptexPackingDisplace, ptexRot, depth);
+                getPtexCoord(ptexCoodColor,
+                             u, v, ptexU, ptexV,
+                             ptexPackingColor, ptexRot, depth);
+                getPtexCoord(ptexCoordDisplace,
+                             u, v, ptexU, ptexV,
+                             ptexPackingDisplace, ptexRot, depth);
 
                 // gregory patch requires relative index for patchIndex
                 primVars[vid*12+0] = u;
@@ -802,12 +781,12 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                     var u = iu/(div-1);
                     var v = iv/(div-1);
 
-                    var ptexCoordColor = getPtexCoord(
-                        u, v, ptexU, ptexV,
-                        ptexPackingColor, ptexRot, depth);
-                    var ptexCoordDisplace = getPtexCoord(
-                        u, v, ptexU, ptexV,
-                        ptexPackingDisplace, ptexRot, depth);
+                    getPtexCoord(ptexCoordColor,
+                                 u, v, ptexU, ptexV,
+                                 ptexPackingColor, ptexRot, depth);
+                    getPtexCoord(ptexCoordDisplace,
+                                 u, v, ptexU, ptexV,
+                                 ptexPackingDisplace, ptexRot, depth);
 
                     primVars[vid*12+0] = u;
                     primVars[vid*12+1] = v;
@@ -841,7 +820,7 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
 
 }
 
-function tessellate(gregoryOnly) {
+function tessellate() {
     if (model == null) return;
 
     var evaluator = new PatchEvaluator(model.maxValence);
@@ -851,7 +830,6 @@ function tessellate(gregoryOnly) {
         var batch = model.batches[i];
         var pid = 0;
         var uvid = 0;
-        if (gregoryOnly && !batch.gregory) continue;
 
         for (var j = 0; j < batch.nPoints; ++j) {
             var patchIndex = batch.uvData[uvid+7];
@@ -1021,8 +999,6 @@ function redraw() {
 
     gl.disableVertexAttribArray(1);
 
-    gl.finish();
-
     var time = Date.now();
     var drawTime = time - prevTime;
     prevTime = time;
@@ -1037,7 +1013,7 @@ function loadModel(modelName)
     var url = "objs/" + modelName + ".json";
     var xhr = new XMLHttpRequest();
     var now = new Date();
-    xhr.open('GET', url + "?"+now.getTime());
+    xhr.open('GET', url + "?"+now.getTime(), true);
     xhr.onload = function(e) {
         var data = eval("("+this.response+")");
         setModel(data.model, modelName);
@@ -1209,15 +1185,6 @@ $(function(){
         button = false;
     });
 
-/*
-    document.onmousewheel = function(e){
-        var event = windowEvent();
-        camera.dolly -= event.wheelDelta/200;
-        if (camera.dolly < 0.1) camera.dolly = 0.1;
-        redraw();
-        return false;
-    };
-*/
     document.oncontextmenu = function(e){
         return false;
     }
@@ -1294,21 +1261,6 @@ $(function(){
             setDisplacementScale(model.diag*ui.value*0.0001);
             redraw();
         }});
-
-    /*
-    uvimage.onload = function() {
-    uvtex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, uvtex);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, uvimage);
-    redraw();
-    }
-    */
-
 
     var modelName = getUrlParameter("model");
     if (modelName == undefined) {
