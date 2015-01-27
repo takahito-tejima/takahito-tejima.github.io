@@ -822,9 +822,9 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                     primVars[vid*12+10] = ptexCoordDisplace[0];
                     primVars[vid*12+11] = ptexCoordDisplace[1];
                     if (iu != 0 && iv != 0) {
-                        indices[nIndices++] = vid;
-                        indices[nIndices++] = vid - div;
                         indices[nIndices++] = vid - div - 1;
+                        indices[nIndices++] = vid - div;
+                        indices[nIndices++] = vid;
                         indices[nIndices++] = vid - 1;
                         indices[nIndices++] = vid - div - 1;
                         indices[nIndices++] = vid;
@@ -903,6 +903,7 @@ function redraw() {
     //gl.clearColor(.1, .1, .2, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
     gl.disable(gl.BLEND);
     gl.depthFunc(gl.LEQUAL);
 
@@ -914,7 +915,7 @@ function redraw() {
 
     var proj = mat4.create();
     mat4.identity(proj);
-    mat4.perspective(proj, camera.fov*6.28/360.0, aspect, 0.1, 1000.0);
+    mat4.perspective(proj, camera.fov*6.28/360.0, aspect, 0.01, 100.0);
 
     var modelView = mat4.create();
     mat4.identity(modelView);
