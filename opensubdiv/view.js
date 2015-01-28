@@ -2,21 +2,11 @@
 //   Copyright 2014 Takahito Tejima (tejimaya@gmail.com)
 //
 
-var camera = {
-    tx : 0,
-    ty : 0,
-    rx : 0,
-    ry : 0,
-    dolly : 5,
-    fov : 60
-};
-
 var button = false;
 var prev_position = [0, 0];
 var prev_pinch = 0;
 var gpuTess = true;
 
-var center = [0, 0, 0];
 var time = 0;
 var model = {};
 var deform = false;
@@ -37,7 +27,6 @@ var gregoryProgram = null;
 var cageProgram = null;
 
 var interval = null;
-var framebuffer = null;
 
 var displayMode = 2;
 
@@ -187,14 +176,6 @@ function createVertexTexture(reso)
     return texture;
 }
 
-function dumpFrameBuffer()
-{
-    var buffer = new ArrayBuffer(reso*reso*4);
-    var pixels = new Uint8Array(buffer);
-    gl.readPixels(0, 0, reso, reso, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-    console.log(pixels);
-}
-
 function setDisplacementScale(scale)
 {
     if ((displaceScale == 0 && scale > 0) ||
@@ -287,8 +268,10 @@ function fitCamera()
     model.size = [max[0]-min[0], max[1]-min[1], max[2]-min[2]];
     model.diag = Math.sqrt(model.size[0]*model.size[0] + model.size[1]*model.size[1] + model.size[2]*model.size[2]);
 
-    camera.dolly = model.diag*0.8;
-    center = [(max[0]+min[0])*0.5, (max[1]+min[1])*0.5, (max[2]+min[2])*0.5];
+    camera.tz = model.diag*0.8;
+    camera.setCenter((max[0]+min[0])*0.5,
+                     (max[1]+min[1])*0.5,
+                     (max[2]+min[2])*0.5);
 }
 
 function setModel(data, modelName)
@@ -698,7 +681,6 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
     var ptexCoordDisplace = vec2.create();
 
     for (var i = 0; i < nPatches; ++i) {
-        if (i%1000==0) console.log(i, nPatches);
         // patchparam: depth, ptexRot, type, pattern, rotation
         var patchIndex = i + patchOffset;
         if (patchIndex*8 >= patchParams.length) continue;
@@ -877,7 +859,6 @@ function idle() {
 function redraw() {
 
     if (model == null || model.patches == null) return;
-    // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     //gl.clearColor(.1, .1, .2, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -892,17 +873,9 @@ function redraw() {
     var aspect = w / h;
     gl.viewport(0, 0, w, h);
 
-    var proj = mat4.create();
-    mat4.identity(proj);
-    mat4.perspective(proj, camera.fov*6.28/360.0, aspect, 0.01, 100.0);
-
-    var modelView = mat4.create();
-    mat4.identity(modelView);
-    mat4.translate(modelView, modelView, vec3.fromValues(camera.tx, camera.ty, -camera.dolly));
-    mat4.rotate(modelView, modelView, camera.ry*Math.PI*2/360, vec3.fromValues(1, 0, 0));
-    mat4.rotate(modelView, modelView, camera.rx*Math.PI*2/360, vec3.fromValues(0, 1, 0));
-    mat4.translate(modelView, modelView, vec3.fromValues(-center[0], -center[1], -center[2]));
-
+    camera.setAspect(aspect);
+    var proj = camera.getProjection();
+    var modelView = camera.getModelView();
     var mvpMatrix = mat4.create();
     mat4.multiply(mvpMatrix, proj, modelView);
 
@@ -1147,18 +1120,11 @@ $(function(){
             if (event.shiftKey && button == 1) button = 2;
 
             if (button == 1) {
-                camera.rx += d[0];
-                camera.ry += d[1];
-                if(camera.ry > 90) camera.ry = 90;
-                if(camera.ry < -90) camera.ry = -90;
-            }
-            else if(button == 3) {
-                camera.dolly -= 0.005*d[0]*model.diag;
-                if (camera.dolly < 0.1) camera.dolly = 0.001;
-            }
-            else if(button == 2){
-                camera.tx += d[0]*0.01*model.diag;
-                camera.ty -= d[1]*0.01*model.diag;
+                camera.rotate(d[0], d[1]);
+            } else if(button == 3) {
+                camera.dolly(0.005*d[0]*model.diag);
+            } else if(button == 2){
+                camera.translate(d[0]*0.01*model.diag, d[1]*0.01*model.diag);
             }
             redraw();
         }
