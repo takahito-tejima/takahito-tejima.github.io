@@ -87,7 +87,8 @@
       #ifdef PTEX_DISPLACE
          return displaceScale*texture2D(texPtexDisplace, uv).x;
       #else
-         return displaceScale*(sin(40.0*uv.x)*cos(40.0*uv.y));
+         float freq = 100.0;
+         return displaceScale*(sin(freq*uv.x)*cos(freq*uv.y));
       #endif
       }
     </script>
@@ -208,6 +209,13 @@
         }
         vec3 n = normalize(cross(BiTangent, Tangent));
 
+      // apply displacement
+      #ifdef DISPLACEMENT
+        ptexCoord.zw = WorldPos.xz*4.0;
+        float d = displacement(ptexCoord.zw);
+        WorldPos.xyz += d*n;
+      #endif
+
         vec3 p = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
         normal = (modelViewMatrix * vec4(n, 0)).xyz;
         uv = inUV;
@@ -224,6 +232,7 @@
       varying vec4 uv;
       varying vec3 color;
       varying vec3 Peye;
+      varying vec4 ptexCoord;
 
       uniform sampler2D texCP;
       uniform sampler2D texPatch;
@@ -302,6 +311,13 @@
           BiTangent += D[k] * BUCP[k];
         }
         vec3 n = normalize(cross(BiTangent, Tangent));
+
+      // apply displacement
+      #ifdef DISPLACEMENT
+        ptexCoord.zw = WorldPos.xz*4.0;
+        float d = displacement(ptexCoord.zw);
+        WorldPos.xyz += d*n;
+      #endif
 
         vec3 pos = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
         normal = (modelViewMatrix * vec4(n, 0)).xyz;
@@ -420,7 +436,7 @@
       <div id="nav">
         <div>
           <input id="deformCheckbox" type="checkbox"><label for="deformCheckbox">Animation</label>
-          <input id="hullCheckbox" type="checkbox" checked><label for="hullCheckbox">Hull</label>
+          <input id="hullCheckbox" type="checkbox"><label for="hullCheckbox">Hull</label>
           <span id="tessKernelRadio">
             <input type="radio" id="tk1" name="tessKernelRadio" checked="checked"><label for="tk1">JS</label>
             <input type="radio" id="tk2" name="tessKernelRadio"><label for="tk2">GPU</label>
@@ -451,11 +467,11 @@
         Model
         <div>
           <select id="modelSelect" style="width:200px" size="35">
-            <option value="cube" selected>cube</option>
+            <option value="cube">cube</option>
             <option value="ptex">ptex</option>
             <option value="torus">torus</option>
             <option value="dino">dino</option>
-            <option value="face">face</option>
+            <option value="face" selected>face</option>
             <option value="catmark_cube_creases0">catmark_cube_creases0</option>
             <option value="catmark_cube_creases1">catmark_cube_creases1</option>
             <option value="catmark_cube_corner0">catmark_cube_corner0</option>
@@ -491,7 +507,7 @@
             <option value="barbarian">barbarian</option>
           </select>
         </div>
-        Displacement (WIP)
+        Displacement
         <div id="displaceScale"></div>
       </div>
 

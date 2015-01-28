@@ -9,7 +9,7 @@ var prev_pinch = 0;
 var time = 0;
 var model = {};
 var deform = false;
-var drawHull = true;
+var drawHull = false;
 var usePtexColor = false;
 var usePtexDisplace = false;
 var dpr = 1;
@@ -584,7 +584,7 @@ function redraw() {
 
     drawTris = 0;
     if (model != null) {
-        prepareBatch(mvpMatrix, aspect);
+        prepareBatch(mvpMatrix, proj, aspect);
 
         // common textures
         gl.activeTexture(gl.TEXTURE0);
@@ -600,6 +600,8 @@ function redraw() {
 
         gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
                      model.nPointRes);
+        gl.uniform1f(gl.getUniformLocation(program, "displaceScale"),
+                     displaceScale);
         gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
         gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
         gl.uniform1f(gl.getUniformLocation(program, "patchRes"),
@@ -620,6 +622,8 @@ function redraw() {
 
         gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
                      model.nPointRes);
+        gl.uniform1f(gl.getUniformLocation(program, "displaceScale"),
+                     displaceScale);
         gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
         gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
         gl.uniform2f(gl.getUniformLocation(program, "patchRes"),
@@ -648,7 +652,51 @@ function redraw() {
     $('#triangles').text(drawTris);
 }
 
-function prepareBatch(mvpMatrix, aspect)
+function GetTessLevels(p0, p1, p2, p3, level, mvpMatrix, projection)
+{
+    var s = 40;
+
+    var d0 = vec3.distance(p0, p1);
+    var d1 = vec3.distance(p1, p3);
+    var d2 = vec3.distance(p3, p2);
+    var d3 = vec3.distance(p2, p0);
+    var c0 = vec4.create();
+    var c1 = vec4.create();
+    var c2 = vec4.create();
+    var c3 = vec4.create();
+    vec4.lerp(c0, p0, p1, 0.5);
+    vec4.lerp(c1, p1, p3, 0.5);
+    vec4.lerp(c2, p3, p2, 0.5);
+    vec4.lerp(c3, p2, p0, 0.5);
+    vec4.transformMat4(c0, c0, mvpMatrix);
+    vec4.transformMat4(c1, c1, mvpMatrix);
+    vec4.transformMat4(c2, c2, mvpMatrix);
+    vec4.transformMat4(c3, c3, mvpMatrix);
+    d0 = Math.max(1, s*level*Math.abs(d0 * projection[5] / c0[3]));
+    d1 = Math.max(1, s*level*Math.abs(d1 * projection[5] / c1[3]));
+    d2 = Math.max(1, s*level*Math.abs(d2 * projection[5] / c2[3]));
+    d3 = Math.max(1, s*level*Math.abs(d3 * projection[5] / c3[3]));
+
+    var t0 = Math.floor(Math.log2(d0));
+    var t1 = Math.floor(Math.log2(d1));
+    var t2 = Math.floor(Math.log2(d2));
+    var t3 = Math.floor(Math.log2(d3));
+    if (t0 > 7) t0 = 7;
+    else if (t0 < 0) t0 = 0;
+    if (t1 > 7) t1 = 7;
+    else if (t1 < 0) t1 = 0;
+    if (t2 > 7) t2 = 7;
+    else if (t2 < 0) t2 = 0;
+    if (t3 > 7) t3 = 7;
+    else if (t3 < 0) t3 = 0;
+    // align to max
+    var tess = t0 > t1 ? t0 : t1;
+    tess = t2 > tess ? t2 : tess;
+    tess = t3 > tess ? t3 : tess;
+
+    return [tess, t0, t1, t2, t3];
+}
+function prepareBatch(mvpMatrix, projection, aspect)
 {
     var evaluator = new PatchEvaluator(model.maxValence);
 
@@ -682,69 +730,15 @@ function prepareBatch(mvpMatrix, aspect)
           |       |
           p0 -0-- p1
          */
-
-/*
-        vec4.transformMat4(p0, p0, mvpMatrix);
-        vec4.transformMat4(p1, p1, mvpMatrix);
-        vec4.transformMat4(p2, p2, mvpMatrix);
-        vec4.transformMat4(p3, p3, mvpMatrix);
-        vec4.scale(p0, p0, 1/p0[3]);
-        vec4.scale(p1, p1, 1/p1[3]);
-        vec4.scale(p2, p2, 1/p2[3]);
-        vec4.scale(p3, p3, 1/p3[3]);
-        p0[0] *= aspect;
-        p1[0] *= aspect;
-        p2[0] *= aspect;
-        p3[0] *= aspect;
-*/
-        var d0 = vec3.distance(p0, p1);
-        var d1 = vec3.distance(p1, p3);
-        var d2 = vec3.distance(p3, p2);
-        var d3 = vec3.distance(p2, p0);
-        var c0 = vec4.create();
-        var c1 = vec4.create();
-        var c2 = vec4.create();
-        var c3 = vec4.create();
-        vec4.lerp(c0, p0, p1, 0.5);
-        vec4.lerp(c1, p1, p3, 0.5);
-        vec4.lerp(c2, p3, p2, 0.5);
-        vec4.lerp(c3, p2, p0, 0.5);
-        vec4.transformMat4(c0, c0, mvpMatrix);
-        vec4.transformMat4(c1, c1, mvpMatrix);
-        vec4.transformMat4(c2, c2, mvpMatrix);
-        vec4.transformMat4(c3, c3, mvpMatrix);
-        d0 = Math.abs(d0 * mvpMatrix[5] / c0[3]);
-        d1 = Math.abs(d1 * mvpMatrix[5] / c1[3]);
-        d2 = Math.abs(d2 * mvpMatrix[5] / c2[3]);
-        d3 = Math.abs(d3 * mvpMatrix[5] / c3[3]);
-
-        var s = 10;
-        var t0 = Math.floor(Math.log2(s * level * d0));
-        var t1 = Math.floor(Math.log2(s * level * d1));
-        var t2 = Math.floor(Math.log2(s * level * d2));
-        var t3 = Math.floor(Math.log2(s * level * d3));
-        if (t0 > 7) t0 = 7;
-        else if (t0 < 0) t0 = 0;
-        if (t1 > 7) t1 = 7;
-        else if (t1 < 0) t1 = 0;
-        if (t2 > 7) t2 = 7;
-        else if (t2 < 0) t2 = 0;
-        if (t3 > 7) t3 = 7;
-        else if (t3 < 0) t3 = 0;
-        // align to max
-        var tess = t0 > t1 ? t0 : t1;
-        tess = t2 > tess ? t2 : tess;
-        tess = t3 > tess ? t3 : tess;
-
-        //console.log(tess, tess-t0, tess-t1, tess-t2, tess-t3);
+        var tessLevels = GetTessLevels(p0, p1, p2, p3, level, mvpMatrix, projection);
+        var tess = tessLevels[0];
         // TODO: frustum culling ?
         model.bsplineInstanceData[tess].push(i);
         model.bsplineInstanceData[tess].push(1<<tess);
-
-        model.bsplineInstanceData[tess].push(1<<(tess-t0));
-        model.bsplineInstanceData[tess].push(1<<(tess-t1));
-        model.bsplineInstanceData[tess].push(1<<(tess-t2));
-        model.bsplineInstanceData[tess].push(1<<(tess-t3));
+        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[1]));
+        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[2]));
+        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[3]));
+        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[4]));
     }
 
     // gregory patches
@@ -764,25 +758,15 @@ function prepareBatch(mvpMatrix, aspect)
         var pn3 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 1, 1);
         var p3 = vec4.fromValues(pn3[0][0], pn3[0][1], pn3[0][2], 1);
 
-        vec4.transformMat4(p0, p0, mvpMatrix);
-        vec4.transformMat4(p1, p1, mvpMatrix);
-        vec4.transformMat4(p2, p2, mvpMatrix);
-        vec4.transformMat4(p3, p3, mvpMatrix);
-        vec4.scale(p0, p0, 1/p0[3]);
-        vec4.scale(p1, p1, 1/p1[3]);
-        vec4.scale(p2, p2, 1/p2[3]);
-        vec4.scale(p3, p3, 1/p3[3]);
-        var d0 = vec3.distance(p0, p1);
-        var d1 = vec3.distance(p1, p2);
-        var d2 = vec3.distance(p2, p3);
-        var d3 = vec3.distance(p3, p0);
-
-        var f = 20*(d0+d1+d2+d3)*0.25;
-        tess = Math.floor(Math.log2(tess * f));
-        if (tess > 7) tess = 7;
-        if (tess < 0) tess = 0;
-
+        var tessLevels = GetTessLevels(p0, p1, p2, p3, level, mvpMatrix, projection);
+        var tess = tessLevels[0];
+        // TODO: frustum culling ?
         model.gregoryInstanceData[tess].push(i);
+        model.gregoryInstanceData[tess].push(1<<tess);
+        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[1]));
+        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[2]));
+        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[3]));
+        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[4]));
     }
 
     if (!model.instanceVBO) {
@@ -1099,8 +1083,9 @@ $(function(){
 
     var modelName = getUrlParameter("model");
     if (modelName == undefined) {
-//        loadModel("cube");
-        loadModel("catmark_edgecorner");
+        loadModel("face");
+        //loadModel("cube");
+        //loadModel("catmark_edgecorner");
     } else {
         loadModel("modelName");
     }
