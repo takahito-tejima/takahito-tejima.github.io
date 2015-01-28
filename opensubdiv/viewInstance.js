@@ -679,15 +679,15 @@ function GetTessLevels(p0, p1, p2, p3, level,
     vec4.transformMat4(c1, c1, mvpMatrix);
     vec4.transformMat4(c2, c2, mvpMatrix);
     vec4.transformMat4(c3, c3, mvpMatrix);
-    d0 = Math.max(1, s*level*Math.abs(d0 * projection[5] / c0[3]));
-    d1 = Math.max(1, s*level*Math.abs(d1 * projection[5] / c1[3]));
-    d2 = Math.max(1, s*level*Math.abs(d2 * projection[5] / c2[3]));
-    d3 = Math.max(1, s*level*Math.abs(d3 * projection[5] / c3[3]));
+    d0 = Math.max(1, s*Math.abs(d0 * projection[5] / c0[3]));
+    d1 = Math.max(1, s*Math.abs(d1 * projection[5] / c1[3]));
+    d2 = Math.max(1, s*Math.abs(d2 * projection[5] / c2[3]));
+    d3 = Math.max(1, s*Math.abs(d3 * projection[5] / c3[3]));
 
-    var t0 = Math.floor(Math.log2(d0));
-    var t1 = Math.floor(Math.log2(d1));
-    var t2 = Math.floor(Math.log2(d2));
-    var t3 = Math.floor(Math.log2(d3));
+    var t0 = Math.ceil(Math.log2(d0));
+    var t1 = Math.ceil(Math.log2(d1));
+    var t2 = Math.ceil(Math.log2(d2));
+    var t3 = Math.ceil(Math.log2(d3));
     if (t0 > 7) t0 = 7;
     else if (t0 < 0) t0 = 0;
     if (t1 > 7) t1 = 7;
