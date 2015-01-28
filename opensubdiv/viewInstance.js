@@ -661,7 +661,7 @@ function GetTessLevels(p0, p1, p2, p3, level,
                        pattern, rotation,
                        mvpMatrix, projection)
 {
-    var s = 10;
+    var s = level*level*2;
 
     var d0 = vec3.distance(p0, p1);
     var d1 = vec3.distance(p1, p3);
@@ -736,7 +736,7 @@ function prepareBatch(mvpMatrix, projection, aspect)
         var type     = model.patchParams[i*8+2];
         var pattern  = model.patchParams[i*8+3];
         var rotation = model.patchParams[i*8+4];
-        var level = tessFactor - depth;
+        var level = tessFactor;
         var color = getPatchColor(type, pattern);
 
         // clip length
@@ -771,7 +771,7 @@ function prepareBatch(mvpMatrix, projection, aspect)
         var depth    = model.patchParams[patchIndex*8+0];
         var type     = model.patchParams[patchIndex*8+2];
         var pattern  = model.patchParams[patchIndex*8+3];
-        var tess = tessFactor - depth;
+        var tess = tessFactor;
         var color = getPatchColor(type, pattern);
         if (tess < 0) tess = 0;
 
@@ -1120,8 +1120,8 @@ $(function(){
 
     var modelName = getUrlParameter("model");
     if (modelName == undefined) {
-        //loadModel("face");
-        loadModel("cube");
+        loadModel("face");
+        //loadModel("cube");
         //loadModel("catmark_edgecorner");
     } else {
         loadModel("modelName");
