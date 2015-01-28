@@ -207,13 +207,14 @@
         }
         vec3 n = normalize(cross(BiTangent, Tangent));
 
+        ptexCoord = inPtexCoord;
+
       // apply displacement
       #ifdef DISPLACEMENT
-      #ifdef PTEX_DISPLACE
-        float d = displacement(inPtexCoord.zw);
-      #else
-        float d = displacement(WorldPos.xz*4.0);
+      #ifndef PTEX_DISPLACE
+        ptexCoord.zw = WorldPos.xz*4.0;
       #endif
+        float d = displacement(ptexCoord.zw);
         WorldPos.xyz += d*n;
       #endif
 
@@ -222,7 +223,6 @@
         uv = inUV;
         color = inColor.xyz;
         Peye = p;
-        ptexCoord = inPtexCoord;
         gl_Position = projMatrix * vec4(p, 1);
                            gl_PointSize=10.0;
       }
@@ -319,13 +319,14 @@
         }
         vec3 n = normalize(cross(BiTangent, Tangent));
 
+        ptexCoord = inPtexCoord;
+
       // apply displacement
       #ifdef DISPLACEMENT
-      #ifdef PTEX_DISPLACE
-        float d = displacement(inPtexCoord.zw);
-      #else
-        float d = displacement(WorldPos.xz*4.0);
+      #ifndef PTEX_DISPLACE
+        ptexCoord.zw = WorldPos.xz*4.0;
       #endif
+        float d = displacement(ptexCoord.zw);
         WorldPos.xyz += d*n;
       #endif
 
@@ -334,7 +335,6 @@
         uv = inUV;
         color = inColor.xyz;
         Peye = pos;
-        ptexCoord = inPtexCoord;
         gl_Position = projMatrix * vec4(pos, 1);
                            gl_PointSize=10.0;
       }
