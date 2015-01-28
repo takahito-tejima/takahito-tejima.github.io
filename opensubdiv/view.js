@@ -733,7 +733,7 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
                 var iu = edgeparams[j%3][0];
                 var iv = edgeparams[j%3][1];
 
-                getPtexCoord(ptexCoodColor,
+                getPtexCoord(ptexCoordColor,
                              u, v, ptexU, ptexV,
                              ptexPackingColor, ptexRot, depth);
                 getPtexCoord(ptexCoordDisplace,
