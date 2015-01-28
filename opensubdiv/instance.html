@@ -14,7 +14,7 @@
         <link href="fullstyle.css" type="text/css" rel="stylesheet" />
     <![endif]-->
 
-    <title>OpenSubdiv 3.0 WebGL viewer (instance tessellation)</title>
+    <title>OpenSubdiv 3.0 WebGL viewer (adaptive tessellation)</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
@@ -94,7 +94,8 @@
 
     <script id="tessVertexShader" type="x-shader/x-vertex">
       attribute vec4 inUV;
-      attribute float patchIndex;
+      attribute vec2 patchData;
+      attribute vec4 tessLevel;
       varying vec3 normal;
       varying vec4 uv;
       varying vec3 color;
@@ -116,7 +117,7 @@
         vec3 cp[16];
         vec2 vids[16];
         for (int i = 0; i < 16; ++i) {
-          vids[i] = getVertexIndex(patchIndex, float(i));
+          vids[i] = getVertexIndex(patchData.x, float(i));
         }
         if (vids[9].x == -1.0) {
           // corner
@@ -157,7 +158,25 @@
         BUCP[0] = BUCP[1] = BUCP[2] = BUCP[3] = vec3(0);
         DUCP[0] = DUCP[1] = DUCP[2] = DUCP[3] = vec3(0);
 
-        evalCubicBSpline(inUV.x, B, D);
+        float pu = inUV.x;
+        float pv = inUV.y;
+
+        //color.r = 0.0;//clamp(mix(tessLevel.x, tessLevel.z, pv), 0.0, 1.0);
+        //color.g = clamp(mix(tessLevel.w, tessLevel.y, pu), 0.0, 1.0);
+        //color.b = 1.0;
+        color = vec3(1);
+
+        if (pu == 1.0 && tessLevel.y > 0.0) {
+            pv = floor(inUV.w / pow(2.0, tessLevel.y))/(pow(2.0,patchData.y-tessLevel.y));
+        } else if (pu == 0.0 && tessLevel.w > 0.0) {
+            pv = floor(inUV.w / pow(2.0, tessLevel.w))/(pow(2.0,patchData.y-tessLevel.w));
+        } else if (pv == 0.0 && tessLevel.x > 0.0) {
+            pu = floor(inUV.z / pow(2.0, tessLevel.x))/(pow(2.0,patchData.y-tessLevel.x));
+        } else if (pv == 1.0 && tessLevel.z > 0.0) {
+            pu = floor(inUV.z / pow(2.0, tessLevel.z))/(pow(2.0,patchData.y-tessLevel.z));
+        }
+
+        evalCubicBSpline(pu, B, D);
 
         for (int i=0; i<4; ++i) {
           for (int j=0; j<4; ++j) {
@@ -171,7 +190,7 @@
         vec3 Tangent   = vec3(0);
         vec3 BiTangent = vec3(0);
 
-        evalCubicBSpline(inUV.y, B, D);
+        evalCubicBSpline(pv, B, D);
 
         for (int k=0; k<4; ++k) {
           WorldPos  += B[k] * BUCP[k];
@@ -184,7 +203,6 @@
         normal = (modelViewMatrix * vec4(n, 0)).xyz;
         uv = inUV;
         Peye = p;
-        color = vec3(1);
         gl_Position = projMatrix * vec4(p, 1);
                            gl_PointSize=10.0;
       }
@@ -192,7 +210,7 @@
 
     <script id="gregoryVertexShader" type="x-shader/x-vertex">
       attribute vec4 inUV;
-      attribute float patchIndex;
+      attribute vec2 patchData;
       varying vec3 normal;
       varying vec4 uv;
       varying vec3 color;
@@ -212,7 +230,7 @@
         vec3 p[20];
         vec2 vids[20];
         for (int i = 0; i < 20; ++i) {
-          vids[i] = getGregoryVertexIndex(patchIndex, float(i));
+          vids[i] = getGregoryVertexIndex(patchData.x, float(i));
         }
         for (int i = 0; i < 20; ++i) {
           p[i] = texture2D(texCP, vids[i]).xyz;
@@ -388,7 +406,7 @@
 
     <div id="container">
       <div id="header">
-        <h3>OpenSubdiv 3.0 WebGL viewer (instance tessellation)</h3>
+        <h3>OpenSubdiv 3.0 WebGL viewer (adaptive tessellation)</h3>
       </div>
       <div id="nav">
         <div>

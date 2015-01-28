@@ -118,10 +118,8 @@ function buildProgram(vertexShader, fragmentShader)
         gl.bindAttribLocation(program, 0, "position");
     } else {
         gl.bindAttribLocation(program, 0, "inUV");
-        gl.bindAttribLocation(program, 1, "patchIndex");
-        gl.bindAttribLocation(program, 2, "position");
-        gl.bindAttribLocation(program, 3, "inNormal");
-        gl.bindAttribLocation(program, 4, "inPtexCoord");
+        gl.bindAttribLocation(program, 1, "patchData");
+        gl.bindAttribLocation(program, 2, "tessLevel");
     }
 
     gl.linkProgram(program)
@@ -580,11 +578,13 @@ function redraw() {
 
     gl.enableVertexAttribArray(0);
     gl.enableVertexAttribArray(1);
+    gl.enableVertexAttribArray(2);
     ext.vertexAttribDivisorANGLE(1, 1);
+    ext.vertexAttribDivisorANGLE(2, 1);
 
     drawTris = 0;
     if (model != null) {
-        prepareBatch();
+        prepareBatch(mvpMatrix, aspect);
 
         // common textures
         gl.activeTexture(gl.TEXTURE0);
@@ -608,7 +608,7 @@ function redraw() {
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
 
-        drawBSpline(model.bsplineIndices);
+        drawBSpline(model.bsplineInstanceData);
 
         // gregory patches
         var program = gregoryProgram;
@@ -627,12 +627,14 @@ function redraw() {
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
 
-        drawGregory(model.gregoryIndices);
+        drawGregory(model.gregoryInstanceData);
     }
 
     gl.disableVertexAttribArray(0);
     gl.disableVertexAttribArray(1);
+    gl.disableVertexAttribArray(2);
     ext.vertexAttribDivisorANGLE(1, 0);
+    ext.vertexAttribDivisorANGLE(2, 0);
 
     var time = Date.now();
     var drawTime = time - prevTime;
@@ -646,25 +648,103 @@ function redraw() {
     $('#triangles').text(drawTris);
 }
 
-function prepareBatch()
+function prepareBatch(mvpMatrix, aspect)
 {
+    var evaluator = new PatchEvaluator(model.maxValence);
+
     // level buckets
-    model.bsplineIndices = [];
-    model.gregoryIndices = [];
+    model.bsplineInstanceData = [];
+    model.gregoryInstanceData = [];
     for (var d = 0; d < 8; ++d) {
-        model.bsplineIndices[d] = [];
-        model.gregoryIndices[d] = [];
+        model.bsplineInstanceData[d] = [];
+        model.gregoryInstanceData[d] = [];
     }
 
     // bspline patches
     var nPatches = model.patches.length/16;
     for (var i = 0; i < nPatches; ++i) {
         var depth = model.patchParams[i*8+0];
-        var tess = tessFactor - depth;
-        if (tess < 0) tess = 0;
+        var level = tessFactor - depth;
 
+        // clip length
+        var pn0 = evaluator.evalBSpline(model.patches, i, 0, 0);
+        var p0 = vec4.fromValues(pn0[0][0], pn0[0][1], pn0[0][2], 1);
+        var pn1 = evaluator.evalBSpline(model.patches, i, 1, 0);
+        var p1 = vec4.fromValues(pn1[0][0], pn1[0][1], pn1[0][2], 1);
+        var pn2 = evaluator.evalBSpline(model.patches, i, 0, 1);
+        var p2 = vec4.fromValues(pn2[0][0], pn2[0][1], pn2[0][2], 1);
+        var pn3 = evaluator.evalBSpline(model.patches, i, 1, 1);
+        var p3 = vec4.fromValues(pn3[0][0], pn3[0][1], pn3[0][2], 1);
+        /*
+          p2 -2-- p3
+          |       |
+          3       1
+          |       |
+          p0 -0-- p1
+         */
+
+/*
+        vec4.transformMat4(p0, p0, mvpMatrix);
+        vec4.transformMat4(p1, p1, mvpMatrix);
+        vec4.transformMat4(p2, p2, mvpMatrix);
+        vec4.transformMat4(p3, p3, mvpMatrix);
+        vec4.scale(p0, p0, 1/p0[3]);
+        vec4.scale(p1, p1, 1/p1[3]);
+        vec4.scale(p2, p2, 1/p2[3]);
+        vec4.scale(p3, p3, 1/p3[3]);
+        p0[0] *= aspect;
+        p1[0] *= aspect;
+        p2[0] *= aspect;
+        p3[0] *= aspect;
+*/
+        var d0 = vec3.distance(p0, p1);
+        var d1 = vec3.distance(p1, p3);
+        var d2 = vec3.distance(p3, p2);
+        var d3 = vec3.distance(p2, p0);
+        var c0 = vec4.create();
+        var c1 = vec4.create();
+        var c2 = vec4.create();
+        var c3 = vec4.create();
+        vec4.lerp(c0, p0, p1, 0.5);
+        vec4.lerp(c1, p1, p3, 0.5);
+        vec4.lerp(c2, p3, p2, 0.5);
+        vec4.lerp(c3, p2, p0, 0.5);
+        vec4.transformMat4(c0, c0, mvpMatrix);
+        vec4.transformMat4(c1, c1, mvpMatrix);
+        vec4.transformMat4(c2, c2, mvpMatrix);
+        vec4.transformMat4(c3, c3, mvpMatrix);
+        d0 = Math.abs(d0 * mvpMatrix[5] / c0[3]);
+        d1 = Math.abs(d1 * mvpMatrix[5] / c1[3]);
+        d2 = Math.abs(d2 * mvpMatrix[5] / c2[3]);
+        d3 = Math.abs(d3 * mvpMatrix[5] / c3[3]);
+
+        var s = 10;
+        var t0 = Math.floor(Math.log2(s * level * d0));
+        var t1 = Math.floor(Math.log2(s * level * d1));
+        var t2 = Math.floor(Math.log2(s * level * d2));
+        var t3 = Math.floor(Math.log2(s * level * d3));
+        if (t0 > 7) t0 = 7;
+        else if (t0 < 0) t0 = 0;
+        if (t1 > 7) t1 = 7;
+        else if (t1 < 0) t1 = 0;
+        if (t2 > 7) t2 = 7;
+        else if (t2 < 0) t2 = 0;
+        if (t3 > 7) t3 = 7;
+        else if (t3 < 0) t3 = 0;
+        // align to max
+        var tess = t0 > t1 ? t0 : t1;
+        tess = t2 > tess ? t2 : tess;
+        tess = t3 > tess ? t3 : tess;
+
+        //console.log(tess, tess-t0, tess-t1, tess-t2, tess-t3);
         // TODO: frustum culling ?
-        model.bsplineIndices[tess].push(i);
+        model.bsplineInstanceData[tess].push(i);
+        model.bsplineInstanceData[tess].push(tess);
+
+        model.bsplineInstanceData[tess].push(tess-t0);
+        model.bsplineInstanceData[tess].push(tess-t1);
+        model.bsplineInstanceData[tess].push(tess-t2);
+        model.bsplineInstanceData[tess].push(tess-t3);
     }
 
     // gregory patches
@@ -674,7 +754,35 @@ function prepareBatch()
         var tess = tessFactor - depth;
         if (tess < 0) tess = 0;
 
-        model.gregoryIndices[tess].push(i);
+        // clip length
+        var pn0 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 0, 0);
+        var p0 = vec4.fromValues(pn0[0][0], pn0[0][1], pn0[0][2], 1);
+        var pn1 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 1, 0);
+        var p1 = vec4.fromValues(pn1[0][0], pn1[0][1], pn1[0][2], 1);
+        var pn2 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 0, 1);
+        var p2 = vec4.fromValues(pn2[0][0], pn2[0][1], pn2[0][2], 1);
+        var pn3 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 1, 1);
+        var p3 = vec4.fromValues(pn3[0][0], pn3[0][1], pn3[0][2], 1);
+
+        vec4.transformMat4(p0, p0, mvpMatrix);
+        vec4.transformMat4(p1, p1, mvpMatrix);
+        vec4.transformMat4(p2, p2, mvpMatrix);
+        vec4.transformMat4(p3, p3, mvpMatrix);
+        vec4.scale(p0, p0, 1/p0[3]);
+        vec4.scale(p1, p1, 1/p1[3]);
+        vec4.scale(p2, p2, 1/p2[3]);
+        vec4.scale(p3, p3, 1/p3[3]);
+        var d0 = vec3.distance(p0, p1);
+        var d1 = vec3.distance(p1, p2);
+        var d2 = vec3.distance(p2, p3);
+        var d3 = vec3.distance(p3, p0);
+
+        var f = 20*(d0+d1+d2+d3)*0.25;
+        tess = Math.floor(Math.log2(tess * f));
+        if (tess > 7) tess = 7;
+        if (tess < 0) tess = 0;
+
+        model.gregoryInstanceData[tess].push(i);
     }
 
     if (!model.instanceVBO) {
@@ -682,11 +790,11 @@ function prepareBatch()
     }
 }
 
-function drawBSpline(indices)
+function drawBSpline(instanceData)
 {
     // draw by patch level
-    for (var d = 0; d < indices.length; ++d) {
-        if (indices[d].length == 0) continue;
+    for (var d = 0; d < instanceData.length; ++d) {
+        if (instanceData[d].length == 0) continue;
         var tessMesh = model.tessMeshes[d];
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tessMesh.IBO);
@@ -694,10 +802,11 @@ function drawBSpline(indices)
         gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, 0);  // uv, iuiv
 
         gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(indices[d]), gl.STATIC_DRAW);
-        gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 1*4, 0);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]), gl.STATIC_DRAW);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 6*4, 0);
+        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 6*4, 2*4);
 
-        var nPatches = indices[d].length;
+        var nPatches = instanceData[d].length/6;
         ext.drawElementsInstancedANGLE(gl.TRIANGLES,
                                       tessMesh.numTris*3,
                                       gl.UNSIGNED_SHORT,
@@ -990,7 +1099,8 @@ $(function(){
 
     var modelName = getUrlParameter("model");
     if (modelName == undefined) {
-        loadModel("cube");
+        //loadModel("cube");
+        loadModel("catmark_edgecorner");
     } else {
         loadModel("modelName");
     }
