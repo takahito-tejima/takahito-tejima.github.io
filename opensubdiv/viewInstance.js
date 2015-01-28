@@ -120,6 +120,7 @@ function buildProgram(vertexShader, fragmentShader)
         gl.bindAttribLocation(program, 0, "inUV");
         gl.bindAttribLocation(program, 1, "patchData");
         gl.bindAttribLocation(program, 2, "tessLevel");
+        gl.bindAttribLocation(program, 3, "inColor");
     }
 
     gl.linkProgram(program)
@@ -579,8 +580,10 @@ function redraw() {
     gl.enableVertexAttribArray(0);
     gl.enableVertexAttribArray(1);
     gl.enableVertexAttribArray(2);
+    gl.enableVertexAttribArray(3);
     ext.vertexAttribDivisorANGLE(1, 1);
     ext.vertexAttribDivisorANGLE(2, 1);
+    ext.vertexAttribDivisorANGLE(3, 1);
 
     drawTris = 0;
     if (model != null) {
@@ -637,8 +640,10 @@ function redraw() {
     gl.disableVertexAttribArray(0);
     gl.disableVertexAttribArray(1);
     gl.disableVertexAttribArray(2);
+    gl.disableVertexAttribArray(3);
     ext.vertexAttribDivisorANGLE(1, 0);
     ext.vertexAttribDivisorANGLE(2, 0);
+    ext.vertexAttribDivisorANGLE(3, 0);
 
     var time = Date.now();
     var drawTime = time - prevTime;
@@ -652,9 +657,11 @@ function redraw() {
     $('#triangles').text(drawTris);
 }
 
-function GetTessLevels(p0, p1, p2, p3, level, mvpMatrix, projection)
+function GetTessLevels(p0, p1, p2, p3, level,
+                       pattern, rotation,
+                       mvpMatrix, projection)
 {
-    var s = 40;
+    var s = 10;
 
     var d0 = vec3.distance(p0, p1);
     var d1 = vec3.distance(p1, p3);
@@ -689,6 +696,20 @@ function GetTessLevels(p0, p1, p2, p3, level, mvpMatrix, projection)
     else if (t2 < 0) t2 = 0;
     if (t3 > 7) t3 = 7;
     else if (t3 < 0) t3 = 0;
+
+        /*
+          p2 -t2-- p3
+          |        |
+          t3      t1
+          |        |
+          p0 -t0-- p1
+         */
+
+    // consider transition, rotation
+    if (pattern == 1) {
+        if (rotation == 0 && t3 == 0) t3 = 1;
+    }
+
     // align to max
     var tess = t0 > t1 ? t0 : t1;
     tess = t2 > tess ? t2 : tess;
@@ -712,7 +733,11 @@ function prepareBatch(mvpMatrix, projection, aspect)
     var nPatches = model.patches.length/16;
     for (var i = 0; i < nPatches; ++i) {
         var depth = model.patchParams[i*8+0];
+        var type     = model.patchParams[i*8+2];
+        var pattern  = model.patchParams[i*8+3];
+        var rotation = model.patchParams[i*8+4];
         var level = tessFactor - depth;
+        var color = getPatchColor(type, pattern);
 
         // clip length
         var pn0 = evaluator.evalBSpline(model.patches, i, 0, 0);
@@ -723,14 +748,9 @@ function prepareBatch(mvpMatrix, projection, aspect)
         var p2 = vec4.fromValues(pn2[0][0], pn2[0][1], pn2[0][2], 1);
         var pn3 = evaluator.evalBSpline(model.patches, i, 1, 1);
         var p3 = vec4.fromValues(pn3[0][0], pn3[0][1], pn3[0][2], 1);
-        /*
-          p2 -2-- p3
-          |       |
-          3       1
-          |       |
-          p0 -0-- p1
-         */
-        var tessLevels = GetTessLevels(p0, p1, p2, p3, level, mvpMatrix, projection);
+        var tessLevels = GetTessLevels(p0, p1, p2, p3, level,
+                                       pattern, rotation,
+                                       mvpMatrix, projection);
         var tess = tessLevels[0];
         // TODO: frustum culling ?
         model.bsplineInstanceData[tess].push(i);
@@ -739,13 +759,20 @@ function prepareBatch(mvpMatrix, projection, aspect)
         model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[2]));
         model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[3]));
         model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[4]));
+        model.bsplineInstanceData[tess].push(color[0]);
+        model.bsplineInstanceData[tess].push(color[1]);
+        model.bsplineInstanceData[tess].push(color[2]);
     }
 
     // gregory patches
     var nGregoryPatches = model.gregoryPatches.length/4;
     for (var i = 0; i < nGregoryPatches; ++i) {
-        var depth = model.patchParams[(i+nPatches)*8+0];
+        var patchIndex = i + nPatches;
+        var depth    = model.patchParams[patchIndex*8+0];
+        var type     = model.patchParams[patchIndex*8+2];
+        var pattern  = model.patchParams[patchIndex*8+3];
         var tess = tessFactor - depth;
+        var color = getPatchColor(type, pattern);
         if (tess < 0) tess = 0;
 
         // clip length
@@ -758,7 +785,9 @@ function prepareBatch(mvpMatrix, projection, aspect)
         var pn3 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 1, 1);
         var p3 = vec4.fromValues(pn3[0][0], pn3[0][1], pn3[0][2], 1);
 
-        var tessLevels = GetTessLevels(p0, p1, p2, p3, level, mvpMatrix, projection);
+        var tessLevels = GetTessLevels(p0, p1, p2, p3, level,
+                                       pattern, rotation,
+                                       mvpMatrix, projection);
         var tess = tessLevels[0];
         // TODO: frustum culling ?
         model.gregoryInstanceData[tess].push(i);
@@ -767,6 +796,9 @@ function prepareBatch(mvpMatrix, projection, aspect)
         model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[2]));
         model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[3]));
         model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[4]));
+        model.gregoryInstanceData[tess].push(color[0]);
+        model.gregoryInstanceData[tess].push(color[1]);
+        model.gregoryInstanceData[tess].push(color[2]);
     }
 
     if (!model.instanceVBO) {
@@ -786,11 +818,13 @@ function drawBSpline(instanceData)
         gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, 0);  // uv, iuiv
 
         gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]), gl.STATIC_DRAW);
-        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 6*4, 0);
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 6*4, 2*4);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]),
+                      gl.STATIC_DRAW);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 9*4, 0);
+        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 9*4, 2*4);
+        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 9*4, 6*4);
 
-        var nPatches = instanceData[d].length/6;
+        var nPatches = instanceData[d].length/9;
         ext.drawElementsInstancedANGLE(gl.TRIANGLES,
                                       tessMesh.numTris*3,
                                       gl.UNSIGNED_SHORT,
@@ -800,11 +834,11 @@ function drawBSpline(instanceData)
     }
 }
 
-function drawGregory(indices)
+function drawGregory(instanceData)
 {
     // draw by patch level
-    for (var d = 0; d < indices.length; ++d) {
-        if (indices[d].length == 0) continue;
+    for (var d = 0; d < instanceData.length; ++d) {
+        if (instanceData[d].length == 0) continue;
         var tessMesh = model.tessMeshes[d];
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tessMesh.IBO);
@@ -812,10 +846,13 @@ function drawGregory(indices)
         gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, 0);  // uv, iuiv
 
         gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(indices[d]), gl.STATIC_DRAW);
-        gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 1*4, 0);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]),
+                      gl.STATIC_DRAW);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 9*4, 0);
+        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 9*4, 2*4);
+        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 9*4, 6*4);
 
-        var nPatches = indices[d].length;
+        var nPatches = instanceData[d].length/9;
         ext.drawElementsInstancedANGLE(gl.TRIANGLES,
                                       tessMesh.numTris*3,
                                       gl.UNSIGNED_SHORT,
@@ -1083,8 +1120,8 @@ $(function(){
 
     var modelName = getUrlParameter("model");
     if (modelName == undefined) {
-        loadModel("face");
-        //loadModel("cube");
+        //loadModel("face");
+        loadModel("cube");
         //loadModel("catmark_edgecorner");
     } else {
         loadModel("modelName");

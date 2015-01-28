@@ -20,6 +20,7 @@
     <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
     <script src="../lib/camera.js?012501" type="text/javascript" ></script>
     <script src="../lib/gl-matrix-min.js" type="text/javascript"></script>
+    <script src="./common.js?012501" type="text/javascript" ></script>
     <script src="./eval.js?012501" type="text/javascript" ></script>
     <script src="./viewInstance.js?012501" type="text/javascript" ></script>
 
@@ -97,6 +98,7 @@
       attribute vec4 inUV;
       attribute vec2 patchData;
       attribute vec4 tessLevel;
+      attribute vec3 inColor;
       varying vec3 normal;
       varying vec4 uv;
       varying vec3 color;
@@ -159,10 +161,7 @@
         BUCP[0] = BUCP[1] = BUCP[2] = BUCP[3] = vec3(0);
         DUCP[0] = DUCP[1] = DUCP[2] = DUCP[3] = vec3(0);
 
-        //color.r = 0.0;//clamp(mix(tessLevel.x, tessLevel.z, pv), 0.0, 1.0);
-        //color.g = clamp(mix(tessLevel.w, tessLevel.y, pu), 0.0, 1.0);
-        //color.b = 1.0;
-        color = vec3(1);
+        color = inColor;
 
         // adaptive stitch
       #if 0
@@ -228,6 +227,8 @@
     <script id="gregoryVertexShader" type="x-shader/x-vertex">
       attribute vec4 inUV;
       attribute vec2 patchData;
+      attribute vec4 tessLevel;
+      attribute vec3 inColor;
       varying vec3 normal;
       varying vec4 uv;
       varying vec3 color;
@@ -322,7 +323,7 @@
         vec3 pos = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
         normal = (modelViewMatrix * vec4(n, 0)).xyz;
         uv = inUV;
-        color = vec3(1);
+        color = inColor;
         Peye = pos;
         gl_Position = projMatrix * vec4(pos, 1);
                            gl_PointSize=10.0;

@@ -33,38 +33,6 @@ var displayMode = 2;
 var tessFactor = 4;
 var floatFilter = 0;
 
-var patchColors = [[[1.0,  1.0,  1.0,  1.0],   // regular
-                    [1.0,  0.5,  0.5,  1.0],   // single crease
-                    [0.8,  0.0,  0.0,  1.0],   // boundary
-                    [0.0,  1.0,  0.0,  1.0],   // corner
-                    [1.0,  1.0,  0.0,  1.0],   // gregory
-                    [1.0,  0.5,  0.0,  1.0],   // gregory boundary
-                    [1.0,  1.0,  0.0,  1.0]],  // gregory basis
-
-                   [[0.0,  1.0,  1.0,  1.0],   // regular pattern 0
-                    [0.0,  0.5,  1.0,  1.0],   // regular pattern 1
-                    [0.0,  0.5,  0.5,  1.0],   // regular pattern 2
-                    [0.5,  0.0,  1.0,  1.0],   // regular pattern 3
-                    [1.0,  0.5,  1.0,  1.0]],  // regular pattern 4
-
-                   [[1.0,  0.7,  0.6,  1.0],   // single crease pattern 0
-                    [1.0,  0.7,  0.6,  1.0],   // single crease pattern 1
-                    [1.0,  0.7,  0.6,  1.0],   // single crease pattern 2
-                    [1.0,  0.7,  0.6,  1.0],   // single crease pattern 3
-                    [1.0,  0.7,  0.6,  1.0]],  // single crease pattern 4
-
-                   [[0.0,  0.0,  0.75, 1.0],   // boundary pattern 0
-                    [0.0,  0.2,  0.75, 1.0],   // boundary pattern 1
-                    [0.0,  0.4,  0.75, 1.0],   // boundary pattern 2
-                    [0.0,  0.6,  0.75, 1.0],   // boundary pattern 3
-                    [0.0,  0.8,  0.75, 1.0]],  // boundary pattern 4
-
-                   [[0.25, 0.25, 0.25, 1.0],   // corner pattern 0
-                    [0.25, 0.25, 0.25, 1.0],   // corner pattern 1
-                    [0.25, 0.25, 0.25, 1.0],   // corner pattern 2
-                    [0.25, 0.25, 0.25, 1.0],   // corner pattern 3
-                    [0.25, 0.25, 0.25, 1.0]]]; // corner pattern 4
-
 
 function windowEvent()
 {
@@ -702,9 +670,7 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
         }
 
         var level = tessFactor - depth;
-        var color = (pattern == 0) ?
-            patchColors[0][type-6] :
-            patchColors[type-6+1][pattern-1];
+        var color = getPatchColor(type, pattern);
 
         var ptexU = patchParams[patchIndex*8+5];
         var ptexV = patchParams[patchIndex*8+6];
