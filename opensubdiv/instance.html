@@ -158,23 +158,32 @@
         BUCP[0] = BUCP[1] = BUCP[2] = BUCP[3] = vec3(0);
         DUCP[0] = DUCP[1] = DUCP[2] = DUCP[3] = vec3(0);
 
-        float pu = inUV.x;
-        float pv = inUV.y;
-
         //color.r = 0.0;//clamp(mix(tessLevel.x, tessLevel.z, pv), 0.0, 1.0);
         //color.g = clamp(mix(tessLevel.w, tessLevel.y, pu), 0.0, 1.0);
         //color.b = 1.0;
         color = vec3(1);
 
-        if (pu == 1.0 && tessLevel.y > 0.0) {
-            pv = floor(inUV.w / pow(2.0, tessLevel.y))/(pow(2.0,patchData.y-tessLevel.y));
-        } else if (pu == 0.0 && tessLevel.w > 0.0) {
-            pv = floor(inUV.w / pow(2.0, tessLevel.w))/(pow(2.0,patchData.y-tessLevel.w));
-        } else if (pv == 0.0 && tessLevel.x > 0.0) {
-            pu = floor(inUV.z / pow(2.0, tessLevel.x))/(pow(2.0,patchData.y-tessLevel.x));
-        } else if (pv == 1.0 && tessLevel.z > 0.0) {
-            pu = floor(inUV.z / pow(2.0, tessLevel.z))/(pow(2.0,patchData.y-tessLevel.z));
+        // adaptive stitch
+      #if 0
+        float pv_u0 = floor(inUV.w / tessLevel.w)/(patchData.y/tessLevel.w);
+        float pv_u1 = floor(inUV.w / tessLevel.y)/(patchData.y/tessLevel.y);
+        float pu_v0 = floor(inUV.z / tessLevel.x)/(patchData.y/tessLevel.x);
+        float pu_v1 = floor(inUV.z / tessLevel.z)/(patchData.y/tessLevel.z);
+        float pu = mix(pu_v0, pu_v1, inUV.y);
+        float pv = mix(pv_u0, pv_u1, inUV.x);
+      #else
+        float pu = inUV.x;
+        float pv = inUV.y;
+        if (pu == 0.0) {
+          pv = floor(inUV.w / tessLevel.w)/(patchData.y/tessLevel.w);
+        } else if (pu == 1.0) {
+          pv = floor(inUV.w / tessLevel.y)/(patchData.y/tessLevel.y);
+        } else if (pv == 0.0) {
+          pu = floor(inUV.z / tessLevel.x)/(patchData.y/tessLevel.x);
+        } else if (pv == 1.0) {
+          pu = floor(inUV.z / tessLevel.z)/(patchData.y/tessLevel.z);
         }
+      #endif
 
         evalCubicBSpline(pu, B, D);
 

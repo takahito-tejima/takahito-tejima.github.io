@@ -739,12 +739,12 @@ function prepareBatch(mvpMatrix, aspect)
         //console.log(tess, tess-t0, tess-t1, tess-t2, tess-t3);
         // TODO: frustum culling ?
         model.bsplineInstanceData[tess].push(i);
-        model.bsplineInstanceData[tess].push(tess);
+        model.bsplineInstanceData[tess].push(1<<tess);
 
-        model.bsplineInstanceData[tess].push(tess-t0);
-        model.bsplineInstanceData[tess].push(tess-t1);
-        model.bsplineInstanceData[tess].push(tess-t2);
-        model.bsplineInstanceData[tess].push(tess-t3);
+        model.bsplineInstanceData[tess].push(1<<(tess-t0));
+        model.bsplineInstanceData[tess].push(1<<(tess-t1));
+        model.bsplineInstanceData[tess].push(1<<(tess-t2));
+        model.bsplineInstanceData[tess].push(1<<(tess-t3));
     }
 
     // gregory patches
@@ -1099,7 +1099,7 @@ $(function(){
 
     var modelName = getUrlParameter("model");
     if (modelName == undefined) {
-        //loadModel("cube");
+//        loadModel("cube");
         loadModel("catmark_edgecorner");
     } else {
         loadModel("modelName");
