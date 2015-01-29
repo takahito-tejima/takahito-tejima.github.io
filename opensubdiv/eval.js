@@ -38,6 +38,19 @@ function evalCubicBSpline(u, B, BU)
     BU[3] = A2;
 }
 
+function evalCubicBSplineP(u, B)
+{
+    var t = u;
+    var s = 1 - u;
+    var A0 =                     s * (0.5 * s);
+    var A1 = t * (s + 0.5 * t) + s * (0.5 * s + t);
+    var A2 = t * (    0.5 * t);
+    B[0] =                                 1/3.0 * s              * A0;
+    B[1] = (2/3.0 * s +         t) * A0 + (2/3.0 * s + 1/3.0 * t) * A1;
+    B[2] = (1/3.0 * s + 2/3.0 * t) * A1 + (        s + 2/3.0 * t) * A2;
+    B[3] =              1/3.0 * t  * A2;
+}
+
 function csf0(n, j)
 {
     return Math.cos((2.0 * Math.PI * j)/n);
@@ -552,7 +565,80 @@ PatchEvaluator.prototype.evalGregoryBasis =
     return this.evalGregoryUV(this.GP, u, v);
 }
 
-PatchEvaluator.prototype.evalBSpline = function(vertsIndices, patchIndex, u, v)
+PatchEvaluator.prototype.evalBSplineP =
+    function(vertsIndices, patchIndex, u, v)
+{
+    vec3.set(this.BU[0],0,0,0);
+    vec3.set(this.BU[1],0,0,0);
+    vec3.set(this.BU[2],0,0,0);
+    vec3.set(this.BU[3],0,0,0);
+
+    var ncp = 16;
+    if (vertsIndices[patchIndex*16+4] == -1) ncp = 4;
+    else if (vertsIndices[patchIndex*16+9] == -1) ncp = 9;
+    else if (vertsIndices[patchIndex*16+12] == -1) ncp = 12;
+
+    var border = (ncp == 12);
+    var corner = (ncp == 9);
+    var vofs = (border || corner) ? 4 : 0;
+    for (var i = 0; i < ncp; ++i) {
+        var x = model.patchVerts[vertsIndices[patchIndex*16+i]*3+0];
+        var y = model.patchVerts[vertsIndices[patchIndex*16+i]*3+1];
+        var z = model.patchVerts[vertsIndices[patchIndex*16+i]*3+2];
+        vec3.set(this.verts[i+vofs], x, y, z);
+    }
+
+    // mirroring boundary vertices.
+    if (border) {
+        vec3.scale(this.verts[0], this.verts[4], 2);
+        vec3.scale(this.verts[1], this.verts[5], 2);
+        vec3.scale(this.verts[2], this.verts[6], 2);
+        vec3.scale(this.verts[3], this.verts[7], 2);
+        vec3.sub(this.verts[0], this.verts[0], this.verts[8]);
+        vec3.sub(this.verts[1], this.verts[1], this.verts[9]);
+        vec3.sub(this.verts[2], this.verts[2], this.verts[10]);
+        vec3.sub(this.verts[3], this.verts[3], this.verts[11]);
+    } else if (corner) {
+        vec3.copy(this.verts[14], this.verts[12]);
+        vec3.copy(this.verts[13], this.verts[11]);
+        vec3.copy(this.verts[12], this.verts[10]);
+        vec3.copy(this.verts[10], this.verts[9]);
+        vec3.copy(this.verts[9], this.verts[8]);
+        vec3.copy(this.verts[8], this.verts[7]);
+
+        vec3.scale(this.verts[0], this.verts[4], 2);
+        vec3.scale(this.verts[1], this.verts[5], 2);
+        vec3.scale(this.verts[2], this.verts[6], 2);
+        vec3.scale(this.verts[3], this.verts[6], 2);
+        vec3.scale(this.verts[7], this.verts[6], 2);
+        vec3.scale(this.verts[11], this.verts[10], 2);
+        vec3.scale(this.verts[15], this.verts[14], 2);
+        vec3.sub(this.verts[0], this.verts[0], this.verts[8]);
+        vec3.sub(this.verts[1], this.verts[1], this.verts[9]);
+        vec3.sub(this.verts[2], this.verts[2], this.verts[10]);
+        vec3.sub(this.verts[3], this.verts[3], this.verts[9]);
+        vec3.sub(this.verts[7], this.verts[7], this.verts[5]);
+        vec3.sub(this.verts[11], this.verts[11], this.verts[9]);
+        vec3.sub(this.verts[15], this.verts[15], this.verts[13]);
+    }
+
+    evalCubicBSplineP(u, this.B);
+    for (var i = 0; i < 4; i++) {
+        for(var j=0;j < 4;j++){
+            vec3.scaleAndAdd(this.BU[i], this.BU[i], this.verts[i+j*4], this.B[j]);
+        }
+    }
+    evalCubicBSplineP(v, this.B);
+
+    vec3.set(this.Q,0,0,0);
+    for(var i=0;i<4; i++){
+        vec3.scaleAndAdd(this.Q, this.Q, this.BU[i], this.B[i]);
+    }
+    return this.Q;
+}
+
+PatchEvaluator.prototype.evalBSpline =
+    function(vertsIndices, patchIndex, u, v)
 {
     vec3.set(this.BU[0],0,0,0);
     vec3.set(this.BU[1],0,0,0);

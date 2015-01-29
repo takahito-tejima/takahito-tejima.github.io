@@ -684,10 +684,10 @@ function GetTessLevels(p0, p1, p2, p3, level,
     d2 = Math.max(1, s*Math.abs(d2 * projection[5] / c2[3]));
     d3 = Math.max(1, s*Math.abs(d3 * projection[5] / c3[3]));
 
-    var t0 = Math.ceil(Math.log2(d0));
-    var t1 = Math.ceil(Math.log2(d1));
-    var t2 = Math.ceil(Math.log2(d2));
-    var t3 = Math.ceil(Math.log2(d3));
+    var t0 = Math.ceil(Math.log(d0)*1.442695040888963407);
+    var t1 = Math.ceil(Math.log(d1)*1.442695040888963407);
+    var t2 = Math.ceil(Math.log(d2)*1.442695040888963407);
+    var t3 = Math.ceil(Math.log(d3)*1.442695040888963407);
     if (t0 > 7) t0 = 7;
     else if (t0 < 0) t0 = 0;
     if (t1 > 7) t1 = 7;
@@ -729,6 +729,11 @@ function prepareBatch(mvpMatrix, projection, aspect)
         model.gregoryInstanceData[d] = [];
     }
 
+    var p0 = vec4.fromValues(0,0,0,1);
+    var p1 = vec4.fromValues(0,0,0,1);
+    var p2 = vec4.fromValues(0,0,0,1);
+    var p3 = vec4.fromValues(0,0,0,1);
+
     // bspline patches
     var nPatches = model.patches.length/16;
     for (var i = 0; i < nPatches; ++i) {
@@ -740,18 +745,15 @@ function prepareBatch(mvpMatrix, projection, aspect)
         var color = getPatchColor(type, pattern);
 
         // clip length
-        var pn0 = evaluator.evalBSpline(model.patches, i, 0, 0);
-        var p0 = vec4.fromValues(pn0[0][0], pn0[0][1], pn0[0][2], 1);
-        var pn1 = evaluator.evalBSpline(model.patches, i, 1, 0);
-        var p1 = vec4.fromValues(pn1[0][0], pn1[0][1], pn1[0][2], 1);
-        var pn2 = evaluator.evalBSpline(model.patches, i, 0, 1);
-        var p2 = vec4.fromValues(pn2[0][0], pn2[0][1], pn2[0][2], 1);
-        var pn3 = evaluator.evalBSpline(model.patches, i, 1, 1);
-        var p3 = vec4.fromValues(pn3[0][0], pn3[0][1], pn3[0][2], 1);
+        vec3.copy(p0, evaluator.evalBSplineP(model.patches, i, 0, 0));
+        vec3.copy(p1, evaluator.evalBSplineP(model.patches, i, 1, 0));
+        vec3.copy(p2, evaluator.evalBSplineP(model.patches, i, 0, 1));
+        vec3.copy(p3, evaluator.evalBSplineP(model.patches, i, 1, 1));
         var tessLevels = GetTessLevels(p0, p1, p2, p3, level,
                                        pattern, rotation,
                                        mvpMatrix, projection);
         var tess = tessLevels[0];
+        if (tess < 0) continue;
         // TODO: frustum culling ?
         model.bsplineInstanceData[tess].push(i);
         model.bsplineInstanceData[tess].push(1<<tess);
@@ -789,6 +791,7 @@ function prepareBatch(mvpMatrix, projection, aspect)
                                        pattern, rotation,
                                        mvpMatrix, projection);
         var tess = tessLevels[0];
+        if (tess < 0) continue;
         // TODO: frustum culling ?
         model.gregoryInstanceData[tess].push(i);
         model.gregoryInstanceData[tess].push(1<<tess);
