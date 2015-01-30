@@ -93,16 +93,16 @@ void main() {
     color = inColor.xyz;
 
     // adaptive stitch
-#if 0
+    float pu = inUV.x;
+    float pv = inUV.y;
+#if 1
     float pv_u0 = floor(inUV.w / tessLevel.w)/(patchData.y/tessLevel.w);
     float pv_u1 = floor(inUV.w / tessLevel.y)/(patchData.y/tessLevel.y);
     float pu_v0 = floor(inUV.z / tessLevel.x)/(patchData.y/tessLevel.x);
     float pu_v1 = floor(inUV.z / tessLevel.z)/(patchData.y/tessLevel.z);
-    float pu = mix(pu_v0, pu_v1, inUV.y);
-    float pv = mix(pv_u0, pv_u1, inUV.x);
+    pu = mix(pu_v0, pu_v1, pv);
+    pv = mix(pv_u0, pv_u1, pu);
 #else
-    float pu = inUV.x;
-    float pv = inUV.y;
     if (pu == 0.0) {
         pv = floor(inUV.w / tessLevel.w)/(patchData.y/tessLevel.w);
     } else if (pu == 1.0) {
