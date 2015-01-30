@@ -35,6 +35,37 @@ vec4 getPtexColor(vec4 ptexCoord) {
 
 #endif
 
+uniform sampler2D texPtexColorL;
+uniform float numPtexColorFace;
+vec2 getPtexColorCoord(float ptexIndex, vec2 uv)
+{
+    //vec4 ptexPacking = texture2D(texPtexColorL, vec2(ptexIndex/numPtexColorFace, 0.5));;
+    return vec2(ptexIndex/638.0);
+    vec4 ptexPacking = texture2D(texPtexColorL, vec2(ptexIndex/638.0, 0.5));;
+    return ptexPacking.xy + ptexPacking.zw*uv;
+}
+
+vec2 computePtexCoord(vec4 ptexParam, float depth, vec2 uv)
+{
+    float lv = pow(2.0, depth);
+    vec2 p = ptexParam.yz;
+    float rot = ptexParam.w;
+
+    uv.xy = float(rot==0.0)*uv.xy
+       + float(rot==1.0)*vec2(1.0-uv.y, uv.x)
+        + float(rot==2.0)*vec2(1.0-uv.x, 1.0-uv.y)
+        + float(rot==3.0)*vec2(uv.y, 1.0-uv.x);
+
+    vec2 puv = vec2(uv*vec2(1)/lv) + p/lv;
+#if DISPLAY_MODE == 4
+    return puv;
+#endif
+
+    vec4 ptexPacking = texture2D(texPtexColorL, vec2((ptexParam.x+0.5)/numPtexColorFace, 0.5));
+    return ptexPacking.xy + ptexPacking.zw*puv;
+}
+
+
 uniform float displaceScale;
 uniform sampler2D texPtexDisplace;
 float displacement(vec2 uv) {
@@ -50,6 +81,7 @@ float displacement(vec2 uv) {
 #ifdef FRAGMENT_SHADER
 
 uniform sampler2D texPtexColor;
+
 vec4 getPtexColor(vec4 ptexCoord) {
     return vec4(texture2D(texPtexColor, ptexCoord.xy).xyz, 1);
 }

@@ -23,9 +23,11 @@ void evalCubicBSpline(in float u, out float B[4], out float BU[4])
 }
 
 attribute vec4 inUV;
-attribute vec2 patchData;
+attribute vec4 patchData; // patchIndex, tess, depth
 attribute vec4 tessLevel;
-attribute vec3 inColor;
+attribute vec4 inColor;
+attribute vec4 ptexParam; // ptexFaceID, u, v, rotation
+
 varying vec3 normal;
 varying vec4 uv;
 varying vec3 color;
@@ -88,7 +90,7 @@ void main() {
     BUCP[0] = BUCP[1] = BUCP[2] = BUCP[3] = vec3(0);
     DUCP[0] = DUCP[1] = DUCP[2] = DUCP[3] = vec3(0);
 
-    color = inColor;
+    color = inColor.xyz;
 
     // adaptive stitch
 #if 0
@@ -134,6 +136,9 @@ void main() {
         BiTangent += D[k] * BUCP[k];
     }
     vec3 n = normalize(cross(BiTangent, Tangent));
+
+    ptexCoord.xy = computePtexCoord(ptexParam, patchData.z, vec2(pv,pu));
+    ptexCoord.zw = vec2(0);
 
     // apply displacement
 #ifdef DISPLACEMENT
@@ -207,6 +212,7 @@ void main()
     c = vec4(fnormal, 1);
 #elif DISPLAY_MODE == 4
     c = vec4(uv.x, uv.y, 1, 1);
+    c.rgb = vec3(ptexCoord.xy, 0);
 #endif
 
     gl_FragColor = c;

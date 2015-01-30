@@ -219,7 +219,8 @@ function initialize()
                               { inUV : 0,
                                 patchData : 1,
                                 tessLevel : 2,
-                                inColor : 3 });
+                                inColor : 3,
+                                ptexParam : 4 });
     tessProgram.mvpMatrix = gl.getUniformLocation(tessProgram, "mvpMatrix");
     tessProgram.modelViewMatrix = gl.getUniformLocation(tessProgram, "modelViewMatrix");
     tessProgram.projMatrix = gl.getUniformLocation(tessProgram, "projMatrix");
@@ -231,7 +232,8 @@ function initialize()
                                   { inUV : 0,
                                     patchData : 1,
                                     tessLevel : 2,
-                                    inColor : 3 } );
+                                    inColor : 3,
+                                    ptexParam : 4 });
     gregoryProgram.mvpMatrix = gl.getUniformLocation(gregoryProgram, "mvpMatrix");
     gregoryProgram.modelViewMatrix = gl.getUniformLocation(gregoryProgram, "modelViewMatrix");
     gregoryProgram.projMatrix = gl.getUniformLocation(gregoryProgram, "projMatrix");
@@ -411,6 +413,29 @@ function setModel(data, modelName)
         model.ptexDim_color = data.ptexDim_color;
         model.ptexLayout_color = data.ptexLayout_color;
         var now = new Date();
+
+        // ptex layout
+        var numPtexFace = model.ptexLayout_color.length/6;
+        model.ptexNumFace_color = numPtexFace;
+        var layout = new Float32Array(numPtexFace*4);
+        var dim = model.ptexDim_color;
+        for (var i = 0; i < numPtexFace; ++i) {
+            layout[i*4+0] = model.ptexLayout_color[i*6 + 2]/dim[0];
+            layout[i*4+1] = model.ptexLayout_color[i*6 + 3]/dim[1];
+            var wh = model.ptexLayout_color[i*6 + 5];
+            layout[i*4+2] = ((1<<(wh >> 8)))/(dim[0]);
+            layout[i*4+3] = ((1<<(wh & 0xff)))/(dim[1]);
+        }
+
+        model.ptexTexture_colorL = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_colorL);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, numPtexFace, 1,
+                      0, gl.RGBA, gl.FLOAT, layout);
 
         // ptex texel
         var image = new Image();
@@ -967,14 +992,27 @@ function redraw() {
     }
 
     drawTris = 0;
+    if (model.ptexTexture_color != undefined) {
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_colorL);
+    }
+    if (model.ptexTexture_displace != undefined) {
+        gl.activeTexture(gl.TEXTURE4);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+    }
+
     if (gpuTess) {
         gl.enableVertexAttribArray(0);
         gl.enableVertexAttribArray(1);
         gl.enableVertexAttribArray(2);
         gl.enableVertexAttribArray(3);
+        gl.enableVertexAttribArray(4);
         ext.vertexAttribDivisorANGLE(1, 1);
         ext.vertexAttribDivisorANGLE(2, 1);
         ext.vertexAttribDivisorANGLE(3, 1);
+        ext.vertexAttribDivisorANGLE(4, 1);
 
         prepareBatch(mvpMatrix, proj, aspect);
 
@@ -996,6 +1034,11 @@ function redraw() {
                      displaceScale);
         gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
         gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
+        gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
+        gl.uniform1i(gl.getUniformLocation(program, "texPtexColorL"), 3);
+        gl.uniform1f(gl.getUniformLocation(program, "numPtexColorFace"), model.ptexNumFace_color);
+
+        //gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplace"), 4);
         gl.uniform1f(gl.getUniformLocation(program, "patchRes"),
                      model.nPatchRes);
 
@@ -1018,6 +1061,9 @@ function redraw() {
                      displaceScale);
         gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
         gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
+        gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
+        gl.uniform1i(gl.getUniformLocation(program, "texPtexColorL"), 3);
+        gl.uniform1f(gl.getUniformLocation(program, "numPtexColorFace"), model.ptexNumFace_color);
         gl.uniform2f(gl.getUniformLocation(program, "patchRes"),
                      model.nGregoryPatchRes[0], model.nGregoryPatchRes[1]);
         gl.activeTexture(gl.TEXTURE1);
@@ -1029,19 +1075,12 @@ function redraw() {
         gl.disableVertexAttribArray(1);
         gl.disableVertexAttribArray(2);
         gl.disableVertexAttribArray(3);
+        gl.disableVertexAttribArray(4);
         ext.vertexAttribDivisorANGLE(1, 0);
         ext.vertexAttribDivisorANGLE(2, 0);
         ext.vertexAttribDivisorANGLE(3, 0);
+        ext.vertexAttribDivisorANGLE(4, 0);
     } else {
-        if (model.ptexTexture_color != undefined) {
-            gl.activeTexture(gl.TEXTURE2);
-            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
-        }
-        if (model.ptexTexture_displace != undefined) {
-            gl.activeTexture(gl.TEXTURE3);
-            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
-        }
-
         for (var i = 0; i < model.batches.length; ++i) {
             var batch = model.batches[i];
             if (batch.vboUnvarying == null) continue;
@@ -1054,7 +1093,7 @@ function redraw() {
             gl.uniform1f(gl.getUniformLocation(triProgram, "displaceScale"),
                          displaceScale);
             gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexColor"), 2);
-            gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexDisplace"), 3);
+            gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexDisplace"), 4);
 
             gl.enableVertexAttribArray(0);
             gl.enableVertexAttribArray(1);
@@ -1179,6 +1218,10 @@ function prepareBatch(mvpMatrix, projection, aspect)
         var type     = model.patchParams[i*8+2];
         var pattern  = model.patchParams[i*8+3];
         var rotation = model.patchParams[i*8+4];
+        var ptexRot = model.patchParams[i*8+1];
+        var ptexU = model.patchParams[i*8+5];
+        var ptexV = model.patchParams[i*8+6];
+        var ptexFaceIndex = model.patchParams[i*8+7];
         var level = tessFactor;
         var color = getPatchColor(type, pattern);
         var t = Math.max(0, tessFactor - depth);
@@ -1205,6 +1248,8 @@ function prepareBatch(mvpMatrix, projection, aspect)
         // TODO: frustum culling ?
         model.bsplineInstanceData[tess].push(i);
         model.bsplineInstanceData[tess].push(1<<tess);
+        model.bsplineInstanceData[tess].push(depth);
+        model.bsplineInstanceData[tess].push(i);
         model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[1]));
         model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[2]));
         model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[3]));
@@ -1212,6 +1257,11 @@ function prepareBatch(mvpMatrix, projection, aspect)
         model.bsplineInstanceData[tess].push(color[0]);
         model.bsplineInstanceData[tess].push(color[1]);
         model.bsplineInstanceData[tess].push(color[2]);
+        model.bsplineInstanceData[tess].push(1.0);
+        model.bsplineInstanceData[tess].push(ptexFaceIndex);
+        model.bsplineInstanceData[tess].push(ptexU);
+        model.bsplineInstanceData[tess].push(ptexV);
+        model.bsplineInstanceData[tess].push(ptexRot);
     }
 
     // gregory patches
@@ -1221,6 +1271,10 @@ function prepareBatch(mvpMatrix, projection, aspect)
         var depth    = model.patchParams[patchIndex*8+0];
         var type     = model.patchParams[patchIndex*8+2];
         var pattern  = model.patchParams[patchIndex*8+3];
+        var ptexRot = model.patchParams[patchIndex*8+1];
+        var ptexU = model.patchParams[patchIndex*8+5];
+        var ptexV = model.patchParams[patchIndex*8+6];
+        var ptexFaceIndex = model.patchParams[patchIndex*8+7];
         var t = Math.max(0, tessFactor - depth);
         var color = getPatchColor(type, pattern);
 
@@ -1246,6 +1300,8 @@ function prepareBatch(mvpMatrix, projection, aspect)
         // TODO: frustum culling ?
         model.gregoryInstanceData[tess].push(i);
         model.gregoryInstanceData[tess].push(1<<tess);
+        model.gregoryInstanceData[tess].push(depth);
+        model.gregoryInstanceData[tess].push(i);
         model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[1]));
         model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[2]));
         model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[3]));
@@ -1253,6 +1309,11 @@ function prepareBatch(mvpMatrix, projection, aspect)
         model.gregoryInstanceData[tess].push(color[0]);
         model.gregoryInstanceData[tess].push(color[1]);
         model.gregoryInstanceData[tess].push(color[2]);
+        model.gregoryInstanceData[tess].push(1.0);
+        model.gregoryInstanceData[tess].push(ptexFaceIndex);
+        model.gregoryInstanceData[tess].push(ptexU);
+        model.gregoryInstanceData[tess].push(ptexV);
+        model.gregoryInstanceData[tess].push(ptexRot);
     }
 
     if (!model.instanceVBO) {
@@ -1274,11 +1335,12 @@ function drawBSpline(instanceData)
         gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]),
                       gl.STATIC_DRAW);
-        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 9*4, 0);
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 9*4, 2*4);
-        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 9*4, 6*4);
+        gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 16*4, 0);
+        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 16*4, 4*4);
+        gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 16*4, 8*4);
+        gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 16*4, 12*4);
 
-        var nPatches = instanceData[d].length/9;
+        var nPatches = instanceData[d].length/16;
         ext.drawElementsInstancedANGLE(gl.TRIANGLES,
                                       tessMesh.numTris*3,
                                       gl.UNSIGNED_SHORT,
@@ -1302,11 +1364,12 @@ function drawGregory(instanceData)
         gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]),
                       gl.STATIC_DRAW);
-        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 9*4, 0);
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 9*4, 2*4);
-        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 9*4, 6*4);
+        gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 16*4, 0);
+        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 16*4, 4*4);
+        gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 16*4, 8*4);
+        gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 16*4, 12*4);
 
-        var nPatches = instanceData[d].length/9;
+        var nPatches = instanceData[d].length/16;
         ext.drawElementsInstancedANGLE(gl.TRIANGLES,
                                       tessMesh.numTris*3,
                                       gl.UNSIGNED_SHORT,

@@ -6,9 +6,11 @@
 #ifdef VERTEX_SHADER
 
 attribute vec4 inUV;
-attribute vec2 patchData;
+attribute vec4 patchData;
 attribute vec4 tessLevel;
 attribute vec3 inColor;
+attribute vec4 ptexParam; // ptexFaceID, u, v, rotation
+
 varying vec3 normal;
 varying vec4 uv;
 varying vec3 color;
@@ -93,6 +95,9 @@ void main(){
     }
     vec3 n = normalize(cross(BiTangent, Tangent));
 
+    ptexCoord.xy = computePtexCoord(ptexParam, patchData.z, vec2(v,u));
+    ptexCoord.zw = vec2(0);
+
     // apply displacement
 #ifdef DISPLACEMENT
     ptexCoord.zw = WorldPos.xz*4.0;
@@ -165,6 +170,7 @@ void main()
     c = vec4(fnormal, 1);
 #elif DISPLAY_MODE == 4
     c = vec4(uv.x, uv.y, 1, 1);
+    c.rgb = vec3(ptexCoord.xy, 0);
 #endif
 
     gl_FragColor = c;
