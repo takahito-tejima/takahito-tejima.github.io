@@ -95,12 +95,18 @@ void main(){
     }
     vec3 n = normalize(cross(BiTangent, Tangent));
 
-    ptexCoord.xy = computePtexCoord(ptexParam, patchData.z, vec2(v,u));
-    ptexCoord.zw = vec2(0);
+    ptexCoord.xy = computePtexCoord(texPtexColorL,
+                                    dimPtexColorL,
+                                    ptexParam, patchData.z, vec2(v,u));
+    ptexCoord.zw = computePtexCoord(texPtexDisplaceL,
+                                    dimPtexDisplaceL,
+                                    ptexParam, patchData.z, vec2(v,u));
 
     // apply displacement
 #ifdef DISPLACEMENT
+#ifndef PTEX_DISPLACE
     ptexCoord.zw = WorldPos.xz*4.0;
+#endif
     float d = displacement(ptexCoord.zw);
     WorldPos.xyz += d*n;
 #endif

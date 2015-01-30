@@ -10,7 +10,6 @@ uniform mat4 mvpMatrix;
 uniform mat4 modelViewMatrix;
 uniform mat4 projMatrix;
 
-uniform sampler2D texPtexColor;
 
 void evalCubicBezier(in float u, out float B[4], out float D[4]) {
     float t = u;
@@ -29,14 +28,19 @@ void evalCubicBezier(in float u, out float B[4], out float D[4]) {
     D[2] = A1 - A2;
     D[3] = A2;
 }
-vec4 getPtexColor(vec4 ptexCoord) {
-    return vec4(texture2D(texPtexColor, ptexCoord.xy).xyz, 1);
-}
 
 #endif
 
+uniform sampler2D texPtexColor;
 uniform sampler2D texPtexColorL;
-uniform float numPtexColorFace;
+uniform sampler2D texPtexDisplace;
+uniform sampler2D texPtexDisplaceL;
+uniform vec2 dimPtexColorL;
+uniform vec2 dimPtexDisplaceL;
+
+vec4 getPtexColor(vec4 ptexCoord) {
+    return vec4(texture2D(texPtexColor, ptexCoord.xy).xyz, 1);
+}
 vec2 getPtexColorCoord(float ptexIndex, vec2 uv)
 {
     //vec4 ptexPacking = texture2D(texPtexColorL, vec2(ptexIndex/numPtexColorFace, 0.5));;
@@ -45,7 +49,7 @@ vec2 getPtexColorCoord(float ptexIndex, vec2 uv)
     return ptexPacking.xy + ptexPacking.zw*uv;
 }
 
-vec2 computePtexCoord(vec4 ptexParam, float depth, vec2 uv)
+vec2 computePtexCoord(sampler2D ptexLayout, vec2 ptexLayoutDim, vec4 ptexParam, float depth, vec2 uv)
 {
     float lv = pow(2.0, depth);
     vec2 p = ptexParam.yz;
@@ -60,14 +64,15 @@ vec2 computePtexCoord(vec4 ptexParam, float depth, vec2 uv)
 #if DISPLAY_MODE == 4
     return puv;
 #endif
-
-    vec4 ptexPacking = texture2D(texPtexColorL, vec2((ptexParam.x+0.5)/numPtexColorFace, 0.5));
+    vec2 face = vec2(fract((ptexParam.x+0.5)/ptexLayoutDim.x),
+                     (floor(ptexParam.x/ptexLayoutDim.x)+0.5)/ptexLayoutDim.y);
+    vec4 ptexPacking = texture2D(ptexLayout, face);
     return ptexPacking.xy + ptexPacking.zw*puv;
 }
 
 
 uniform float displaceScale;
-uniform sampler2D texPtexDisplace;
+
 float displacement(vec2 uv) {
 #ifdef PTEX_DISPLACE
     return displaceScale*texture2D(texPtexDisplace, uv).x;
@@ -79,12 +84,6 @@ float displacement(vec2 uv) {
 
 // ------------------------------------------------------------------------
 #ifdef FRAGMENT_SHADER
-
-uniform sampler2D texPtexColor;
-
-vec4 getPtexColor(vec4 ptexCoord) {
-    return vec4(texture2D(texPtexColor, ptexCoord.xy).xyz, 1);
-}
 
 vec3
 perturbNormalFromDisplacement(vec3 position, vec3 normal, vec2 uv)

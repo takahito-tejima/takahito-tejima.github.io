@@ -416,8 +416,9 @@ function setModel(data, modelName)
 
         // ptex layout
         var numPtexFace = model.ptexLayout_color.length/6;
+        model.dimPtexColorL = [512, Math.ceil(numPtexFace/512)];
         model.ptexNumFace_color = numPtexFace;
-        var layout = new Float32Array(numPtexFace*4);
+        var layout = new Float32Array(4*model.dimPtexColorL[0]*model.dimPtexColorL[1]);
         var dim = model.ptexDim_color;
         for (var i = 0; i < numPtexFace; ++i) {
             layout[i*4+0] = model.ptexLayout_color[i*6 + 2]/dim[0];
@@ -434,7 +435,9 @@ function setModel(data, modelName)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, numPtexFace, 1,
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+                      model.dimPtexColorL[0],
+                      model.dimPtexColorL[1],
                       0, gl.RGBA, gl.FLOAT, layout);
 
         // ptex texel
@@ -457,6 +460,32 @@ function setModel(data, modelName)
         model.ptexDim_displace = data.ptexDim_displace;
         model.ptexLayout_displace = data.ptexLayout_displace;
         var now = new Date();
+
+        // ptex layout
+        var numPtexFace = model.ptexLayout_displace.length/6;
+        model.dimPtexDisplaceL = [512, Math.ceil(numPtexFace/512)];
+        model.ptexNumFace_displace = numPtexFace;
+        var layout = new Float32Array(4*model.dimPtexDisplaceL[0]*model.dimPtexDisplaceL[1]);
+        var dim = model.ptexDim_displace;
+        for (var i = 0; i < numPtexFace; ++i) {
+            layout[i*4+0] = model.ptexLayout_displace[i*6 + 2]/dim[0];
+            layout[i*4+1] = model.ptexLayout_displace[i*6 + 3]/dim[1];
+            var wh = model.ptexLayout_displace[i*6 + 5];
+            layout[i*4+2] = ((1<<(wh >> 8)))/(dim[0]);
+            layout[i*4+3] = ((1<<(wh & 0xff)))/(dim[1]);
+        }
+
+        model.ptexTexture_displaceL = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+                      model.dimPtexDisplaceL[0],
+                      model.dimPtexDisplaceL[1],
+                      0, gl.RGBA, gl.FLOAT, layout);
 
         // ptex texel
         var xhr = new XMLHttpRequest();
@@ -1001,6 +1030,8 @@ function redraw() {
     if (model.ptexTexture_displace != undefined) {
         gl.activeTexture(gl.TEXTURE4);
         gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+        gl.activeTexture(gl.TEXTURE5);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
     }
 
     if (gpuTess) {
@@ -1034,9 +1065,19 @@ function redraw() {
                      displaceScale);
         gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
         gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
-        gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
-        gl.uniform1i(gl.getUniformLocation(program, "texPtexColorL"), 3);
-        gl.uniform1f(gl.getUniformLocation(program, "numPtexColorFace"), model.ptexNumFace_color);
+
+        if (model.dimPtexColorL) {
+            gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
+            gl.uniform1i(gl.getUniformLocation(program, "texPtexColorL"), 3);
+            gl.uniform2f(gl.getUniformLocation(program, "dimPtexColorL"),
+                         model.dimPtexColorL[0], model.dimPtexColorL[1]);
+        }
+        if (model.dimPtexDisplaceL) {
+            gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplace"), 4);
+            gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplaceL"), 5);
+            gl.uniform2f(gl.getUniformLocation(program, "dimPtexDisplaceL"),
+                         model.dimPtexDisplaceL[0], model.dimPtexDisplaceL[1]);
+        }
 
         //gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplace"), 4);
         gl.uniform1f(gl.getUniformLocation(program, "patchRes"),
@@ -1061,9 +1102,18 @@ function redraw() {
                      displaceScale);
         gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
         gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
-        gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
-        gl.uniform1i(gl.getUniformLocation(program, "texPtexColorL"), 3);
-        gl.uniform1f(gl.getUniformLocation(program, "numPtexColorFace"), model.ptexNumFace_color);
+        if (model.dimPtexColorL) {
+            gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
+            gl.uniform1i(gl.getUniformLocation(program, "texPtexColorL"), 3);
+            gl.uniform2f(gl.getUniformLocation(program, "dimPtexColorL"),
+                         model.dimPtexColorL[0], model.dimPtexColorL[1]);
+        }
+        if (model.dimPtexDisplaceL) {
+            gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplace"), 4);
+            gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplaceL"), 5);
+            gl.uniform2f(gl.getUniformLocation(program, "dimPtexDisplaceL"),
+                         model.dimPtexDisplaceL[0], model.dimPtexDisplaceL[1]);
+        }
         gl.uniform2f(gl.getUniformLocation(program, "patchRes"),
                      model.nGregoryPatchRes[0], model.nGregoryPatchRes[1]);
         gl.activeTexture(gl.TEXTURE1);
