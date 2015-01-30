@@ -49,6 +49,10 @@ float displacement(vec2 uv) {
 // ------------------------------------------------------------------------
 #ifdef FRAGMENT_SHADER
 
+uniform sampler2D texPtexColor;
+vec4 getPtexColor(vec4 ptexCoord) {
+    return vec4(texture2D(texPtexColor, ptexCoord.xy).xyz, 1);
+}
 
 vec3
 perturbNormalFromDisplacement(vec3 position, vec3 normal, vec2 uv)

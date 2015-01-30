@@ -9,6 +9,7 @@ attribute vec4 inUV;     // 0
 attribute vec3 inColor;  // 1
 attribute vec3 position; // 2
 attribute vec3 inNormal; // 3
+attribute vec4 inPtexCoord; // 4
 varying vec3 normal;
 varying vec4 uv;
 varying vec3 color;
@@ -20,9 +21,12 @@ void main()
     vec3 WorldPos = position.xyz;
     normal = (modelViewMatrix * vec4(normalize(inNormal.xyz), 0)).xyz;
 
+    ptexCoord = inPtexCoord;
     // apply displacement
 #ifdef DISPLACEMENT
+#ifndef PTEX_DISPLACE
     ptexCoord.zw = WorldPos.xz*4.0;
+#endif
     float d = displacement(ptexCoord.zw);
     WorldPos.xyz += d*normal;
 #endif

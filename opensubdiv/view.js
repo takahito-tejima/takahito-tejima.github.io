@@ -403,6 +403,57 @@ function setModel(data, modelName)
     model.nGregoryPatchRes = [20, nGregoryPatches];
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 20, nGregoryPatches, 0, gl.RGB, gl.FLOAT, fd);
 
+    // PTEX read
+    usePtexColor = false;
+    usePtexDisplace = false;
+    if (data.ptexDim_color != undefined) {
+        usePtexColor = true;
+        model.ptexDim_color = data.ptexDim_color;
+        model.ptexLayout_color = data.ptexLayout_color;
+        var now = new Date();
+
+        // ptex texel
+        var image = new Image();
+        image.onload = function() {
+            model.ptexTexture_color = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            redraw();
+        }
+        image.src = "./objs/"+modelName+"_color.png?"+now.getTime();
+    }
+    if (data.ptexDim_displace != undefined) {
+        usePtexDisplace = true;
+        model.ptexDim_displace = data.ptexDim_displace;
+        model.ptexLayout_displace = data.ptexLayout_displace;
+        var now = new Date();
+
+        // ptex texel
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', "./objs/"+modelName+"_displace.raw?"+now.getTime(), true);
+        xhr.responseType = "arraybuffer";
+
+        xhr.onload = function(e) {
+            model.ptexTexture_displace = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE,
+                          model.ptexDim_displace[0], model.ptexDim_displace[1],
+                          0, gl.LUMINANCE, gl.FLOAT,
+                          new Float32Array(this.response));
+        }
+        xhr.send();
+    }
+
     // tessellation mesh
 
     fitCamera();
@@ -1002,12 +1053,14 @@ function redraw() {
             gl.uniform1i(triProgram.displayMode, displayMode);
             gl.uniform1f(gl.getUniformLocation(triProgram, "displaceScale"),
                          displaceScale);
+            gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexColor"), 2);
+            gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexDisplace"), 3);
 
             gl.enableVertexAttribArray(0);
             gl.enableVertexAttribArray(1);
             gl.enableVertexAttribArray(2);
             gl.enableVertexAttribArray(3);
-            //gl.enableVertexAttribArray(4);
+            gl.enableVertexAttribArray(4);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
             gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
             gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, 0);    // XYZ
@@ -1015,7 +1068,7 @@ function redraw() {
             gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
             gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 12*4, 0);  // uv, iuiv
             gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 12*4, 4*4); // color, patchIndex
-//            gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 12*4, 8*4); // ptexFace, ptexU, ptexV
+            gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 12*4, 8*4); // ptexFace, ptexU, ptexV
 
             gl.drawElements(gl.TRIANGLES, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
             //gl.drawElements(gl.POINTS, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
@@ -1025,7 +1078,7 @@ function redraw() {
             gl.disableVertexAttribArray(1);
             gl.disableVertexAttribArray(2);
             gl.disableVertexAttribArray(3);
-            //gl.disableVertexAttribArray(4);
+            gl.disableVertexAttribArray(4);
         }
     }
 
