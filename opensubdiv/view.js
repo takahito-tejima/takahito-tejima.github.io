@@ -1689,8 +1689,8 @@ $(function(){
 
     var modelName = getUrlParameter("model");
     if (modelName == undefined) {
-        //loadModel("face");
-        loadModel("cube");
+        loadModel("face");
+        //loadModel("cube");
         //loadModel("catmark_edgecorner");
     } else {
         loadModel("modelName");

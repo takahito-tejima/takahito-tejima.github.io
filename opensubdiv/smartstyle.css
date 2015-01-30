@@ -23,6 +23,16 @@ div#control
     font-size: 8pt !important;
 }
 
+#global
+{
+    float: left;
+}
+
+#kernel
+{
+    float: right;
+}
+
 #modelSelect-button
 {
     font-size: 6pt;
@@ -58,6 +68,10 @@ div#control
 #displaceScale {
     width: 70%;
     margin-left: 50px;
+}
+
+#repolink {
+    display: none;
 }
 
 #footer {

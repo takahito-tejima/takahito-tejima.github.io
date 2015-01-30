@@ -68,6 +68,9 @@ div#control
     margin-left: 20px;
 }
 
+a:link { color: #ffff00; }
+a:visited { color: #ffff80; }
+
 #footer {
     clear: left;
     width: 100%;
