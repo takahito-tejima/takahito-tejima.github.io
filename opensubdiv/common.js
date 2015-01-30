@@ -40,3 +40,11 @@ function getPatchColor(type, pattern)
         patchColors[0][type-6] :
         patchColors[type-6+1][pattern-1];
 }
+
+function getShaderSource(url)
+{
+    var req = new XMLHttpRequest();
+    req.open("GET", url, false);
+    req.send(null);
+    return (req.status == 200) ? req.responseText : null;
+};

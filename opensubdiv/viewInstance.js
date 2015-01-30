@@ -91,41 +91,41 @@ function getMousePosition()
     return [x, y];
 }
 
-function buildProgram(vertexShader, fragmentShader)
+function buildProgram(shaderSource, attribBindings)
 {
-    var define = "";
+    var define =
+        "#extension GL_OES_standard_derivatives : enable\n" +
+        "precision highp float;\n";
+
     if (usePtexColor) define += "#define PTEX_COLOR\n";
     if (usePtexDisplace) define += "#define PTEX_DISPLACE\n";
     define += "#define DISPLAY_MODE " + displayMode +"\n";
     if (displaceScale > 0) define += "#define DISPLACEMENT 1\n";
 
-    var util = $('#shaderutil').text();
     var program = gl.createProgram();
+
     var vshader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vshader, define+util+$(vertexShader).text());
+    gl.shaderSource(vshader, "#define VERTEX_SHADER\n"+define+shaderSource);
     gl.compileShader(vshader);
     if (!gl.getShaderParameter(vshader, gl.COMPILE_STATUS))
-        alert(gl.getShaderInfoLog(vshader));
+        console.log(gl.getShaderInfoLog(vshader));
+
     var fshader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fshader, define+util+$(fragmentShader).text());
+    gl.shaderSource(fshader, "#define FRAGMENT_SHADER\n"+define+shaderSource);
     gl.compileShader(fshader);
     if (!gl.getShaderParameter(fshader, gl.COMPILE_STATUS))
-        alert(gl.getShaderInfoLog(fshader));
+        console.log(gl.getShaderInfoLog(fshader));
     gl.attachShader(program, vshader);
     gl.attachShader(program, fshader);
 
-    if (vertexShader == "#cageVS") {
-        gl.bindAttribLocation(program, 0, "position");
-    } else {
-        gl.bindAttribLocation(program, 0, "inUV");
-        gl.bindAttribLocation(program, 1, "patchData");
-        gl.bindAttribLocation(program, 2, "tessLevel");
-        gl.bindAttribLocation(program, 3, "inColor");
+    for (var name in attribBindings) {
+        gl.bindAttribLocation(program, attribBindings[name], name);
     }
 
     gl.linkProgram(program)
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-        alert(gl.getProgramInfoLog(program));
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        console.log(gl.getProgramInfoLog(program));
+    }
     return program;
 }
 
@@ -188,25 +188,38 @@ function setDisplacementScale(scale)
 
 function initialize()
 {
+    var common = getShaderSource("shaders/common.glsl");
+
+    // cage program
+    if (cageProgram != null) gl.deleteProgram(cageProgram);
+    cageProgram = buildProgram(common+getShaderSource("shaders/cage.glsl"),
+                              { position: 0 });
+    cageProgram.mvpMatrix = gl.getUniformLocation(cageProgram, "mvpMatrix");
+
     // surface program
     if (tessProgram != null) gl.deleteProgram(tessProgram);
-    tessProgram = buildProgram('#tessVertexShader', '#fshader');
+    tessProgram = buildProgram(common+getShaderSource("shaders/bspline.glsl"),
+                              { inUV : 0,
+                                patchData : 1,
+                                tessLevel : 2,
+                                inColor : 3 });
     tessProgram.mvpMatrix = gl.getUniformLocation(tessProgram, "mvpMatrix");
     tessProgram.modelViewMatrix = gl.getUniformLocation(tessProgram, "modelViewMatrix");
     tessProgram.projMatrix = gl.getUniformLocation(tessProgram, "projMatrix");
     tessProgram.displayMode = gl.getUniformLocation(tessProgram, "displayMode");
 
+
     if (gregoryProgram != null) gl.deleteProgram(gregoryProgram);
-    gregoryProgram = buildProgram('#gregoryVertexShader', '#fshader');
+    gregoryProgram = buildProgram(common+getShaderSource("shaders/gregory.glsl"),
+                                  { inUV : 0,
+                                    patchData : 1,
+                                    tessLevel : 2,
+                                    inColor : 3 } );
     gregoryProgram.mvpMatrix = gl.getUniformLocation(gregoryProgram, "mvpMatrix");
     gregoryProgram.modelViewMatrix = gl.getUniformLocation(gregoryProgram, "modelViewMatrix");
     gregoryProgram.projMatrix = gl.getUniformLocation(gregoryProgram, "projMatrix");
     gregoryProgram.displayMode = gl.getUniformLocation(gregoryProgram, "displayMode");
 
-    // cage program
-    if (cageProgram != null) gl.deleteProgram(cageProgram);
-    cageProgram = buildProgram("#cageVS", "#cageFS");
-    cageProgram.mvpMatrix = gl.getUniformLocation(cageProgram, "mvpMatrix");
 }
 
 function deleteModel()
@@ -964,6 +977,7 @@ $(function(){
         displayMode = dmode;
     }
 
+    // load shaders
     initialize();
 
     button = false;
