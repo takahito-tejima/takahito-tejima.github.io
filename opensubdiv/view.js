@@ -31,8 +31,8 @@ var interval = null;
 var displayMode = 2;
 
 var gpuTess = true;
-var gpuAdaptive = false;
-var tessFactor = 1;
+var gpuAdaptive = true;
+var tessFactor = 4;
 var floatFilter = 0;
 var drawTris = 0;
 
@@ -204,13 +204,14 @@ function initialize()
     // triangle
     if (triProgram != null) gl.deleteProgram(triProgram);
     triProgram = buildProgram(common+getShaderSource("shaders/triangle.glsl"),
-                              { inUV : 0,
-                                position : 1,
-                                inNormal : 2,
+                              { position : 0,
+                                inNormal : 1,
+                                inUV : 2,
                                 inColor : 3 });
     triProgram.mvpMatrix = gl.getUniformLocation(triProgram, "mvpMatrix");
     triProgram.modelViewMatrix = gl.getUniformLocation(triProgram, "modelViewMatrix");
     triProgram.projMatrix = gl.getUniformLocation(triProgram, "projMatrix");
+    triProgram.displayMode = gl.getUniformLocation(triProgram, "displayMode");
 
     // bspline
     if (tessProgram != null) gl.deleteProgram(tessProgram);
@@ -435,17 +436,323 @@ function animate(time)
 function updateGeom(tf)
 {
     if (tf != null) {
-        // initialize
-        createUVmesh();
         tessFactor = tf;
-        model.batches = []
+        if (gpuTess) {
+            createUVmesh();
+        } else {
+            model.batches = [];
+            tessellateIndexAndUnvarying(model.patches, model.patchParams, false, 0);
+            tessellateIndexAndUnvarying(model.gregoryPatches, model.patchParams,
+                                        true, model.patches.length/16);
+        }
     }
 
     refine();
     evalGregory();
 
-    uploadRefinedVerts();
+    if (gpuTess) {
+        uploadRefinedVerts();
+    } else {
+        tessellate();
+    }
     redraw();
+}
+
+function appendBatch(indices, primVars, nIndices, nPoints, gregory)
+{
+    var batch = {}
+
+    var pdata = new Float32Array(nPoints * 6); // xyz, normal
+    var uvdata = new Float32Array(nPoints * 12); // uv(4), color(3)+patchIndex
+    var idata = new Uint16Array(nIndices);
+    for (i = 0; i < nIndices; i++) {
+        idata[i] = indices[i];
+    }
+    for (i = 0; i < nPoints*12; i++) {
+        uvdata[i] = primVars[i];
+    }
+    batch.pData = pdata;
+    batch.uvData = uvdata;
+    batch.nPoints = nPoints;
+    batch.nTris = nIndices/3;
+
+    batch.vbo = gl.createBuffer();
+    batch.vboUnvarying = gl.createBuffer();
+    batch.ibo = gl.createBuffer();
+    batch.gregory = gregory;
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idata, gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, pdata, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
+    gl.bufferData(gl.ARRAY_BUFFER, uvdata, gl.STATIC_DRAW);
+
+    model.batches.push(batch);
+}
+
+function finalizeBatches(batch)
+{
+    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, batch.pData, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+}
+
+function getTransitionParams(pattern, rotation)
+{
+//    pattern0        pattern1       pattern2        pattern3        pattern4
+// +-------------+ +-------------+ +-------------+ +-------------+ +-------------+
+// |     /\\     | | 0   /\\   2 | |             | |      |      | |      |      |
+// | 1  /  \\  2 | |    /   \\   | |      0      | |  1   |  0   | |      |      |
+// |   /    \\   | |   /  3   \\ | |-------------| |------|------| |  1   |   0  |
+// |  /      \\  | |  /       /  | |\\    3    / | |      |      | |      |      |
+// | /    0   \\ | | /    /    1 | |  \\     /   | |  3   |  2   | |      |      |
+// |/          \\| |/ /          | | 1  \\ /   2 | |      |      | |      |      |
+// +-------------+ +-------------+ +-------------+ +-------------+ +-------------+
+    if (pattern == 0) {
+        var p = [
+            [[1,0],[0,0.5],[1,1],[1,0],[0, 0],[0,0.5],[1,1],[0,0.5],[0,1]],  // OK
+            [[1,1],[0.5,0],[0,1],[1,1],[1, 0],[0.5,0],[0,1],[0.5,0],[0,0]],
+            [[0,1],[1,0.5],[0,0],[0,1],[1, 1],[1,0.5],[0,0],[1,0.5],[1,0]],  // OK
+            [[0,0],[0.5,1],[1,0],[0,0],[0, 1],[0.5,1],[1,0],[0.5,1],[1,1]]];
+        return p[rotation];
+    } else if (pattern == 1){
+        var p = [
+            [[1,1],[1,0],[0.5,0],[1,1],[0,0.5],[0,1],[0,0.5],[0.5,0],[0,0],[1,1],[0.5,0],[0,0.5]], // OK
+            [[0,1],[1,1],[1,0.5],[0,1],[0.5,0],[0,0],[0.5,0],[1,0.5],[1,0],[0,1],[1,0.5],[0.5,0]], // OK
+            [[0,0],[0,1],[0.5,1],[0,0],[1,0.5],[1,0],[1,0.5],[0.5,1],[1,1],[0,0],[0.5,1],[1,0.5]], // OK
+            [[1,0],[0,0],[0,0.5],[1,0],[0.5,1],[1,1],[0.5,1],[0,0.5],[0,1],[1,0],[0,0.5],[0.5,1]]];
+        return p[rotation];
+    } else if (pattern == 2) {
+        var p = [
+            [[0,0.5],[0,1],[1,1],[0,.5],[1,1],[1,0.5],[0,0],[0,0.5],[0.5,0],[0.5,0],[1,0.5],[1,0],[0,0.5],[1,0.5],[0.5,0]],
+            [[0,0.5],[0,1],[1,1],[0,.5],[1,1],[1,0.5],[0,0],[0,0.5],[0.5,0],[0.5,0],[1,0.5],[1,0],[0,0.5],[1,0.5],[0.5,0]],
+            [[0,0.5],[0,1],[1,1],[0,.5],[1,1],[1,0.5],[0,0],[0,0.5],[0.5,0],[0.5,0],[1,0.5],[1,0],[0,0.5],[1,0.5],[0.5,0]],
+            [[0,0.5],[0,1],[1,1],[0,.5],[1,1],[1,0.5],[0,0],[0,0.5],[0.5,0],[0.5,0],[1,0.5],[1,0],[0,0.5],[1,0.5],[0.5,0]]];
+        return p[rotation];
+    } else if (pattern == 3) {
+        return [[0,0],[0,0.5],[0.5,0.5],[0,0],[0.5,0.5],[0.5,0],
+                [0,0.5],[0,1],[0.5,1],[0,0.5],[0.5,1],[0.5,0.5],
+                [0.5,0],[0.5,0.5],[1,0.5],[0.5,0],[1,0.5],[1,0],
+                [0.5,0.5],[0.5,1],[1,1],[0.5,0,5],[1,1],[1,0.5]];
+    } else if (pattern == 4) {
+        return [[0,0],[0,1],[0.5,1],[0,0],[0.5,1],[0.5,0],
+                [0.5,0],[0.5,1],[1,1],[0.5,0],[1,1],[1,0]];
+    } else {
+        console.log("Unknown" , pattern, rotation);
+        return [];
+    }
+}
+
+function getPtexPacking(ret, layout, dim, ptexFace)
+{
+    var ptexX = (layout[ptexFace*6 + 2]) / (dim[0]);
+    var ptexY = (layout[ptexFace*6 + 3]) / (dim[1]);
+    var wh = layout[ptexFace*6 + 5];
+    var ptexW = ((1<<(wh >> 8)))/(dim[0]);
+    var ptexH = ((1<<(wh & 0xff)))/(dim[1]);
+    vec4.set(ret, ptexX, ptexY, ptexW, ptexH);
+}
+
+function getPtexCoord(ret, u, v, ptexU, ptexV, ptexPacking, ptexRot, depth)
+{
+    var lv = 1 << depth;
+    var pu = v;
+    var pv = u;
+    if (ptexRot == 1) {
+        pu = 1-u;
+        pv = v;
+    } else if (ptexRot == 2){
+        pu = 1-v;
+        pv = 1-u;
+    } else if (ptexRot == 3){
+        pu = u;
+        pv = 1-v;
+    }
+    pu = pu / lv + ptexU/lv;
+    pv = pv / lv + ptexV/lv;
+    pu = ptexPacking[0] + pu * ptexPacking[2];
+    pv = ptexPacking[1] + pv * ptexPacking[3];
+    vec2.set(ret, pu, pv);
+}
+
+function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
+{
+    if (patches == null) return;
+
+    var indices = new Uint16Array(10*65536);
+    var primVars = new Float32Array(12*65536);
+    var vid = 0;
+    var nIndices = 0;
+    var edgeparams = [[0,0],[1,0],[0,1]];
+
+    var nPatches = gregory ? patches.length/4 : patches.length/16;
+
+    var ptexPackingColor = vec4.create();
+    var ptexPackingDisplace = vec4.create();
+    var ptexCoordColor = vec2.create();
+    var ptexCoordDisplace = vec2.create();
+
+    for (var i = 0; i < nPatches; ++i) {
+        // patchparam: depth, ptexRot, type, pattern, rotation
+        var patchIndex = i + patchOffset;
+        if (patchIndex*8 >= patchParams.length) continue;
+        var depth    = patchParams[patchIndex*8+0];
+        var type     = patchParams[patchIndex*8+2];
+        var pattern  = patchParams[patchIndex*8+3];
+        var rotation = patchParams[patchIndex*8+4];
+        var ptexRot  = patchParams[patchIndex*8+1];
+
+        var ncp = 16;
+        if (type == 10 || type == 11) ncp = 4;
+        else if (patches[i*16+9] == -1) ncp = 9;
+        else if (patches[i*16+12] == -1) ncp = 12;
+
+        if (vid > 40000) {
+            appendBatch(indices, primVars, nIndices, vid, gregory);
+            nIndices = 0;
+            vid = 0;
+        }
+
+        var level = tessFactor - depth;
+        var color = getPatchColor(type, pattern);
+
+        var ptexU = patchParams[patchIndex*8+5];
+        var ptexV = patchParams[patchIndex*8+6];
+        var ptexFace = patchParams[patchIndex*8+7];
+
+        // resolve ptex coordinate here!
+        if (model.ptexLayout_color != undefined) {
+            getPtexPacking(ptexPackingColor,
+                           model.ptexLayout_color,
+                           model.ptexDim_color,
+                           ptexFace);
+        }
+        if (model.ptexLayout_displace != undefined) {
+            getPtexPacking(ptexPackingDisplace,
+                           model.ptexLayout_displace,
+                           model.ptexDim_displace,
+                           ptexFace);
+        }
+
+        if (level <= 0 && pattern != 0) {
+            // under tessellated transition patch. need triangle patterns.
+            var params = getTransitionParams(pattern-1, rotation);
+            for (var j = 0; j < params.length; ++j) {
+                var u = params[j][0];
+                var v = params[j][1];
+                var iu = edgeparams[j%3][0];
+                var iv = edgeparams[j%3][1];
+
+                getPtexCoord(ptexCoordColor,
+                             u, v, ptexU, ptexV,
+                             ptexPackingColor, ptexRot, depth);
+                getPtexCoord(ptexCoordDisplace,
+                             u, v, ptexU, ptexV,
+                             ptexPackingDisplace, ptexRot, depth);
+
+                // gregory patch requires relative index for patchIndex
+                primVars[vid*12+0] = u;
+                primVars[vid*12+1] = v;
+                primVars[vid*12+2] = iu;
+                primVars[vid*12+3] = iv;
+                primVars[vid*12+4] = color[0];
+                primVars[vid*12+5] = color[1];
+                primVars[vid*12+6] = color[2];
+                primVars[vid*12+7] = i;
+                primVars[vid*12+8] = ptexCoordColor[0];
+                primVars[vid*12+9] = ptexCoordColor[1];
+                primVars[vid*12+10] = ptexCoordDisplace[0];
+                primVars[vid*12+11] = ptexCoordDisplace[1];
+                indices[nIndices++] = vid++;
+            }
+        } else {
+            if (level < 0) level = 0;
+            var div = (1 << level) + 1;
+
+            for (iu = 0; iu < div; iu++) {
+                for (iv = 0; iv < div; iv++) {
+                    var u = iu/(div-1);
+                    var v = iv/(div-1);
+
+                    getPtexCoord(ptexCoordColor,
+                                 u, v, ptexU, ptexV,
+                                 ptexPackingColor, ptexRot, depth);
+                    getPtexCoord(ptexCoordDisplace,
+                                 u, v, ptexU, ptexV,
+                                 ptexPackingDisplace, ptexRot, depth);
+
+                    primVars[vid*12+0] = u;
+                    primVars[vid*12+1] = v;
+                    primVars[vid*12+2] = iu;
+                    primVars[vid*12+3] = iv;
+                    primVars[vid*12+4] = color[0];
+                    primVars[vid*12+5] = color[1];
+                    primVars[vid*12+6] = color[2];
+                    primVars[vid*12+7] = i;
+                    primVars[vid*12+8] = ptexCoordColor[0];
+                    primVars[vid*12+9] = ptexCoordColor[1];
+                    primVars[vid*12+10] = ptexCoordDisplace[0];
+                    primVars[vid*12+11] = ptexCoordDisplace[1];
+                    if (iu != 0 && iv != 0) {
+                        indices[nIndices++] = vid - div - 1;
+                        indices[nIndices++] = vid - div;
+                        indices[nIndices++] = vid;
+                        indices[nIndices++] = vid - 1;
+                        indices[nIndices++] = vid - div - 1;
+                        indices[nIndices++] = vid;
+                        nIndices += 6;
+                    }
+                    ++vid;
+                }
+            }
+        }
+    }
+
+    // residual
+    appendBatch(indices, primVars, nIndices, vid, gregory);
+
+}
+
+function tessellate() {
+    if (model == null) return;
+
+    var evaluator = new PatchEvaluator(model.maxValence);
+    var vid = 0;
+
+    for (var i = 0; i < model.batches.length; ++i) {
+        var batch = model.batches[i];
+        var pid = 0;
+        var uvid = 0;
+
+        for (var j = 0; j < batch.nPoints; ++j) {
+            var patchIndex = batch.uvData[uvid+7];
+
+            var u = batch.uvData[uvid+0];
+            var v = batch.uvData[uvid+1];
+
+            if (batch.gregory) {
+                pn  = evaluator.evalGregoryBasis(model.gregoryEvalVerts,
+                                                 patchIndex,
+                                                 u, v);
+            } else {
+                pn = evaluator.evalBSpline(model.patches,
+                                           patchIndex, u, v);
+            }
+
+            batch.pData[pid+0] = pn[0][0];
+            batch.pData[pid+1] = pn[0][1];
+            batch.pData[pid+2] = pn[0][2];
+            batch.pData[pid+3] = pn[1][0];
+            batch.pData[pid+4] = pn[1][1];
+            batch.pData[pid+5] = pn[1][2];
+
+            pid += 6; // xyz, normal
+            uvid += 12; // uv, color
+        }
+        finalizeBatches(batch);
+    }
 }
 
 function refine()
@@ -608,16 +915,16 @@ function redraw() {
         gl.drawElements(gl.LINES, model.cageLines.length, gl.UNSIGNED_SHORT, 0);
     }
 
-    gl.enableVertexAttribArray(0);
-    gl.enableVertexAttribArray(1);
-    gl.enableVertexAttribArray(2);
-    gl.enableVertexAttribArray(3);
-    ext.vertexAttribDivisorANGLE(1, 1);
-    ext.vertexAttribDivisorANGLE(2, 1);
-    ext.vertexAttribDivisorANGLE(3, 1);
-
     drawTris = 0;
-    if (model != null) {
+    if (gpuTess) {
+        gl.enableVertexAttribArray(0);
+        gl.enableVertexAttribArray(1);
+        gl.enableVertexAttribArray(2);
+        gl.enableVertexAttribArray(3);
+        ext.vertexAttribDivisorANGLE(1, 1);
+        ext.vertexAttribDivisorANGLE(2, 1);
+        ext.vertexAttribDivisorANGLE(3, 1);
+
         prepareBatch(mvpMatrix, proj, aspect);
 
         // common textures
@@ -666,15 +973,62 @@ function redraw() {
         gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
 
         drawGregory(model.gregoryInstanceData);
+
+        gl.disableVertexAttribArray(0);
+        gl.disableVertexAttribArray(1);
+        gl.disableVertexAttribArray(2);
+        gl.disableVertexAttribArray(3);
+        ext.vertexAttribDivisorANGLE(1, 0);
+        ext.vertexAttribDivisorANGLE(2, 0);
+        ext.vertexAttribDivisorANGLE(3, 0);
+    } else {
+        if (model.ptexTexture_color != undefined) {
+            gl.activeTexture(gl.TEXTURE2);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
+        }
+        if (model.ptexTexture_displace != undefined) {
+            gl.activeTexture(gl.TEXTURE3);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+        }
+
+        for (var i = 0; i < model.batches.length; ++i) {
+            var batch = model.batches[i];
+            if (batch.vboUnvarying == null) continue;
+            gl.useProgram(triProgram);
+
+            gl.uniformMatrix4fv(triProgram.modelViewMatrix, false, modelView);
+            gl.uniformMatrix4fv(triProgram.projMatrix, false, proj);
+            gl.uniformMatrix4fv(triProgram.mvpMatrix, false, mvpMatrix);
+            gl.uniform1i(triProgram.displayMode, displayMode);
+            gl.uniform1f(gl.getUniformLocation(triProgram, "displaceScale"),
+                         displaceScale);
+
+            gl.enableVertexAttribArray(0);
+            gl.enableVertexAttribArray(1);
+            gl.enableVertexAttribArray(2);
+            gl.enableVertexAttribArray(3);
+            //gl.enableVertexAttribArray(4);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
+            gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, 0);    // XYZ
+            gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 6*4, 3*4);  // normal
+            gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
+            gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 12*4, 0);  // uv, iuiv
+            gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 12*4, 4*4); // color, patchIndex
+//            gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 12*4, 8*4); // ptexFace, ptexU, ptexV
+
+            gl.drawElements(gl.TRIANGLES, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
+            //gl.drawElements(gl.POINTS, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
+
+            drawTris += batch.nTris;
+            gl.disableVertexAttribArray(0);
+            gl.disableVertexAttribArray(1);
+            gl.disableVertexAttribArray(2);
+            gl.disableVertexAttribArray(3);
+            //gl.disableVertexAttribArray(4);
+        }
     }
 
-    gl.disableVertexAttribArray(0);
-    gl.disableVertexAttribArray(1);
-    gl.disableVertexAttribArray(2);
-    gl.disableVertexAttribArray(3);
-    ext.vertexAttribDivisorANGLE(1, 0);
-    ext.vertexAttribDivisorANGLE(2, 0);
-    ext.vertexAttribDivisorANGLE(3, 0);
 
     var time = Date.now();
     var drawTime = time - prevTime;
@@ -1111,13 +1465,13 @@ $(function(){
         });
 
     $( "#tessKernelRadio" ).buttonset();
-    $( "#tk2" ).attr('checked', 'checked');
+    $( "#tk3" ).attr('checked', 'checked');
     $( "#tessKernelRadio" ).buttonset('refresh');
     $( 'input[name="tessKernelRadio"]:radio' ).change(
         function() {
             gpuTess = ({tk1:false, tk2:true, tk3:true })[this.id];
             gpuAdaptive = ({tk1:false, tk2:false, tk3:true })[this.id];
-            updateGeom();
+            updateGeom(tessFactor);
         });
 
     $( "#radio" ).buttonset();
