@@ -1,0 +1,538 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <link media="only screen and (max-device-width:480px)"
+          href="smartstyle.css" type="text/css" rel="stylesheet" />
+    <link media="screen and (min-device-width:481px)" href="fullstyle.css"
+          type="text/css" rel="stylesheet" />
+    <!--[if IE]>
+        <link href="fullstyle.css" type="text/css" rel="stylesheet" />
+    <![endif]-->
+
+    <title>OpenSubdiv 3.0 WebGL viewer</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="../lib/camera.js?012501" type="text/javascript" ></script>
+    <script src="../lib/gl-matrix-min.js" type="text/javascript"></script>
+    <script src="./common.js?012501" type="text/javascript" ></script>
+    <script src="./eval.js?012501" type="text/javascript" ></script>
+    <script src="./view.js?012501" type="text/javascript" ></script>
+
+    <script id="cageVS" type="x-shader/x-vertex">
+      attribute vec3 position;
+      void main() {
+        gl_Position = mvpMatrix * vec4(position, 1);
+      }
+    </script>
+    <script id="cageFS" type="x-shader/x-vertex">
+      void main() {
+        gl_FragColor = vec4(1, 1, 0, 1);
+      }
+    </script>
+
+    <script id="shaderutil" type="x-shader/x-vertex">
+      precision highp float;
+
+      uniform mat4 mvpMatrix;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 projMatrix;
+      uniform float displaceScale;
+
+      uniform sampler2D texPtexColor;
+      uniform sampler2D texPtexDisplace;
+
+      void evalCubicBSpline(in float u, out float B[4], out float BU[4]) {
+        float t = u;
+        float s = 1.0 - u;
+        float A0 =                     s * (0.5 * s);
+        float A1 = t * (s + 0.5 * t) + s * (0.5 * s + t);
+        float A2 = t * (    0.5 * t);
+        B[0] =                                 1.0/3.0 * s              * A0;
+        B[1] = (2.0/3.0 * s +         t) * A0 + (2.0/3.0 * s + 1.0/3.0 * t) * A1;
+        B[2] = (1.0/3.0 * s + 2.0/3.0 * t) * A1 + (        s + 2.0/3.0 * t) * A2;
+        B[3] =              1.0/3.0 * t  * A2;
+        BU[0] =    - A0;
+        BU[1] = A0 - A1;
+        BU[2] = A1 - A2;
+        BU[3] = A2;
+      }
+
+      void evalCubicBezier(in float u, out float B[4], out float D[4]) {
+        float t = u;
+        float s = 1.0 - u;
+        float A0 = s * s;
+        float A1 = 2.0 * s * t;
+        float A2 = t * t;
+
+        B[0] = s * A0;
+        B[1] = t * A0 + s * A1;
+        B[2] = t * A1 + s * A2;
+        B[3] = t * A2;
+
+        D[0] =    - A0;
+        D[1] = A0 - A1;
+        D[2] = A1 - A2;
+        D[3] = A2;
+      }
+      vec4 getPtexColor(vec4 ptexCoord) {
+        return vec4(texture2D(texPtexColor, ptexCoord.xy).xyz, 1);
+      }
+
+      float displacement(vec2 uv) {
+      #ifdef PTEX_DISPLACE
+         return displaceScale*texture2D(texPtexDisplace, uv).x;
+      #else
+         return displaceScale*(sin(40.0*uv.x)*cos(40.0*uv.y));
+      #endif
+      }
+    </script>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+      attribute vec4 inUV;     // 0
+      attribute vec3 inColor;  // 1
+      attribute vec3 position; // 2
+      attribute vec3 inNormal; // 3
+      attribute vec4 inPtexCoord; // 4
+      varying vec3 normal;
+      varying vec4 uv;
+      varying vec3 color;
+      varying vec3 Peye;
+      varying vec4 ptexCoord;
+
+      void main(){
+        vec3 p = (modelViewMatrix * vec4(position.xyz, 1)).xyz;
+        normal = (modelViewMatrix * vec4(normalize(inNormal.xyz), 0)).xyz;
+        uv = inUV;
+        color = inColor;
+        Peye = p;
+        ptexCoord = inPtexCoord;
+        gl_Position = projMatrix * vec4(p, 1);
+      }
+    </script>
+
+    <script id="tessVertexShader" type="x-shader/x-vertex">
+      attribute vec4 inUV;
+      attribute vec4 inColor;
+      attribute vec3 position;
+      attribute vec3 inNormal;
+      attribute vec4 inPtexCoord; // 4
+      varying vec3 normal;
+      varying vec4 uv;
+      varying vec3 color;
+      varying vec3 Peye;
+      varying vec4 ptexCoord;
+
+      uniform sampler2D texCP;
+      uniform sampler2D texPatch;
+      uniform float patchRes; // square, *16
+      uniform float pointRes; // squre
+
+      vec2 getVertexIndex(float patchIndex, float cpIndex) {
+        float u = fract(patchIndex*16.0/patchRes) + (cpIndex+0.5)/patchRes;
+        float v = (floor(patchIndex*16.0/patchRes)+0.5)/patchRes;
+        return texture2D(texPatch, vec2(u,v)).xy;
+      }
+
+      void main(){
+        float patchIndex = inColor.w;
+        vec3 cp[16];
+        vec2 vids[16];
+        for (int i = 0; i < 16; ++i) {
+          vids[i] = getVertexIndex(patchIndex, float(i));
+        }
+        if (vids[9].x == -1.0) {
+          // corner
+          for (int i = 0; i < 9; ++i) {
+            cp[i+4] = texture2D(texCP, vids[i]).xyz;
+          }
+          cp[14] = cp[12];
+          cp[13] = cp[11];
+          cp[12] = cp[10];
+          cp[10] = cp[9];
+          cp[9] = cp[8];
+          cp[8] = cp[7];
+          cp[0] = cp[4]*2.0 - cp[8];
+          cp[1] = cp[5]*2.0 - cp[9];
+          cp[2] = cp[6]*2.0 - cp[10];
+          cp[3] = cp[6]*2.0 - cp[9];
+          cp[7] = cp[6]*2.0 - cp[5];
+          cp[11] = cp[10]*2.0 - cp[9];
+          cp[15] = cp[14]*2.0 - cp[13];
+        } else if (vids[15].x == -1.0) {
+          // boundary
+          for (int i = 0; i < 12; ++i) {
+            cp[i+4] = texture2D(texCP, vids[i]).xyz;
+          }
+          cp[0] = cp[4]*2.0 - cp[8];
+          cp[1] = cp[5]*2.0 - cp[9];
+          cp[2] = cp[6]*2.0 - cp[10];
+          cp[3] = cp[7]*2.0 - cp[11];
+        } else {
+          // regular
+          for (int i = 0; i < 16; ++i) {
+            cp[i] = texture2D(texCP, vids[i]).xyz;
+          }
+        }
+
+        float B[4], D[4];
+        vec3 BUCP[4], DUCP[4];
+        BUCP[0] = BUCP[1] = BUCP[2] = BUCP[3] = vec3(0);
+        DUCP[0] = DUCP[1] = DUCP[2] = DUCP[3] = vec3(0);
+
+        evalCubicBSpline(inUV.x, B, D);
+
+        for (int i=0; i<4; ++i) {
+          for (int j=0; j<4; ++j) {
+            vec3 A = cp[4*j + i].xyz;
+            BUCP[i] += A * B[j];
+            DUCP[i] += A * D[j];
+          }
+        }
+
+        vec3 WorldPos  = vec3(0);
+        vec3 Tangent   = vec3(0);
+        vec3 BiTangent = vec3(0);
+
+        evalCubicBSpline(inUV.y, B, D);
+
+        for (int k=0; k<4; ++k) {
+          WorldPos  += B[k] * BUCP[k];
+          Tangent   += B[k] * DUCP[k];
+          BiTangent += D[k] * BUCP[k];
+        }
+        vec3 n = normalize(cross(BiTangent, Tangent));
+
+        ptexCoord = inPtexCoord;
+
+      // apply displacement
+      #ifdef DISPLACEMENT
+      #ifndef PTEX_DISPLACE
+        ptexCoord.zw = WorldPos.xz*4.0;
+      #endif
+        float d = displacement(ptexCoord.zw);
+        WorldPos.xyz += d*n;
+      #endif
+
+        vec3 p = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
+        normal = (modelViewMatrix * vec4(n, 0)).xyz;
+        uv = inUV;
+        color = inColor.xyz;
+        Peye = p;
+        gl_Position = projMatrix * vec4(p, 1);
+                           gl_PointSize=10.0;
+      }
+    </script>
+
+    <script id="gregoryVertexShader" type="x-shader/x-vertex">
+      attribute vec4 inUV;
+      attribute vec4 inColor;
+      attribute vec3 position;
+      attribute vec3 inNormal;
+      attribute vec4 inPtexCoord; // 4
+      varying vec3 normal;
+      varying vec4 uv;
+      varying vec3 color;
+      varying vec3 Peye;
+      varying vec4 ptexCoord;
+
+      uniform sampler2D texCP;
+      uniform sampler2D texPatch;
+      uniform vec2 patchRes; // square, *20
+      uniform float pointRes; // squre
+
+      vec2 getGregoryVertexIndex(float patchIndex, float cpIndex) {
+        float u = fract(patchIndex*20.0/patchRes[0]) + (cpIndex+0.5)/patchRes[0];
+        float v = (floor(patchIndex*20.0/patchRes[0])+0.5)/patchRes[1];
+        return texture2D(texPatch, vec2(u,v)).xy;
+      }
+      void main(){
+        float patchIndex = inColor.w;
+        vec3 p[20];
+        vec2 vids[20];
+        for (int i = 0; i < 20; ++i) {
+          vids[i] = getGregoryVertexIndex(patchIndex, float(i));
+        }
+        for (int i = 0; i < 20; ++i) {
+          p[i] = texture2D(texCP, vids[i]).xyz;
+        }
+
+        vec3 q[16];
+
+        float u = inUV.x;
+        float v = inUV.y;
+        float U = 1.0-u, V=1.0-v;
+        float d11 = u+v; if(u+v==0.0) d11 = 1.0;
+        float d12 = U+v; if(U+v==0.0) d12 = 1.0;
+        float d21 = u+V; if(u+V==0.0) d21 = 1.0;
+        float d22 = U+V; if(U+V==0.0) d22 = 1.0;
+
+
+        q[ 5] = (u*p[3] + v*p[4])/d11;
+        q[ 6] = (U*p[9] + v*p[8])/d12;
+        q[ 9] = (u*p[19] + V*p[18])/d21;
+        q[10] = (U*p[13] + V*p[14])/d22;
+
+        q[ 0] = p[0];
+        q[ 1] = p[1];
+        q[ 2] = p[7];
+        q[ 3] = p[5];
+        q[ 4] = p[2];
+        q[ 7] = p[6];
+        q[ 8] = p[16];
+        q[11] = p[12];
+        q[12] = p[15];
+        q[13] = p[17];
+        q[14] = p[11];
+        q[15] = p[10];
+
+
+        float B[4], D[4];
+        vec3 BUCP[4], DUCP[4];
+        BUCP[0] = BUCP[1] = BUCP[2] = BUCP[3] = vec3(0);
+        DUCP[0] = DUCP[1] = DUCP[2] = DUCP[3] = vec3(0);
+
+        evalCubicBezier(inUV.x, B, D);
+
+        for (int i=0; i<4; ++i) {
+          for (int j=0; j<4; ++j) {
+            vec3 A = q[4*j + i].xyz;
+            BUCP[i] += A * B[j];
+            DUCP[i] += A * D[j];
+          }
+        }
+
+        vec3 WorldPos  = vec3(0);
+        vec3 Tangent   = vec3(0);
+        vec3 BiTangent = vec3(0);
+
+        evalCubicBezier(inUV.y, B, D);
+
+        for (int k=0; k<4; ++k) {
+          WorldPos  += B[k] * BUCP[k];
+          Tangent   += B[k] * DUCP[k];
+          BiTangent += D[k] * BUCP[k];
+        }
+        vec3 n = normalize(cross(BiTangent, Tangent));
+
+        ptexCoord = inPtexCoord;
+
+      // apply displacement
+      #ifdef DISPLACEMENT
+      #ifndef PTEX_DISPLACE
+        ptexCoord.zw = WorldPos.xz*4.0;
+      #endif
+        float d = displacement(ptexCoord.zw);
+        WorldPos.xyz += d*n;
+      #endif
+
+        vec3 pos = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
+        normal = (modelViewMatrix * vec4(n, 0)).xyz;
+        uv = inUV;
+        color = inColor.xyz;
+        Peye = pos;
+        gl_Position = projMatrix * vec4(pos, 1);
+                           gl_PointSize=10.0;
+      }
+    </script>
+
+    <script id="fshader" type="x-shader/x-fragment">
+      #extension GL_OES_standard_derivatives : enable
+
+      precision highp float;
+      varying vec3 normal;
+      varying vec4 uv;
+      varying vec3 color;
+      varying vec3 Peye;
+      varying vec4 ptexCoord;
+
+      uniform int displayMode;
+
+      vec3
+      perturbNormalFromDisplacement(vec3 position, vec3 normal, vec2 uv)
+      {
+        vec3 vSigmaS = dFdx(position);
+        vec3 vSigmaT = dFdy(position);
+        vec3 vN = normal;
+        vec3 vR1 = cross(vSigmaT, vN);
+        vec3 vR2 = cross(vN, vSigmaS);
+        float fDet = dot(vSigmaS, vR1);
+
+        vec2 texDx = dFdx(uv);
+        vec2 texDy = dFdy(uv);
+
+        // limit forward differencing to the width of ptex gutter
+        const float resolution = 128.0;
+        float d = 1.0;//min(1.0, (0.5/resolution)/max(length(texDx), length(texDy)));
+
+        vec2 STll = uv;
+        vec2 STlr = uv + d * vec2(texDx.x, texDx.y);
+        vec2 STul = uv + d * vec2(texDy.x, texDy.y);
+
+        float Hll = displacement(STll);
+        float Hlr = displacement(STlr);
+        float Hul = displacement(STul);
+
+        float dBs = (Hlr - Hll)/d;
+        float dBt = (Hul - Hll)/d;
+
+        vec3 vSurfGrad = sign(fDet) * (dBs * vR1 + dBt * vR2);
+        return normalize(abs(fDet) * vN - vSurfGrad);
+      }
+
+      void main()
+      {
+         vec3 fnormal = normal;
+      #ifdef DISPLACEMENT
+         if (displaceScale > 0.0) {
+      #ifdef FLAT_NORMAL
+           vec3 X = 100.0*dFdx(Peye);
+           vec3 Y = 100.0*dFdy(Peye);
+           fnormal = normalize( cross(X, Y) );
+      #else
+           fnormal = perturbNormalFromDisplacement(Peye,
+                             fnormal, ptexCoord.zw);
+      #endif
+         }
+      #endif
+         vec3 l = normalize(vec3(-0.3,0.5,1));
+         float d = max(0.0, dot(fnormal, l));
+         vec3 h = normalize(l + vec3(0,0,1));    // directional viewer
+         float s = pow(max(0.0, dot(fnormal, h)), 64.0);
+
+         vec4 c = vec4(color, 1);
+
+
+      #if DISPLAY_MODE == 0
+      #ifdef PTEX_COLOR
+         c = getPtexColor(ptexCoord);
+      #else
+         c.rgb = vec3(0.4, 0.4, 0.8);
+      #endif
+
+         c = vec4(d*c.rgb + s*vec3(0.7),1);
+
+      #elif DISPLAY_MODE == 1
+         c = vec4(d*c.rgb,1);
+      #elif DISPLAY_MODE == 2
+         c = vec4(d*c.rgb,1);
+         vec2 vRel = fract(uv.zw);
+         float edge = max(1.0-vRel.x, max(1.0-vRel.y, max(vRel.x, vRel.y)));
+
+         vec2 dist = fwidth(vRel);
+         vec2 a2 = smoothstep(vec2(0), dist*1.0, vRel);
+         edge = 1.0 -(a2.x + a2.y)*0.5;
+         c = mix(c, vec4(0,0,0,1), edge);
+      #elif DISPLAY_MODE == 3
+         c = vec4(fnormal, 1);
+      #elif DISPLAY_MODE == 4
+         c = vec4(uv.x, uv.y, 1, 1);
+      #endif
+
+         gl_FragColor = c;
+      }
+    </script>
+  </head>
+
+  <body >
+
+    <div id="container">
+      <div id="header">
+        <h3>OpenSubdiv 3.0 WebGL viewer</h3>
+      </div>
+      <div id="nav">
+        <div>
+          <input id="deformCheckbox" type="checkbox"><label for="deformCheckbox">Animation</label>
+          <input id="hullCheckbox" type="checkbox" checked><label for="hullCheckbox">Hull</label>
+          <span id="tessKernelRadio">
+            <input type="radio" id="tk1" name="tessKernelRadio" checked="checked"><label for="tk1">JS</label>
+            <input type="radio" id="tk2" name="tessKernelRadio"><label for="tk2">GPU</label>
+          </span>
+        </div>
+        <div>
+          Tess factor
+          <div id="tessFactorRadio">
+            <input type="radio" id="tf1" name="tessFactorRadio"><label for="tf1">1</label>
+            <input type="radio" id="tf2" name="tessFactorRadio"><label for="tf2">2</label>
+            <input type="radio" id="tf3" name="tessFactorRadio"><label for="tf3">3</label>
+            <input type="radio" id="tf4" name="tessFactorRadio"><label for="tf4">4</label>
+            <input type="radio" id="tf5" name="tessFactorRadio"><label for="tf5">5</label>
+            <input type="radio" id="tf6" name="tessFactorRadio"><label for="tf6">6</label>
+            <input type="radio" id="tf7" name="tessFactorRadio"><label for="tf7">7</label>
+          </div>
+        </div>
+
+        Display style
+        <div id="radio">
+          <input type="radio" id="displayShade" name="radio"><label for="displayShade">Shade</label>
+          <input type="radio" id="displayPatchColor" name="radio"><label for="displayPatchColor">Patch</label>
+          <input type="radio" id="displayWire" name="radio"><label for="displayWire">Wire</label>
+          <input type="radio" id="displayNormal" name="radio"><label for="displayNormal">Normal</label>
+          <input type="radio" id="displayPatchCoord" name="radio"><label for="displayPatchCoord">Coord</label>
+        </div>
+
+        Model
+        <div>
+          <select id="modelSelect" style="width:200px" size="35">
+            <option value="cube" selected>cube</option>
+            <option value="ptex">ptex</option>
+            <option value="torus">torus</option>
+            <option value="dino">dino</option>
+            <option value="face">face</option>
+            <option value="catmark_cube_creases0">catmark_cube_creases0</option>
+            <option value="catmark_cube_creases1">catmark_cube_creases1</option>
+            <option value="catmark_cube_corner0">catmark_cube_corner0</option>
+            <option value="catmark_cube_corner1">catmark_cube_corner1</option>
+            <option value="catmark_cube_corner2">catmark_cube_corner2</option>
+            <option value="catmark_cube_corner3">catmark_cube_corner3</option>
+            <option value="catmark_dart_edgecorner">catmark_dart_edgecorner</option>
+            <option value="catmark_dart_edgeonly">catmark_dart_edgeonly</option>
+            <option value="catmark_gregory_test1">catmark_gregory_test1</option>
+            <option value="catmark_gregory_test2">catmark_gregory_test2</option>
+            <option value="catmark_gregory_test3">catmark_gregory_test3</option>
+            <option value="catmark_gregory_test4">catmark_gregory_test4</option>
+            <option value="catmark_gregory_test5">catmark_gregory_test5</option>
+            <option value="catmark_gregory_test6">catmark_gregory_test6</option>
+            <option value="catmark_gregory_test7">catmark_gregory_test7</option>
+            <option value="catmark_pyramid_creases0">catmark_pyramid_creases0</option>
+            <option value="catmark_pyramid_creases1">catmark_pyramid_creases1</option>
+            <option value="catmark_pyramid_creases2">catmark_pyramid_creases2</option>
+            <option value="catmark_torus">catmark_torus</option>
+            <option value="catmark_torus_creases0">catmark_torus_creases0</option>
+            <option value="catmark_chaikin0">catmark_chaikin0</option>
+            <option value="catmark_chaikin1">catmark_chaikin1</option>
+            <option value="catmark_chaikin2">catmark_chaikin2</option>
+            <option value="catmark_hole_test1">catmark_hole_test1</option>
+            <option value="catmark_hole_test2">catmark_hole_test2</option>
+            <option value="catmark_hole_test3">catmark_hole_test3</option>
+            <option value="catmark_hole_test4">catmark_hole_test4</option>
+            <option value="catmark_helmet">catmark_helmet</option>
+            <option value="catmark_car">catmark_car</option>
+            <option value="catmark_bishop">catmark_bishop</option>
+            <option value="catmark_rook">catmark_rook</option>
+            <option value="catmark_pawn">catmark_pawn</option>
+            <option value="barbarian">barbarian</option>
+          </select>
+        </div>
+        Displacement (WIP)
+        <div id="displaceScale"></div>
+      </div>
+
+      <div id="loading" style="display:none">
+        <img src="gif-load.gif">
+      </div>
+      <div id="content">
+        <canvas id="main"></canvas>
+      </div>
+      <div id="footer">
+        <span id="triangles"></span> triangles /
+        <span id="fps"></span> fps
+      </div>
+    </div>
+  </body>
+</html>

@@ -5,11 +5,12 @@
 var button = false;
 var prev_position = [0, 0];
 var prev_pinch = 0;
+var gpuTess = true;
 
 var time = 0;
 var model = {};
 var deform = false;
-var drawHull = false;
+var drawHull = true;
 var usePtexColor = false;
 var usePtexDisplace = false;
 var dpr = 1;
@@ -17,10 +18,10 @@ var displaceScale = 0;
 
 var prevTime = 0;
 var fps = 0;
-var ext = null;
 
 var uvtex = null;
 
+var basicProgram = null;
 var tessProgram = null;
 var gregoryProgram = null;
 var cageProgram = null;
@@ -31,39 +32,6 @@ var displayMode = 2;
 
 var tessFactor = 4;
 var floatFilter = 0;
-var drawTris = 0;
-
-var patchColors = [[[1.0,  1.0,  1.0,  1.0],   // regular
-                    [1.0,  0.5,  0.5,  1.0],   // single crease
-                    [0.8,  0.0,  0.0,  1.0],   // boundary
-                    [0.0,  1.0,  0.0,  1.0],   // corner
-                    [1.0,  1.0,  0.0,  1.0],   // gregory
-                    [1.0,  0.5,  0.0,  1.0],   // gregory boundary
-                    [1.0,  1.0,  0.0,  1.0]],  // gregory basis
-
-                   [[0.0,  1.0,  1.0,  1.0],   // regular pattern 0
-                    [0.0,  0.5,  1.0,  1.0],   // regular pattern 1
-                    [0.0,  0.5,  0.5,  1.0],   // regular pattern 2
-                    [0.5,  0.0,  1.0,  1.0],   // regular pattern 3
-                    [1.0,  0.5,  1.0,  1.0]],  // regular pattern 4
-
-                   [[1.0,  0.7,  0.6,  1.0],   // single crease pattern 0
-                    [1.0,  0.7,  0.6,  1.0],   // single crease pattern 1
-                    [1.0,  0.7,  0.6,  1.0],   // single crease pattern 2
-                    [1.0,  0.7,  0.6,  1.0],   // single crease pattern 3
-                    [1.0,  0.7,  0.6,  1.0]],  // single crease pattern 4
-
-                   [[0.0,  0.0,  0.75, 1.0],   // boundary pattern 0
-                    [0.0,  0.2,  0.75, 1.0],   // boundary pattern 1
-                    [0.0,  0.4,  0.75, 1.0],   // boundary pattern 2
-                    [0.0,  0.6,  0.75, 1.0],   // boundary pattern 3
-                    [0.0,  0.8,  0.75, 1.0]],  // boundary pattern 4
-
-                   [[0.25, 0.25, 0.25, 1.0],   // corner pattern 0
-                    [0.25, 0.25, 0.25, 1.0],   // corner pattern 1
-                    [0.25, 0.25, 0.25, 1.0],   // corner pattern 2
-                    [0.25, 0.25, 0.25, 1.0],   // corner pattern 3
-                    [0.25, 0.25, 0.25, 1.0]]]; // corner pattern 4
 
 
 function windowEvent()
@@ -91,41 +59,42 @@ function getMousePosition()
     return [x, y];
 }
 
-function buildProgram(shaderSource, attribBindings)
+function buildProgram(vertexShader, fragmentShader)
 {
-    var define =
-        "#extension GL_OES_standard_derivatives : enable\n" +
-        "precision highp float;\n";
-
+    var define = "";
     if (usePtexColor) define += "#define PTEX_COLOR\n";
     if (usePtexDisplace) define += "#define PTEX_DISPLACE\n";
     define += "#define DISPLAY_MODE " + displayMode +"\n";
     if (displaceScale > 0) define += "#define DISPLACEMENT 1\n";
 
+    var util = $('#shaderutil').text();
     var program = gl.createProgram();
-
     var vshader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vshader, "#define VERTEX_SHADER\n"+define+shaderSource);
+    gl.shaderSource(vshader, define+util+$(vertexShader).text());
     gl.compileShader(vshader);
     if (!gl.getShaderParameter(vshader, gl.COMPILE_STATUS))
-        console.log(gl.getShaderInfoLog(vshader));
-
+        alert(gl.getShaderInfoLog(vshader));
     var fshader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fshader, "#define FRAGMENT_SHADER\n"+define+shaderSource);
+    gl.shaderSource(fshader, define+util+$(fragmentShader).text());
     gl.compileShader(fshader);
     if (!gl.getShaderParameter(fshader, gl.COMPILE_STATUS))
-        console.log(gl.getShaderInfoLog(fshader));
+        alert(gl.getShaderInfoLog(fshader));
     gl.attachShader(program, vshader);
     gl.attachShader(program, fshader);
 
-    for (var name in attribBindings) {
-        gl.bindAttribLocation(program, attribBindings[name], name);
+    if (vertexShader == "#cageVS") {
+        gl.bindAttribLocation(program, 0, "position");
+    } else {
+        gl.bindAttribLocation(program, 0, "inUV");
+        gl.bindAttribLocation(program, 1, "inColor");
+        gl.bindAttribLocation(program, 2, "position");
+        gl.bindAttribLocation(program, 3, "inNormal");
+        gl.bindAttribLocation(program, 4, "inPtexCoord");
     }
 
     gl.linkProgram(program)
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        console.log(gl.getProgramInfoLog(program));
-    }
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+        alert(gl.getProgramInfoLog(program));
     return program;
 }
 
@@ -188,38 +157,32 @@ function setDisplacementScale(scale)
 
 function initialize()
 {
-    var common = getShaderSource("shaders/common.glsl");
-
-    // cage program
-    if (cageProgram != null) gl.deleteProgram(cageProgram);
-    cageProgram = buildProgram(common+getShaderSource("shaders/cage.glsl"),
-                              { position: 0 });
-    cageProgram.mvpMatrix = gl.getUniformLocation(cageProgram, "mvpMatrix");
-
     // surface program
+    if (basicProgram != null) gl.deleteProgram(basicProgram);
+    basicProgram = buildProgram('#vertexShader', '#fshader');
+    basicProgram.mvpMatrix = gl.getUniformLocation(basicProgram, "mvpMatrix");
+    basicProgram.modelViewMatrix = gl.getUniformLocation(basicProgram, "modelViewMatrix");
+    basicProgram.projMatrix = gl.getUniformLocation(basicProgram, "projMatrix");
+    basicProgram.displayMode = gl.getUniformLocation(basicProgram, "displayMode");
+
     if (tessProgram != null) gl.deleteProgram(tessProgram);
-    tessProgram = buildProgram(common+getShaderSource("shaders/bspline.glsl"),
-                              { inUV : 0,
-                                patchData : 1,
-                                tessLevel : 2,
-                                inColor : 3 });
+    tessProgram = buildProgram('#tessVertexShader', '#fshader');
     tessProgram.mvpMatrix = gl.getUniformLocation(tessProgram, "mvpMatrix");
     tessProgram.modelViewMatrix = gl.getUniformLocation(tessProgram, "modelViewMatrix");
     tessProgram.projMatrix = gl.getUniformLocation(tessProgram, "projMatrix");
     tessProgram.displayMode = gl.getUniformLocation(tessProgram, "displayMode");
 
-
     if (gregoryProgram != null) gl.deleteProgram(gregoryProgram);
-    gregoryProgram = buildProgram(common+getShaderSource("shaders/gregory.glsl"),
-                                  { inUV : 0,
-                                    patchData : 1,
-                                    tessLevel : 2,
-                                    inColor : 3 } );
+    gregoryProgram = buildProgram('#gregoryVertexShader', '#fshader');
     gregoryProgram.mvpMatrix = gl.getUniformLocation(gregoryProgram, "mvpMatrix");
     gregoryProgram.modelViewMatrix = gl.getUniformLocation(gregoryProgram, "modelViewMatrix");
     gregoryProgram.projMatrix = gl.getUniformLocation(gregoryProgram, "projMatrix");
     gregoryProgram.displayMode = gl.getUniformLocation(gregoryProgram, "displayMode");
 
+    // cage program
+    if (cageProgram != null) gl.deleteProgram(cageProgram);
+    cageProgram = buildProgram("#cageVS", "#cageFS");
+    cageProgram.mvpMatrix = gl.getUniformLocation(cageProgram, "mvpMatrix");
 }
 
 function deleteModel()
@@ -384,7 +347,56 @@ function setModel(data, modelName)
     model.nGregoryPatchRes = [20, nGregoryPatches];
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 20, nGregoryPatches, 0, gl.RGB, gl.FLOAT, fd);
 
-    // tessellation mesh
+    // ptex layout
+    usePtexColor = false;
+    usePtexDisplace = false;
+    if (data.ptexDim_color != undefined) {
+        usePtexColor = true;
+        model.ptexDim_color = data.ptexDim_color;
+        model.ptexLayout_color = data.ptexLayout_color;
+        var now = new Date();
+
+        // ptex texel
+        var image = new Image();
+        image.onload = function() {
+            model.ptexTexture_color = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            redraw();
+        }
+        image.src = "./objs/"+modelName+"_color.png?"+now.getTime();
+    }
+    if (data.ptexDim_displace != undefined) {
+        usePtexDisplace = true;
+        model.ptexDim_displace = data.ptexDim_displace;
+        model.ptexLayout_displace = data.ptexLayout_displace;
+        var now = new Date();
+
+        // ptex texel
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', "./objs/"+modelName+"_displace.raw?"+now.getTime(), true);
+        xhr.responseType = "arraybuffer";
+
+        xhr.onload = function(e) {
+            model.ptexTexture_displace = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE,
+                          model.ptexDim_displace[0], model.ptexDim_displace[1],
+                          0, gl.LUMINANCE, gl.FLOAT,
+                          new Float32Array(this.response));
+        }
+        xhr.send();
+    }
 
     fitCamera();
 
@@ -417,16 +429,21 @@ function animate(time)
 function updateGeom(tf)
 {
     if (tf != null) {
-        // initialize
-        createUVmesh();
         tessFactor = tf;
         model.batches = []
+        tessellateIndexAndUnvarying(model.patches, model.patchParams, false, 0);
+        tessellateIndexAndUnvarying(model.gregoryPatches, model.patchParams,
+                                    true, model.patches.length/16);
     }
 
     refine();
     evalGregory();
 
-    uploadRefinedVerts();
+    if (gpuTess) {
+        uploadRefinedVerts();
+    } else {
+        tessellate();
+    }
     redraw();
 }
 
@@ -495,51 +512,301 @@ function evalGregory()
     }
 }
 
-function createUVmesh()
+function appendBatch(indices, primVars, nIndices, nPoints, gregory)
 {
-    model.tessMeshes = [];
-    for(var d = 0; d < 8; ++d) {
-        var tessMesh = {};
-        var div = (1 << d) + 1;
-        var vbo = [];
-        var ibo = [];
-        var vid = 0;
+    var batch = {}
 
-        var numTris = 0;
-        for (var iu = 0; iu < div; iu++) {
-            for (var iv = 0; iv < div; iv++) {
-                var u = iu/(div-1);
-                var v = iv/(div-1);
-                vbo.push(u);
-                vbo.push(v);
-                vbo.push(iu);
-                vbo.push(iv);
-                if (iu != 0 && iv != 0) {
-                    ibo.push(vid - div - 1);
-                    ibo.push(vid - div);
-                    ibo.push(vid);
-                    ibo.push(vid - 1);
-                    ibo.push(vid - div - 1);
-                    ibo.push(vid);
-                    numTris += 2;
-                }
-                ++vid;
-            }
+    var pdata = new Float32Array(nPoints * 6); // xyz, normal
+    var uvdata = new Float32Array(nPoints * 12); // uv(4), color(3)+patchIndex
+    var idata = new Uint16Array(nIndices);
+    for (i = 0; i < nIndices; i++) {
+        idata[i] = indices[i];
+    }
+    for (i = 0; i < nPoints*12; i++) {
+        uvdata[i] = primVars[i];
+    }
+    batch.pData = pdata;
+    batch.uvData = uvdata;
+    batch.nPoints = nPoints;
+    batch.nTris = nIndices/3;
+
+    batch.vbo = gl.createBuffer();
+    batch.vboUnvarying = gl.createBuffer();
+    batch.ibo = gl.createBuffer();
+    batch.gregory = gregory;
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idata, gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, pdata, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
+    gl.bufferData(gl.ARRAY_BUFFER, uvdata, gl.STATIC_DRAW);
+
+    model.batches.push(batch);
+}
+
+function finalizeBatches(batch)
+{
+    gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, batch.pData, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+}
+
+function getTransitionParams(pattern, rotation)
+{
+//    pattern0        pattern1       pattern2        pattern3        pattern4
+// +-------------+ +-------------+ +-------------+ +-------------+ +-------------+
+// |     /\\     | | 0   /\\   2 | |             | |      |      | |      |      |
+// | 1  /  \\  2 | |    /   \\   | |      0      | |  1   |  0   | |      |      |
+// |   /    \\   | |   /  3   \\ | |-------------| |------|------| |  1   |   0  |
+// |  /      \\  | |  /       /  | |\\    3    / | |      |      | |      |      |
+// | /    0   \\ | | /    /    1 | |  \\     /   | |  3   |  2   | |      |      |
+// |/          \\| |/ /          | | 1  \\ /   2 | |      |      | |      |      |
+// +-------------+ +-------------+ +-------------+ +-------------+ +-------------+
+    if (pattern == 0) {
+        var p = [
+            [[1,0],[0,0.5],[1,1],[1,0],[0, 0],[0,0.5],[1,1],[0,0.5],[0,1]],  // OK
+            [[1,1],[0.5,0],[0,1],[1,1],[1, 0],[0.5,0],[0,1],[0.5,0],[0,0]],
+            [[0,1],[1,0.5],[0,0],[0,1],[1, 1],[1,0.5],[0,0],[1,0.5],[1,0]],  // OK
+            [[0,0],[0.5,1],[1,0],[0,0],[0, 1],[0.5,1],[1,0],[0.5,1],[1,1]]];
+        return p[rotation];
+    } else if (pattern == 1){
+        var p = [
+            [[1,1],[1,0],[0.5,0],[1,1],[0,0.5],[0,1],[0,0.5],[0.5,0],[0,0],[1,1],[0.5,0],[0,0.5]], // OK
+            [[0,1],[1,1],[1,0.5],[0,1],[0.5,0],[0,0],[0.5,0],[1,0.5],[1,0],[0,1],[1,0.5],[0.5,0]], // OK
+            [[0,0],[0,1],[0.5,1],[0,0],[1,0.5],[1,0],[1,0.5],[0.5,1],[1,1],[0,0],[0.5,1],[1,0.5]], // OK
+            [[1,0],[0,0],[0,0.5],[1,0],[0.5,1],[1,1],[0.5,1],[0,0.5],[0,1],[1,0],[0,0.5],[0.5,1]]];
+        return p[rotation];
+    } else if (pattern == 2) {
+        var p = [
+            [[0,0.5],[0,1],[1,1],[0,.5],[1,1],[1,0.5],[0,0],[0,0.5],[0.5,0],[0.5,0],[1,0.5],[1,0],[0,0.5],[1,0.5],[0.5,0]],
+            [[0,0.5],[0,1],[1,1],[0,.5],[1,1],[1,0.5],[0,0],[0,0.5],[0.5,0],[0.5,0],[1,0.5],[1,0],[0,0.5],[1,0.5],[0.5,0]],
+            [[0,0.5],[0,1],[1,1],[0,.5],[1,1],[1,0.5],[0,0],[0,0.5],[0.5,0],[0.5,0],[1,0.5],[1,0],[0,0.5],[1,0.5],[0.5,0]],
+            [[0,0.5],[0,1],[1,1],[0,.5],[1,1],[1,0.5],[0,0],[0,0.5],[0.5,0],[0.5,0],[1,0.5],[1,0],[0,0.5],[1,0.5],[0.5,0]]];
+        return p[rotation];
+    } else if (pattern == 3) {
+        return [[0,0],[0,0.5],[0.5,0.5],[0,0],[0.5,0.5],[0.5,0],
+                [0,0.5],[0,1],[0.5,1],[0,0.5],[0.5,1],[0.5,0.5],
+                [0.5,0],[0.5,0.5],[1,0.5],[0.5,0],[1,0.5],[1,0],
+                [0.5,0.5],[0.5,1],[1,1],[0.5,0,5],[1,1],[1,0.5]];
+    } else if (pattern == 4) {
+        return [[0,0],[0,1],[0.5,1],[0,0],[0.5,1],[0.5,0],
+                [0.5,0],[0.5,1],[1,1],[0.5,0],[1,1],[1,0]];
+    } else {
+        console.log("Unknown" , pattern, rotation);
+        return [];
+    }
+}
+
+function getPtexPacking(ret, layout, dim, ptexFace)
+{
+    var ptexX = (layout[ptexFace*6 + 2]) / (dim[0]);
+    var ptexY = (layout[ptexFace*6 + 3]) / (dim[1]);
+    var wh = layout[ptexFace*6 + 5];
+    var ptexW = ((1<<(wh >> 8)))/(dim[0]);
+    var ptexH = ((1<<(wh & 0xff)))/(dim[1]);
+    vec4.set(ret, ptexX, ptexY, ptexW, ptexH);
+}
+
+function getPtexCoord(ret, u, v, ptexU, ptexV, ptexPacking, ptexRot, depth)
+{
+    var lv = 1 << depth;
+    var pu = v;
+    var pv = u;
+    if (ptexRot == 1) {
+        pu = 1-u;
+        pv = v;
+    } else if (ptexRot == 2){
+        pu = 1-v;
+        pv = 1-u;
+    } else if (ptexRot == 3){
+        pu = u;
+        pv = 1-v;
+    }
+    pu = pu / lv + ptexU/lv;
+    pv = pv / lv + ptexV/lv;
+    pu = ptexPacking[0] + pu * ptexPacking[2];
+    pv = ptexPacking[1] + pv * ptexPacking[3];
+    vec2.set(ret, pu, pv);
+}
+
+function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
+{
+    if (patches == null) return;
+
+    var indices = new Uint16Array(10*65536);
+    var primVars = new Float32Array(12*65536);
+    var vid = 0;
+    var nIndices = 0;
+    var edgeparams = [[0,0],[1,0],[0,1]];
+
+    var nPatches = gregory ? patches.length/4 : patches.length/16;
+
+    var ptexPackingColor = vec4.create();
+    var ptexPackingDisplace = vec4.create();
+    var ptexCoordColor = vec2.create();
+    var ptexCoordDisplace = vec2.create();
+
+    for (var i = 0; i < nPatches; ++i) {
+        // patchparam: depth, ptexRot, type, pattern, rotation
+        var patchIndex = i + patchOffset;
+        if (patchIndex*8 >= patchParams.length) continue;
+        var depth    = patchParams[patchIndex*8+0];
+        var type     = patchParams[patchIndex*8+2];
+        var pattern  = patchParams[patchIndex*8+3];
+        var rotation = patchParams[patchIndex*8+4];
+        var ptexRot  = patchParams[patchIndex*8+1];
+
+        var ncp = 16;
+        if (type == 10 || type == 11) ncp = 4;
+        else if (patches[i*16+9] == -1) ncp = 9;
+        else if (patches[i*16+12] == -1) ncp = 12;
+
+        if (vid > 40000) {
+            appendBatch(indices, primVars, nIndices, vid, gregory);
+            nIndices = 0;
+            vid = 0;
         }
 
-        // tessellation index
-        tessMesh.IBO = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tessMesh.IBO);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(ibo), gl.STATIC_DRAW);
-        // tessellation UV
-        tessMesh.VBO = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, tessMesh.VBO);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vbo), gl.STATIC_DRAW);
-        tessMesh.numTris = numTris;
+        var level = tessFactor - depth;
+        var color = getPatchColor(type, pattern);
 
-        model.tessMeshes.push(tessMesh);
+        var ptexU = patchParams[patchIndex*8+5];
+        var ptexV = patchParams[patchIndex*8+6];
+        var ptexFace = patchParams[patchIndex*8+7];
+
+        // resolve ptex coordinate here!
+        if (model.ptexLayout_color != undefined) {
+            getPtexPacking(ptexPackingColor,
+                           model.ptexLayout_color,
+                           model.ptexDim_color,
+                           ptexFace);
+        }
+        if (model.ptexLayout_displace != undefined) {
+            getPtexPacking(ptexPackingDisplace,
+                           model.ptexLayout_displace,
+                           model.ptexDim_displace,
+                           ptexFace);
+        }
+
+        if (level <= 0 && pattern != 0) {
+            // under tessellated transition patch. need triangle patterns.
+            var params = getTransitionParams(pattern-1, rotation);
+            for (var j = 0; j < params.length; ++j) {
+                var u = params[j][0];
+                var v = params[j][1];
+                var iu = edgeparams[j%3][0];
+                var iv = edgeparams[j%3][1];
+
+                getPtexCoord(ptexCoordColor,
+                             u, v, ptexU, ptexV,
+                             ptexPackingColor, ptexRot, depth);
+                getPtexCoord(ptexCoordDisplace,
+                             u, v, ptexU, ptexV,
+                             ptexPackingDisplace, ptexRot, depth);
+
+                // gregory patch requires relative index for patchIndex
+                primVars[vid*12+0] = u;
+                primVars[vid*12+1] = v;
+                primVars[vid*12+2] = iu;
+                primVars[vid*12+3] = iv;
+                primVars[vid*12+4] = color[0];
+                primVars[vid*12+5] = color[1];
+                primVars[vid*12+6] = color[2];
+                primVars[vid*12+7] = i;
+                primVars[vid*12+8] = ptexCoordColor[0];
+                primVars[vid*12+9] = ptexCoordColor[1];
+                primVars[vid*12+10] = ptexCoordDisplace[0];
+                primVars[vid*12+11] = ptexCoordDisplace[1];
+                indices[nIndices++] = vid++;
+            }
+        } else {
+            if (level < 0) level = 0;
+            var div = (1 << level) + 1;
+
+            for (iu = 0; iu < div; iu++) {
+                for (iv = 0; iv < div; iv++) {
+                    var u = iu/(div-1);
+                    var v = iv/(div-1);
+
+                    getPtexCoord(ptexCoordColor,
+                                 u, v, ptexU, ptexV,
+                                 ptexPackingColor, ptexRot, depth);
+                    getPtexCoord(ptexCoordDisplace,
+                                 u, v, ptexU, ptexV,
+                                 ptexPackingDisplace, ptexRot, depth);
+
+                    primVars[vid*12+0] = u;
+                    primVars[vid*12+1] = v;
+                    primVars[vid*12+2] = iu;
+                    primVars[vid*12+3] = iv;
+                    primVars[vid*12+4] = color[0];
+                    primVars[vid*12+5] = color[1];
+                    primVars[vid*12+6] = color[2];
+                    primVars[vid*12+7] = i;
+                    primVars[vid*12+8] = ptexCoordColor[0];
+                    primVars[vid*12+9] = ptexCoordColor[1];
+                    primVars[vid*12+10] = ptexCoordDisplace[0];
+                    primVars[vid*12+11] = ptexCoordDisplace[1];
+                    if (iu != 0 && iv != 0) {
+                        indices[nIndices++] = vid - div - 1;
+                        indices[nIndices++] = vid - div;
+                        indices[nIndices++] = vid;
+                        indices[nIndices++] = vid - 1;
+                        indices[nIndices++] = vid - div - 1;
+                        indices[nIndices++] = vid;
+                        nIndices += 6;
+                    }
+                    ++vid;
+                }
+            }
+        }
     }
-//    console.log("Bind", ibo, vbo);
+
+    // residual
+    appendBatch(indices, primVars, nIndices, vid, gregory);
+
+}
+
+function tessellate() {
+    if (model == null) return;
+
+    var evaluator = new PatchEvaluator(model.maxValence);
+    var vid = 0;
+
+    for (var i = 0; i < model.batches.length; ++i) {
+        var batch = model.batches[i];
+        var pid = 0;
+        var uvid = 0;
+
+        for (var j = 0; j < batch.nPoints; ++j) {
+            var patchIndex = batch.uvData[uvid+7];
+
+            var u = batch.uvData[uvid+0];
+            var v = batch.uvData[uvid+1];
+
+            if (batch.gregory) {
+                pn  = evaluator.evalGregoryBasis(model.gregoryEvalVerts,
+                                                 patchIndex,
+                                                 u, v);
+            } else {
+                pn = evaluator.evalBSpline(model.patches,
+                                           patchIndex, u, v);
+            }
+
+            batch.pData[pid+0] = pn[0][0];
+            batch.pData[pid+1] = pn[0][1];
+            batch.pData[pid+2] = pn[0][2];
+            batch.pData[pid+3] = pn[1][0];
+            batch.pData[pid+4] = pn[1][1];
+            batch.pData[pid+5] = pn[1][2];
+
+            pid += 6; // xyz, normal
+            uvid += 12; // uv, color
+        }
+        finalizeBatches(batch);
+    }
 }
 
 function idle() {
@@ -590,292 +857,95 @@ function redraw() {
         gl.drawElements(gl.LINES, model.cageLines.length, gl.UNSIGNED_SHORT, 0);
     }
 
+    // ---------------------------
     gl.enableVertexAttribArray(0);
     gl.enableVertexAttribArray(1);
-    gl.enableVertexAttribArray(2);
-    gl.enableVertexAttribArray(3);
-    ext.vertexAttribDivisorANGLE(1, 1);
-    ext.vertexAttribDivisorANGLE(2, 1);
-    ext.vertexAttribDivisorANGLE(3, 1);
 
-    drawTris = 0;
-    if (model != null) {
-        prepareBatch(mvpMatrix, proj, aspect);
-
+    if (model.batches != null) {
+        var drawTris = 0;
         // common textures
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
 
-        // bspline patches
-        var program = tessProgram;
-        gl.useProgram(program);
-        gl.uniformMatrix4fv(program.modelViewMatrix, false, modelView);
-        gl.uniformMatrix4fv(program.projMatrix, false, proj);
-        gl.uniformMatrix4fv(program.mvpMatrix, false, mvpMatrix);
-        gl.uniform1i(program.displayMode, displayMode);
+        if (model.ptexTexture_color != undefined) {
+            gl.activeTexture(gl.TEXTURE2);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
+        }
+        if (model.ptexTexture_displace != undefined) {
+            gl.activeTexture(gl.TEXTURE3);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+        }
 
-        gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
-                     model.nPointRes);
-        gl.uniform1f(gl.getUniformLocation(program, "displaceScale"),
-                     displaceScale);
-        gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
-        gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
-        gl.uniform1f(gl.getUniformLocation(program, "patchRes"),
-                     model.nPatchRes);
+        for (var i = 0; i < model.batches.length; ++i) {
+            var batch = model.batches[i];
+            if (batch.vboUnvarying == null) continue;
+            if (gpuTess) {
+                var program = model.batches[i].gregory ? gregoryProgram : tessProgram;
+                gl.useProgram(program);
+                gl.uniformMatrix4fv(program.modelViewMatrix, false, modelView);
+                gl.uniformMatrix4fv(program.projMatrix, false, proj);
+                gl.uniformMatrix4fv(program.mvpMatrix, false, mvpMatrix);
+                gl.uniform1i(program.displayMode, displayMode);
+                // GPUtess texture
+                gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
+                             model.nPointRes);
+                gl.uniform1f(gl.getUniformLocation(program, "displaceScale"),
+                             displaceScale);
 
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
+                gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
+                gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
+                gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
+                gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplace"), 3);
 
-        drawBSpline(model.bsplineInstanceData);
+                gl.activeTexture(gl.TEXTURE1);
+                if (model.batches[i].gregory) {
+                    gl.uniform2f(gl.getUniformLocation(program, "patchRes"),
+                                 model.nGregoryPatchRes[0], model.nGregoryPatchRes[1]);
+                    gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
+                } else {
+                    gl.uniform1f(gl.getUniformLocation(program, "patchRes"),
+                                 model.nPatchRes);
+                    gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
+                }
+            } else {
+                gl.useProgram(basicProgram);
+                gl.uniformMatrix4fv(basicProgram.modelViewMatrix, false, modelView);
+                gl.uniformMatrix4fv(basicProgram.projMatrix, false, proj);
+                gl.uniformMatrix4fv(basicProgram.mvpMatrix, false, mvpMatrix);
+                gl.uniform1i(basicProgram.displayMode, displayMode);
+            }
 
-        // gregory patches
-        var program = gregoryProgram;
-        gl.useProgram(program);
-        gl.uniformMatrix4fv(program.modelViewMatrix, false, modelView);
-        gl.uniformMatrix4fv(program.projMatrix, false, proj);
-        gl.uniformMatrix4fv(program.mvpMatrix, false, mvpMatrix);
-        gl.uniform1i(program.displayMode, displayMode);
+            gl.enableVertexAttribArray(2);
+            gl.enableVertexAttribArray(3);
+            gl.enableVertexAttribArray(4);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
+            gl.bindBuffer(gl.ARRAY_BUFFER, batch.vboUnvarying);
+            gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 12*4, 0);  // uv, iuiv
+            gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 12*4, 4*4); // color, patchIndex
+            gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 12*4, 8*4); // ptexFace, ptexU, ptexV
+            gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
+            gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 6*4, 0);    // XYZ
+            gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 6*4, 3*4);  // normal
 
-        gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
-                     model.nPointRes);
-        gl.uniform1f(gl.getUniformLocation(program, "displaceScale"),
-                     displaceScale);
-        gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
-        gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
-        gl.uniform2f(gl.getUniformLocation(program, "patchRes"),
-                     model.nGregoryPatchRes[0], model.nGregoryPatchRes[1]);
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
+            gl.drawElements(gl.TRIANGLES, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
+            //gl.drawElements(gl.POINTS, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
 
-        drawGregory(model.gregoryInstanceData);
+            drawTris += batch.nTris;
+            gl.disableVertexAttribArray(2);
+            gl.disableVertexAttribArray(3);
+            gl.disableVertexAttribArray(4);
+        }
     }
 
-    gl.disableVertexAttribArray(0);
     gl.disableVertexAttribArray(1);
-    gl.disableVertexAttribArray(2);
-    gl.disableVertexAttribArray(3);
-    ext.vertexAttribDivisorANGLE(1, 0);
-    ext.vertexAttribDivisorANGLE(2, 0);
-    ext.vertexAttribDivisorANGLE(3, 0);
 
     var time = Date.now();
     var drawTime = time - prevTime;
     prevTime = time;
-//  fps = (29 * fps + 1000.0/drawTime)/30.0;
-//  fps = 1000.0/drawTime;
-//  $('#fps').text(Math.round(fps));
-
-    if (drawTris > 100000)
-        drawTris = Math.floor(drawTris/100000)/10+" M";
+    //fps = (29 * fps + 1000.0/drawTime)/30.0;
+    fps = 1000.0/drawTime;
+    $('#fps').text(Math.round(fps));
     $('#triangles').text(drawTris);
-}
-
-function GetTessLevels(p0, p1, p2, p3, level,
-                       pattern, rotation,
-                       mvpMatrix, projection)
-{
-    var s = level*level*2;
-
-    var d0 = vec3.distance(p0, p1);
-    var d1 = vec3.distance(p1, p3);
-    var d2 = vec3.distance(p3, p2);
-    var d3 = vec3.distance(p2, p0);
-    var c0 = vec4.create();
-    var c1 = vec4.create();
-    var c2 = vec4.create();
-    var c3 = vec4.create();
-    vec4.lerp(c0, p0, p1, 0.5);
-    vec4.lerp(c1, p1, p3, 0.5);
-    vec4.lerp(c2, p3, p2, 0.5);
-    vec4.lerp(c3, p2, p0, 0.5);
-    vec4.transformMat4(c0, c0, mvpMatrix);
-    vec4.transformMat4(c1, c1, mvpMatrix);
-    vec4.transformMat4(c2, c2, mvpMatrix);
-    vec4.transformMat4(c3, c3, mvpMatrix);
-    d0 = Math.max(1, s*Math.abs(d0 * projection[5] / c0[3]));
-    d1 = Math.max(1, s*Math.abs(d1 * projection[5] / c1[3]));
-    d2 = Math.max(1, s*Math.abs(d2 * projection[5] / c2[3]));
-    d3 = Math.max(1, s*Math.abs(d3 * projection[5] / c3[3]));
-
-    var t0 = Math.ceil(Math.log(d0)*1.442695040888963407);
-    var t1 = Math.ceil(Math.log(d1)*1.442695040888963407);
-    var t2 = Math.ceil(Math.log(d2)*1.442695040888963407);
-    var t3 = Math.ceil(Math.log(d3)*1.442695040888963407);
-    if (t0 > 7) t0 = 7;
-    else if (t0 < 0) t0 = 0;
-    if (t1 > 7) t1 = 7;
-    else if (t1 < 0) t1 = 0;
-    if (t2 > 7) t2 = 7;
-    else if (t2 < 0) t2 = 0;
-    if (t3 > 7) t3 = 7;
-    else if (t3 < 0) t3 = 0;
-
-        /*
-          p2 -t2-- p3
-          |        |
-          t3      t1
-          |        |
-          p0 -t0-- p1
-         */
-
-    // consider transition, rotation
-    if (pattern == 1) {
-        if (rotation == 0 && t3 == 0) t3 = 1;
-    }
-
-    // align to max
-    var tess = t0 > t1 ? t0 : t1;
-    tess = t2 > tess ? t2 : tess;
-    tess = t3 > tess ? t3 : tess;
-
-    return [tess, t0, t1, t2, t3];
-}
-function prepareBatch(mvpMatrix, projection, aspect)
-{
-    var evaluator = new PatchEvaluator(model.maxValence);
-
-    // level buckets
-    model.bsplineInstanceData = [];
-    model.gregoryInstanceData = [];
-    for (var d = 0; d < 8; ++d) {
-        model.bsplineInstanceData[d] = [];
-        model.gregoryInstanceData[d] = [];
-    }
-
-    var p0 = vec4.fromValues(0,0,0,1);
-    var p1 = vec4.fromValues(0,0,0,1);
-    var p2 = vec4.fromValues(0,0,0,1);
-    var p3 = vec4.fromValues(0,0,0,1);
-
-    // bspline patches
-    var nPatches = model.patches.length/16;
-    for (var i = 0; i < nPatches; ++i) {
-        var depth = model.patchParams[i*8+0];
-        var type     = model.patchParams[i*8+2];
-        var pattern  = model.patchParams[i*8+3];
-        var rotation = model.patchParams[i*8+4];
-        var level = tessFactor;
-        var color = getPatchColor(type, pattern);
-
-        // clip length
-        vec3.copy(p0, evaluator.evalBSplineP(model.patches, i, 0, 0));
-        vec3.copy(p1, evaluator.evalBSplineP(model.patches, i, 1, 0));
-        vec3.copy(p2, evaluator.evalBSplineP(model.patches, i, 0, 1));
-        vec3.copy(p3, evaluator.evalBSplineP(model.patches, i, 1, 1));
-        var tessLevels = GetTessLevels(p0, p1, p2, p3, level,
-                                       pattern, rotation,
-                                       mvpMatrix, projection);
-        var tess = tessLevels[0];
-        if (tess < 0) continue;
-        // TODO: frustum culling ?
-        model.bsplineInstanceData[tess].push(i);
-        model.bsplineInstanceData[tess].push(1<<tess);
-        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[1]));
-        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[2]));
-        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[3]));
-        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[4]));
-        model.bsplineInstanceData[tess].push(color[0]);
-        model.bsplineInstanceData[tess].push(color[1]);
-        model.bsplineInstanceData[tess].push(color[2]);
-    }
-
-    // gregory patches
-    var nGregoryPatches = model.gregoryPatches.length/4;
-    for (var i = 0; i < nGregoryPatches; ++i) {
-        var patchIndex = i + nPatches;
-        var depth    = model.patchParams[patchIndex*8+0];
-        var type     = model.patchParams[patchIndex*8+2];
-        var pattern  = model.patchParams[patchIndex*8+3];
-        var tess = tessFactor;
-        var color = getPatchColor(type, pattern);
-        if (tess < 0) tess = 0;
-
-        // clip length
-        var pn0 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 0, 0);
-        var p0 = vec4.fromValues(pn0[0][0], pn0[0][1], pn0[0][2], 1);
-        var pn1 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 1, 0);
-        var p1 = vec4.fromValues(pn1[0][0], pn1[0][1], pn1[0][2], 1);
-        var pn2 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 0, 1);
-        var p2 = vec4.fromValues(pn2[0][0], pn2[0][1], pn2[0][2], 1);
-        var pn3 = evaluator.evalGregoryBasis(model.gregoryEvalVerts, i, 1, 1);
-        var p3 = vec4.fromValues(pn3[0][0], pn3[0][1], pn3[0][2], 1);
-
-        var tessLevels = GetTessLevels(p0, p1, p2, p3, level,
-                                       pattern, rotation,
-                                       mvpMatrix, projection);
-        var tess = tessLevels[0];
-        if (tess < 0) continue;
-        // TODO: frustum culling ?
-        model.gregoryInstanceData[tess].push(i);
-        model.gregoryInstanceData[tess].push(1<<tess);
-        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[1]));
-        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[2]));
-        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[3]));
-        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[4]));
-        model.gregoryInstanceData[tess].push(color[0]);
-        model.gregoryInstanceData[tess].push(color[1]);
-        model.gregoryInstanceData[tess].push(color[2]);
-    }
-
-    if (!model.instanceVBO) {
-        model.instanceVBO = gl.createBuffer();
-    }
-}
-
-function drawBSpline(instanceData)
-{
-    // draw by patch level
-    for (var d = 0; d < instanceData.length; ++d) {
-        if (instanceData[d].length == 0) continue;
-        var tessMesh = model.tessMeshes[d];
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tessMesh.IBO);
-        gl.bindBuffer(gl.ARRAY_BUFFER, tessMesh.VBO);
-        gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, 0);  // uv, iuiv
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]),
-                      gl.STATIC_DRAW);
-        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 9*4, 0);
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 9*4, 2*4);
-        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 9*4, 6*4);
-
-        var nPatches = instanceData[d].length/9;
-        ext.drawElementsInstancedANGLE(gl.TRIANGLES,
-                                      tessMesh.numTris*3,
-                                      gl.UNSIGNED_SHORT,
-                                      0, nPatches);
-
-        drawTris += tessMesh.numTris * nPatches;
-    }
-}
-
-function drawGregory(instanceData)
-{
-    // draw by patch level
-    for (var d = 0; d < instanceData.length; ++d) {
-        if (instanceData[d].length == 0) continue;
-        var tessMesh = model.tessMeshes[d];
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tessMesh.IBO);
-        gl.bindBuffer(gl.ARRAY_BUFFER, tessMesh.VBO);
-        gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, 0);  // uv, iuiv
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]),
-                      gl.STATIC_DRAW);
-        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 9*4, 0);
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 9*4, 2*4);
-        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 9*4, 6*4);
-
-        var nPatches = instanceData[d].length/9;
-        ext.drawElementsInstancedANGLE(gl.TRIANGLES,
-                                      tessMesh.numTris*3,
-                                      gl.UNSIGNED_SHORT,
-                                      0, nPatches);
-
-        drawTris += tessMesh.numTris * nPatches;
-    }
 }
 
 function loadModel(modelName)
@@ -963,10 +1033,6 @@ $(function(){
     } else {
         floatFilter = gl.NEAREST;
     }
-    ext = gl.getExtension('ANGLE_instanced_arrays');
-    if(!ext) {
-        alert("requires ANGLE_instanced_arrays");
-    }
 
     var tess = getUrlParameter("tessFactor");
     if (tess != undefined) {
@@ -977,7 +1043,6 @@ $(function(){
         displayMode = dmode;
     }
 
-    // load shaders
     initialize();
 
     button = false;
@@ -1137,9 +1202,7 @@ $(function(){
 
     var modelName = getUrlParameter("model");
     if (modelName == undefined) {
-        loadModel("face");
-        //loadModel("cube");
-        //loadModel("catmark_edgecorner");
+        loadModel("cube");
     } else {
         loadModel("modelName");
     }

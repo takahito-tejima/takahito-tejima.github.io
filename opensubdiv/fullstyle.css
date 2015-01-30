@@ -59,6 +59,10 @@ div#control
     margin-left: 240px;
 }
 
+#kernel {
+    margin-top: 10px;
+}
+
 #displaceScale {
     width: 70%;
     margin-left: 20px;

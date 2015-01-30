@@ -1,124 +1,16 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <meta name="format-detection" content="telephone=no">
-    <link media="only screen and (max-device-width:480px)"
-          href="smartstyle.css" type="text/css" rel="stylesheet" />
-    <link media="screen and (min-device-width:481px)" href="fullstyle.css"
-          type="text/css" rel="stylesheet" />
-    <!--[if IE]>
-        <link href="fullstyle.css" type="text/css" rel="stylesheet" />
-    <![endif]-->
-
-    <title>OpenSubdiv 3.0 WebGL viewer (adaptive tessellation)</title>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
-    <script src="../lib/camera.js?012501" type="text/javascript" ></script>
-    <script src="../lib/gl-matrix-min.js" type="text/javascript"></script>
-    <script src="./common.js?012501" type="text/javascript" ></script>
-    <script src="./eval.js?012501" type="text/javascript" ></script>
-    <script src="./viewInstance.js?012501" type="text/javascript" ></script>
-  </head>
-
-  <body >
-
-    <div id="container">
-      <div id="header">
-        <h3>OpenSubdiv 3.0 WebGL viewer (adaptive tessellation)</h3>
-      </div>
-      <div id="nav">
-        <div>
-          <input id="deformCheckbox" type="checkbox"><label for="deformCheckbox">Animation</label>
-          <input id="hullCheckbox" type="checkbox"><label for="hullCheckbox">Hull</label>
-          <span id="tessKernelRadio">
-            <input type="radio" id="tk1" name="tessKernelRadio" checked="checked"><label for="tk1">JS</label>
-            <input type="radio" id="tk2" name="tessKernelRadio"><label for="tk2">GPU</label>
-          </span>
-        </div>
-        <div>
-          Tess factor
-          <div id="tessFactorRadio">
-            <input type="radio" id="tf1" name="tessFactorRadio"><label for="tf1">1</label>
-            <input type="radio" id="tf2" name="tessFactorRadio"><label for="tf2">2</label>
-            <input type="radio" id="tf3" name="tessFactorRadio"><label for="tf3">3</label>
-            <input type="radio" id="tf4" name="tessFactorRadio"><label for="tf4">4</label>
-            <input type="radio" id="tf5" name="tessFactorRadio"><label for="tf5">5</label>
-            <input type="radio" id="tf6" name="tessFactorRadio"><label for="tf6">6</label>
-            <input type="radio" id="tf7" name="tessFactorRadio"><label for="tf7">7</label>
-          </div>
-        </div>
-
-        Display style
-        <div id="radio">
-          <input type="radio" id="displayShade" name="radio"><label for="displayShade">Shade</label>
-          <input type="radio" id="displayPatchColor" name="radio"><label for="displayPatchColor">Patch</label>
-          <input type="radio" id="displayWire" name="radio"><label for="displayWire">Wire</label>
-          <input type="radio" id="displayNormal" name="radio"><label for="displayNormal">Normal</label>
-          <input type="radio" id="displayPatchCoord" name="radio"><label for="displayPatchCoord">Coord</label>
-        </div>
-
-        Model
-        <div>
-          <select id="modelSelect" style="width:200px" size="35">
-            <option value="cube">cube</option>
-            <option value="ptex">ptex</option>
-            <option value="torus">torus</option>
-            <option value="dino">dino</option>
-            <option value="face" selected>face</option>
-            <option value="catmark_cube_creases0">catmark_cube_creases0</option>
-            <option value="catmark_cube_creases1">catmark_cube_creases1</option>
-            <option value="catmark_cube_corner0">catmark_cube_corner0</option>
-            <option value="catmark_cube_corner1">catmark_cube_corner1</option>
-            <option value="catmark_cube_corner2">catmark_cube_corner2</option>
-            <option value="catmark_cube_corner3">catmark_cube_corner3</option>
-            <option value="catmark_dart_edgecorner">catmark_dart_edgecorner</option>
-            <option value="catmark_dart_edgeonly">catmark_dart_edgeonly</option>
-            <option value="catmark_gregory_test1">catmark_gregory_test1</option>
-            <option value="catmark_gregory_test2">catmark_gregory_test2</option>
-            <option value="catmark_gregory_test3">catmark_gregory_test3</option>
-            <option value="catmark_gregory_test4">catmark_gregory_test4</option>
-            <option value="catmark_gregory_test5">catmark_gregory_test5</option>
-            <option value="catmark_gregory_test6">catmark_gregory_test6</option>
-            <option value="catmark_gregory_test7">catmark_gregory_test7</option>
-            <option value="catmark_pyramid_creases0">catmark_pyramid_creases0</option>
-            <option value="catmark_pyramid_creases1">catmark_pyramid_creases1</option>
-            <option value="catmark_pyramid_creases2">catmark_pyramid_creases2</option>
-            <option value="catmark_torus">catmark_torus</option>
-            <option value="catmark_torus_creases0">catmark_torus_creases0</option>
-            <option value="catmark_chaikin0">catmark_chaikin0</option>
-            <option value="catmark_chaikin1">catmark_chaikin1</option>
-            <option value="catmark_chaikin2">catmark_chaikin2</option>
-            <option value="catmark_hole_test1">catmark_hole_test1</option>
-            <option value="catmark_hole_test2">catmark_hole_test2</option>
-            <option value="catmark_hole_test3">catmark_hole_test3</option>
-            <option value="catmark_hole_test4">catmark_hole_test4</option>
-            <option value="catmark_helmet">catmark_helmet</option>
-            <option value="catmark_car">catmark_car</option>
-            <option value="catmark_bishop">catmark_bishop</option>
-            <option value="catmark_rook">catmark_rook</option>
-            <option value="catmark_pawn">catmark_pawn</option>
-            <option value="barbarian">barbarian</option>
-          </select>
-        </div>
-        Displacement
-        <div id="displaceScale"></div>
-      </div>
-
-      <div id="loading" style="display:none">
-        <img src="gif-load.gif">
-      </div>
-      <div id="content">
-        <canvas id="main"></canvas>
-      </div>
-      <div id="footer">
-        <span id="triangles"></span> triangles /
-        <span id="fps">--</span> fps
-      </div>
-    </div>
-  </body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<script type="text/javascript">
+location.replace('index.html');
+</script>
+<meta http-equiv="Refresh" content="0; URL=/index.html" />
+</head>
+<body>
+<noscript>
+</noscript>
+</body>
 </html>
