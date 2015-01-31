@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-14:37:20"
+var version = "last updated:2015/01/31-14:49:17"
 
 var app = {
     IsGPU : function() {
@@ -251,6 +251,7 @@ function fitCamera()
                            + model.size[2]*model.size[2]);
 
     camera.tz = model.diag*0.8;
+    camera.diag = model.diag;
     camera.setCenter((max[0]+min[0])*0.5,
                      (max[1]+min[1])*0.5,
                      (max[2]+min[2])*0.5);
@@ -1575,14 +1576,13 @@ $(function(){
     $("#version").text(version);
 
     // events
-    camera.bindControl("#main");
+    camera.bindControl("#main", redraw);
 
-    document.oncontextmenu = function(e){
-        return false;
-    }
-    window.addEventListener('resize', resizeCanvas);
+    document.oncontextmenu = function(e){ return false; }
 
     loadModel(app.model);
+
+    window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 });
 
