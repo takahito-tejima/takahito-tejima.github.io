@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-13:08:17"
+var version = "last updated:2015/01/31-13:54:57"
 
 var app = {
     IsGPU : function() {
@@ -17,10 +17,6 @@ var app = {
     displacement:  0,
     model : 'cube',
 };
-
-var button = false;
-var prev_position = [0, 0];
-var prev_pinch = 0;
 
 var time = 0;
 var model = {};
@@ -1493,8 +1489,6 @@ $(function(){
     // load shaders
     initialize();
 
-    button = false;
-
     // GUI build
     var gui = new dat.GUI();
 
@@ -1598,96 +1592,17 @@ $(function(){
             redraw();
         });
 
-
     $("#version").text(version);
 
     // events
-    $("#main").keypress(function(e) {
-        console.log(e.which);
-        if (e.which == "f") {
-            fitCamera();
-            redraw();
-        }
-    });
-
-    $("#main").bind({"touchmove mousemove": function(event) {
-        var p = [event.pageX, event.pageY];
-        var d = [p[0]-prev_position[0], p[1]-prev_position[1]];
-
-        if (event.type == "touchmove") {
-            p = [event.originalEvent.touches[0].pageX, event.originalEvent.touches[0].pageY];
-            d = [p[0]-prev_position[0], p[1]-prev_position[1]];
-
-            //console.log(event.originalEvent);
-            if (event.originalEvent.touches.length > 1) {
-                var t = event.originalEvent.touches;
-                var v = [t[1].pageX-t[0].pageX, t[1].pageY-t[0].pageY];
-                v = Math.sqrt(v[0]*v[0]+v[1]*v[1]);
-                if (button == 1) {
-                    button = 3;
-                    d[0] = 0;
-                    prev_pinch = v;
-                } else if (button == 3) {
-                    d[0] = v - prev_pinch;
-                    prev_pinch = v;
-                }
-            } else {
-                if (button == 3) {
-                    button = 0;  // better than set to 1
-                }
-            }
-        }
-        if (button > 0) {
-            prev_position = p;
-            if (event.shiftKey && button == 1) button = 2;
-
-            if (button == 1) {
-                camera.rotate(d[0], d[1]);
-            } else if(button == 3) {
-                camera.dolly(0.005*d[0]*model.diag);
-            } else if(button == 2){
-                camera.translate(d[0]*0.001*model.diag,
-                                 d[1]*0.001*model.diag);
-            }
-            redraw();
-        }
-        }});
-
-    $("#main").bind("touchstart", function(event) {
-        prev_position = [event.originalEvent.changedTouches[0].pageX,
-                         event.originalEvent.changedTouches[0].pageY];
-        if (event.originalEvent.changedTouches.length > 1) {
-            button = 3;
-            var t = event.originalEvent.changedTouches;
-            var v = [t[1].pageX-t[0].pageX, t[1].pageY-t[0].pageY];
-            prev_pinch = Math.sqrt(v[0]*v[0]+v[1]*v[1]);
-        } else {
-            button = 1;
-        }
-        event.preventDefault();
-    });
-    $("#main").bind("mousedown", function(event) {
-        button = event.button+1;
-        prev_position = [event.pageX, event.pageY];
-        event.preventDefault();
-    });
-    $("#main").bind("touchend", function() {
-        if (event.changedTouches.length == 0) {
-            button = false;
-        }
-    });
-    $("#main").bind("mouseup", function() {
-        button = false;
-    });
+    camera.bindControl("#main");
 
     document.oncontextmenu = function(e){
         return false;
     }
-
     window.addEventListener('resize', resizeCanvas);
 
     loadModel(app.model);
-
     resizeCanvas();
 });
 
