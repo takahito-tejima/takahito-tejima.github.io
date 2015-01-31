@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-14:32:12"
+var version = "last updated:2015/01/31-14:37:20"
 
 var app = {
     IsGPU : function() {
@@ -81,35 +81,10 @@ function buildProgram(shaderSource, attribBindings)
     define += "#define DISPLAY_MODE " + app.displayMode +"\n";
     if (displaceScale > 0) define += "#define DISPLACEMENT 1\n";
 
-    var program = gl.createProgram();
-
-    var vshader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vshader, "#define VERTEX_SHADER\n"+define+shaderSource);
-    gl.compileShader(vshader);
-    if (!gl.getShaderParameter(vshader, gl.COMPILE_STATUS)) {
-        alert(gl.getShaderInfoLog(vshader));
-        console.log(gl.getShaderInfoLog(vshader));
-    }
-
-    var fshader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fshader, "#define FRAGMENT_SHADER\n"+define+shaderSource);
-    gl.compileShader(fshader);
-    if (!gl.getShaderParameter(fshader, gl.COMPILE_STATUS)) {
-        alert(gl.getShaderInfoLog(fshader));
-        console.log(gl.getShaderInfoLog(fshader));
-    }
-    gl.attachShader(program, vshader);
-    gl.attachShader(program, fshader);
-
-    for (var name in attribBindings) {
-        gl.bindAttribLocation(program, attribBindings[name], name);
-    }
-
-    gl.linkProgram(program)
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        alert(gl.getProgramInfoLog(program));
-        console.log(gl.getProgramInfoLog(program));
-    }
+    var program = glUtil.linkProgram(
+        "#define VERTEX_SHADER\n"+define+shaderSource,
+        "#define FRAGMENT_SHADER\n"+define+shaderSource,
+        attribBindings);
     return program;
 }
 
