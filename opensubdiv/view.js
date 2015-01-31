@@ -518,6 +518,11 @@ function setModel(data, modelName)
     }
 
     // tessellation mesh
+    if (gpuTess) {
+        createUVmesh();
+        model.bsplineInstanceData = [];
+        model.gregoryInstanceData = [];
+    }
 
     fitCamera();
 
@@ -551,9 +556,7 @@ function updateGeom(tf)
 {
     if (tf != null) {
         tessFactor = tf;
-        if (gpuTess) {
-            createUVmesh();
-        } else {
+        if (!gpuTess) {
             model.batches = [];
             tessellateIndexAndUnvarying(model.patches, model.patchParams, false, 0);
             tessellateIndexAndUnvarying(model.gregoryPatches, model.patchParams,
@@ -1095,7 +1098,7 @@ function redraw()
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
 
-        drawBSpline(model.bsplineInstanceData);
+        drawBSpline();
 
         // gregory patches
         var program = gregoryProgram;
@@ -1128,7 +1131,7 @@ function redraw()
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
 
-        drawGregory(model.gregoryInstanceData);
+        drawGregory();
 
         gl.disableVertexAttribArray(0);
         gl.disableVertexAttribArray(1);
@@ -1257,12 +1260,15 @@ function prepareBatch(mvpMatrix, projection, aspect)
 {
     var evaluator = new PatchEvaluator(model.maxValence);
 
+    var nPatches = model.patches.length/16;
+    var nGregoryPatches = model.gregoryPatches.length/4;
+
     // level buckets
-    model.bsplineInstanceData = [];
-    model.gregoryInstanceData = [];
     for (var d = 0; d < 8; ++d) {
-        model.bsplineInstanceData[d] = [];
-        model.gregoryInstanceData[d] = [];
+        model.bsplineInstanceData[d] = new Float32Array(nPatches*16);
+        model.gregoryInstanceData[d] = new Float32Array(nPatches*16);
+        model.bsplineInstanceData[d].nPatches = 0;
+        model.gregoryInstanceData[d].nPatches = 0;
     }
 
     var p0 = vec4.fromValues(0,0,0,1);
@@ -1271,7 +1277,6 @@ function prepareBatch(mvpMatrix, projection, aspect)
     var p3 = vec4.fromValues(0,0,0,1);
 
     // bspline patches
-    var nPatches = model.patches.length/16;
     for (var i = 0; i < nPatches; ++i) {
         var depth = model.patchParams[i*8+0];
         var type     = model.patchParams[i*8+2];
@@ -1304,27 +1309,30 @@ function prepareBatch(mvpMatrix, projection, aspect)
         }
         var tess = tessLevels[0];
         if (tess < 0) continue;
+
+        var data = model.bsplineInstanceData[tess];
+        var index = data.nPatches*16;
         // TODO: frustum culling ?
-        model.bsplineInstanceData[tess].push(i);
-        model.bsplineInstanceData[tess].push(1<<tess);
-        model.bsplineInstanceData[tess].push(depth);
-        model.bsplineInstanceData[tess].push(i);
-        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[1]));
-        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[2]));
-        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[3]));
-        model.bsplineInstanceData[tess].push(1<<(tess-tessLevels[4]));
-        model.bsplineInstanceData[tess].push(color[0]);
-        model.bsplineInstanceData[tess].push(color[1]);
-        model.bsplineInstanceData[tess].push(color[2]);
-        model.bsplineInstanceData[tess].push(1.0);
-        model.bsplineInstanceData[tess].push(ptexFaceIndex);
-        model.bsplineInstanceData[tess].push(ptexU);
-        model.bsplineInstanceData[tess].push(ptexV);
-        model.bsplineInstanceData[tess].push(ptexRot);
+        data[index++] = i;
+        data[index++] = 1 << tess;
+        data[index++] = depth;
+        data[index++] = 0;
+        data[index++] = 1 << (tess-tessLevels[1]);
+        data[index++] = 1 << (tess-tessLevels[2]);
+        data[index++] = 1 << (tess-tessLevels[3]);
+        data[index++] = 1 << (tess-tessLevels[4]);
+        data[index++] = color[0];
+        data[index++] = color[1];
+        data[index++] = color[2];
+        data[index++] = 1.0;
+        data[index++] = ptexFaceIndex;
+        data[index++] = ptexU;
+        data[index++] = ptexV;
+        data[index++] = ptexRot;
+        data.nPatches++;
     }
 
     // gregory patches
-    var nGregoryPatches = model.gregoryPatches.length/4;
     for (var i = 0; i < nGregoryPatches; ++i) {
         var patchIndex = i + nPatches;
         var depth    = model.patchParams[patchIndex*8+0];
@@ -1356,23 +1364,28 @@ function prepareBatch(mvpMatrix, projection, aspect)
 
         var tess = tessLevels[0];
         if (tess < 0) continue;
+
         // TODO: frustum culling ?
-        model.gregoryInstanceData[tess].push(i);
-        model.gregoryInstanceData[tess].push(1<<tess);
-        model.gregoryInstanceData[tess].push(depth);
-        model.gregoryInstanceData[tess].push(i);
-        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[1]));
-        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[2]));
-        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[3]));
-        model.gregoryInstanceData[tess].push(1<<(tess-tessLevels[4]));
-        model.gregoryInstanceData[tess].push(color[0]);
-        model.gregoryInstanceData[tess].push(color[1]);
-        model.gregoryInstanceData[tess].push(color[2]);
-        model.gregoryInstanceData[tess].push(1.0);
-        model.gregoryInstanceData[tess].push(ptexFaceIndex);
-        model.gregoryInstanceData[tess].push(ptexU);
-        model.gregoryInstanceData[tess].push(ptexV);
-        model.gregoryInstanceData[tess].push(ptexRot);
+        var data = model.gregoryInstanceData[tess];
+        var index = data.nPatches*16;
+
+        data[index++] = i;
+        data[index++] = 1<<tess;
+        data[index++] = depth;
+        data[index++] = i;
+        data[index++] = 1<<(tess-tessLevels[1]);
+        data[index++] = 1<<(tess-tessLevels[2]);
+        data[index++] = 1<<(tess-tessLevels[3]);
+        data[index++] = 1<<(tess-tessLevels[4]);
+        data[index++] = color[0];
+        data[index++] = color[1];
+        data[index++] = color[2];
+        data[index++] = 1.0;
+        data[index++] = ptexFaceIndex;
+        data[index++] = ptexU;
+        data[index++] = ptexV;
+        data[index++] = ptexRot;
+        data.nPatches++;
     }
 
     if (!model.instanceVBO) {
@@ -1380,11 +1393,14 @@ function prepareBatch(mvpMatrix, projection, aspect)
     }
 }
 
-function drawBSpline(instanceData)
+function drawBSpline()
 {
+    var instanceData = model.bsplineInstanceData;
+
     // draw by patch level
     for (var d = 0; d < instanceData.length; ++d) {
-        if (instanceData[d].length == 0) continue;
+        var nPatches = instanceData[d].nPatches;
+        if (nPatches == 0) continue;
         var tessMesh = model.tessMeshes[d];
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tessMesh.IBO);
@@ -1392,14 +1408,12 @@ function drawBSpline(instanceData)
         gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, 0);  // uv, iuiv
 
         gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]),
-                      gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, instanceData[d], gl.STATIC_DRAW);
         gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 16*4, 0);
         gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 16*4, 4*4);
         gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 16*4, 8*4);
         gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 16*4, 12*4);
 
-        var nPatches = instanceData[d].length/16;
         ext.drawElementsInstancedANGLE(gl.TRIANGLES,
                                       tessMesh.numTris*3,
                                       gl.UNSIGNED_SHORT,
@@ -1409,11 +1423,14 @@ function drawBSpline(instanceData)
     }
 }
 
-function drawGregory(instanceData)
+function drawGregory()
 {
+    var instanceData = model.gregoryInstanceData;
+
     // draw by patch level
     for (var d = 0; d < instanceData.length; ++d) {
-        if (instanceData[d].length == 0) continue;
+        var nPatches = instanceData[d].nPatches;
+        if (nPatches == 0) continue;
         var tessMesh = model.tessMeshes[d];
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tessMesh.IBO);
@@ -1421,8 +1438,7 @@ function drawGregory(instanceData)
         gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, 0);  // uv, iuiv
 
         gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData[d]),
-                      gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, instanceData[d], gl.STATIC_DRAW);
         gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 16*4, 0);
         gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 16*4, 4*4);
         gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 16*4, 8*4);
