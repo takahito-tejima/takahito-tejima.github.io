@@ -31,8 +31,8 @@ var interval = null;
 var displayMode = 2;
 
 var gpuTess = true;
-var gpuAdaptive = true;
-var tessFactor = 4;
+var gpuAdaptive = false;
+var tessFactor = 3;
 var floatFilter = 0;
 var drawTris = 0;
 
@@ -1631,7 +1631,7 @@ $(function(){
         } }).selectmenu("menuWidget").addClass("overflow");
 
     $( "#tessFactorRadio" ).buttonset();
-    $( "#tf4" ).attr('checked', 'checked');
+    $( "#tf3" ).attr('checked', 'checked');
     $( "#tessFactorRadio" ).buttonset('refresh');
     $( 'input[name="tessFactorRadio"]:radio' ).change(
         function() {
@@ -1640,7 +1640,7 @@ $(function(){
         });
 
     $( "#tessKernelRadio" ).buttonset();
-    $( "#tk3" ).attr('checked', 'checked');
+    $( "#tk2" ).attr('checked', 'checked');
     $( "#tessKernelRadio" ).buttonset('refresh');
     $( 'input[name="tessKernelRadio"]:radio' ).change(
         function() {
