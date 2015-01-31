@@ -1,6 +1,22 @@
 //
 //   Copyright 2014 Takahito Tejima (tejimaya@gmail.com)
 //
+//
+
+var version = "last updated:2015/01/31-11:58:29"
+
+var app = {
+    kernel : 'GPU Uniform',
+    IsGPU : function() {
+        return (this.kernel == "GPU Uniform" || this.kernel == "GPU Adaptive");
+    },
+    tessFactor : 3,
+    displayMode : 2,
+    animation : false,
+    hull : false,
+    displacement:  0,
+    model : 'cube'
+};
 
 var button = false;
 var prev_position = [0, 0];
@@ -8,8 +24,6 @@ var prev_pinch = 0;
 
 var time = 0;
 var model = {};
-var deform = false;
-var drawHull = false;
 var usePtexColor = false;
 var usePtexDisplace = false;
 var dpr = 1;
@@ -28,11 +42,7 @@ var gregoryProgram = null;
 
 var interval = null;
 
-var displayMode = 2;
 
-var gpuTess = true;
-var gpuAdaptive = false;
-var tessFactor = 3;
 var floatFilter = 0;
 var drawTris = 0;
 
@@ -106,7 +116,7 @@ function buildProgram(shaderSource, attribBindings)
 
     if (usePtexColor) define += "#define PTEX_COLOR\n";
     if (usePtexDisplace) define += "#define PTEX_DISPLACE\n";
-    define += "#define DISPLAY_MODE " + displayMode +"\n";
+    define += "#define DISPLAY_MODE " + app.displayMode +"\n";
     if (displaceScale > 0) define += "#define DISPLACEMENT 1\n";
 
     var program = gl.createProgram();
@@ -518,7 +528,7 @@ function setModel(data, modelName)
     }
 
     // tessellation mesh
-    if (gpuTess) {
+    if (app.IsGPU()) {
         createUVmesh();
         model.bsplineInstanceData = [];
         model.gregoryInstanceData = [];
@@ -526,7 +536,7 @@ function setModel(data, modelName)
 
     fitCamera();
 
-    updateGeom(tessFactor);
+    updateGeom(app.tessFactor);
 }
 
 function animate(time)
@@ -545,7 +555,7 @@ function animate(time)
     }
 
     // hull animation
-    if (drawHull) {
+    if (app.hull) {
         gl.bindBuffer(gl.ARRAY_BUFFER, model.hullVerts);
         gl.bufferData(gl.ARRAY_BUFFER, model.animVerts, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -555,8 +565,8 @@ function animate(time)
 function updateGeom(tf)
 {
     if (tf != null) {
-        tessFactor = tf;
-        if (!gpuTess) {
+        app.tessFactor = tf;
+        if (!app.IsGPU()) {
             model.batches = [];
             tessellateIndexAndUnvarying(model.patches, model.patchParams, false, 0);
             tessellateIndexAndUnvarying(model.gregoryPatches, model.patchParams,
@@ -567,7 +577,7 @@ function updateGeom(tf)
     refine();
     evalGregory();
 
-    if (gpuTess) {
+    if (app.IsGPU()) {
         uploadRefinedVerts();
     } else {
         tessellate();
@@ -732,7 +742,7 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
             vid = 0;
         }
 
-        var level = tessFactor - depth;
+        var level = app.tessFactor - depth;
         var color = getPatchColor(type, pattern);
 
         var ptexU = patchParams[patchIndex*8+5];
@@ -987,7 +997,7 @@ function idle() {
 
     if (model == null) return;
 
-    if (deform) {
+    if (app.animation) {
         time = time + 0.1;
     } else {
         time = 0;
@@ -1000,7 +1010,7 @@ function redraw()
 {
     if (model == null || model.patches == null) return;
 
-    //gl.clearColor(.1, .1, .2, 1);
+    gl.clearColor(.1, .1, .2, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
@@ -1019,7 +1029,7 @@ function redraw()
     var mvpMatrix = mat4.create();
     mat4.multiply(mvpMatrix, proj, modelView);
 
-    if (drawHull && model.cageLines != null) {
+    if (app.hull && model.cageLines != null) {
         gl.useProgram(cageProgram);
         gl.uniformMatrix4fv(cageProgram.mvpMatrix, false, mvpMatrix);
 
@@ -1045,7 +1055,7 @@ function redraw()
         gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
     }
 
-    if (gpuTess) {
+    if (app.IsGPU()) {
         gl.enableVertexAttribArray(0);
         gl.enableVertexAttribArray(1);
         gl.enableVertexAttribArray(2);
@@ -1069,7 +1079,7 @@ function redraw()
         gl.uniformMatrix4fv(program.modelViewMatrix, false, modelView);
         gl.uniformMatrix4fv(program.projMatrix, false, proj);
         gl.uniformMatrix4fv(program.mvpMatrix, false, mvpMatrix);
-        gl.uniform1i(program.displayMode, displayMode);
+        gl.uniform1i(program.displayMode, app.displayMode);
 
         gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
                      model.nPointRes);
@@ -1102,7 +1112,7 @@ function redraw()
         gl.uniformMatrix4fv(program.modelViewMatrix, false, modelView);
         gl.uniformMatrix4fv(program.projMatrix, false, proj);
         gl.uniformMatrix4fv(program.mvpMatrix, false, mvpMatrix);
-        gl.uniform1i(program.displayMode, displayMode);
+        gl.uniform1i(program.displayMode, app.displayMode);
 
         gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
                      model.nPointRes);
@@ -1150,7 +1160,7 @@ function redraw()
         gl.uniformMatrix4fv(triProgram.modelViewMatrix, false, modelView);
         gl.uniformMatrix4fv(triProgram.projMatrix, false, proj);
         gl.uniformMatrix4fv(triProgram.mvpMatrix, false, mvpMatrix);
-        gl.uniform1i(triProgram.displayMode, displayMode);
+        gl.uniform1i(triProgram.displayMode, app.displayMode);
         gl.uniform1f(gl.getUniformLocation(triProgram, "displaceScale"),
                      displaceScale);
         gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexColor"), 2);
@@ -1274,6 +1284,7 @@ function prepareBatch(mvpMatrix, projection, aspect)
     var p3 = vec4.fromValues(0,0,0,1);
 
     // bspline patches
+    var gpuAdaptive = app.kernel == "GPU Adaptive";
     for (var i = 0; i < nPatches; ++i) {
         var depth = model.patchParams[i*8+0];
         var type     = model.patchParams[i*8+2];
@@ -1283,9 +1294,9 @@ function prepareBatch(mvpMatrix, projection, aspect)
         var ptexU = model.patchParams[i*8+5];
         var ptexV = model.patchParams[i*8+6];
         var ptexFaceIndex = model.patchParams[i*8+7];
-        var level = tessFactor;
+        var level = app.tessFactor;
         var color = getPatchColor(type, pattern);
-        var t = Math.max(0, tessFactor - depth);
+        var t = Math.max(0, app.tessFactor - depth);
         var tessLevels = [t, t, t, t, t];
         if (gpuAdaptive) {
             // clip length
@@ -1330,6 +1341,7 @@ function prepareBatch(mvpMatrix, projection, aspect)
     }
 
     // gregory patches
+    var gpuAdaptive = app.kernel == "GPU Adaptive";
     for (var i = 0; i < nGregoryPatches; ++i) {
         var patchIndex = i + nPatches;
         var depth    = model.patchParams[patchIndex*8+0];
@@ -1339,7 +1351,7 @@ function prepareBatch(mvpMatrix, projection, aspect)
         var ptexU = model.patchParams[patchIndex*8+5];
         var ptexV = model.patchParams[patchIndex*8+6];
         var ptexFaceIndex = model.patchParams[patchIndex*8+7];
-        var t = Math.max(0, tessFactor - depth);
+        var t = Math.max(0, app.tessFactor - depth);
         var color = getPatchColor(type, pattern);
 
         var tessLevels = [t, t, t, t, t];
@@ -1481,11 +1493,12 @@ function getUrlParameter(sParam)
 
 $(function(){
     var canvas = $("#main").get(0);
+
+    // initialize WebGL
     $.each(["webgl2", "experimental-webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"], function(i, name){
         try {
             gl = canvas.getContext(name);
             gl.getExtension('OES_standard_derivatives');
-            //console.log(name);
         }
         catch (e) {
         }
@@ -1508,19 +1521,120 @@ $(function(){
         alert("requires ANGLE_instanced_arrays");
     }
 
+    // URL parameters
     var tess = getUrlParameter("tessFactor");
     if (tess != undefined) {
-        tessFactor = tess;
+        app.tessFactor = tess;
     }
     var dmode = getUrlParameter("displayMode");
     if (dmode != undefined) {
         displayMode = dmode;
     }
+    var modelName = getUrlParameter("model");
 
     // load shaders
     initialize();
 
     button = false;
+
+    // GUI build
+    var gui = new dat.GUI();
+
+    // kernel select
+    gui.add(app, 'kernel', ['JS',
+                            'GPU Uniform',
+                            'GPU Adaptive'])
+        .onChange(function(value) {
+            //app.kernel = value;
+            updateGeom(app.tessFactor);
+        });
+
+    // tess factor
+    gui.add(app, 'tessFactor', 1, 7)
+        .step(1)
+        .onChange(function(value) {
+            updateGeom(app.tessFactor);
+        });
+
+    // display style
+    gui.add(app, 'displayMode', {Shade : 0,
+                                 Patch : 1,
+                                 Wire : 2,
+                                 Normal : 3,
+                                 Coord : 4})
+        .onChange(function(value) {
+            initialize();
+            redraw();
+        });
+
+    //
+    gui.add(app, 'animation')
+        .onChange(function(value){
+            if (value) {
+                interval = setInterval(idle, 16);
+            } else {
+                clearInterval(interval);
+                interval = null;
+                idle();
+            }
+            redraw();
+        });
+
+    gui.add(app, 'hull')
+        .onChange(function(value) {
+            redraw();
+        });
+
+    // displace scale
+    gui.add(app, 'displacement', 0, 1)
+        .onChange(function(value){
+            setDisplacementScale(model.diag*value*0.01);
+            redraw();
+        });
+
+    // model menu
+    gui.add(app, 'model',
+            ['cube', 'ptex', 'torus', 'dino', 'face',
+             'catmark_cube_creases0',
+             'catmark_cube_creases1',
+             'catmark_cube_corner0',
+             'catmark_cube_corner1',
+             'catmark_cube_corner2',
+             'catmark_cube_corner3',
+             'catmark_dart_edgecorner',
+             'catmark_dart_edgeonly',
+             'catmark_gregory_test2',
+             'catmark_gregory_test3',
+             'catmark_gregory_test4',
+             'catmark_gregory_test6',
+             'catmark_gregory_test7',
+             'catmark_pyramid_creases0',
+             'catmark_pyramid_creases1',
+             'catmark_pyramid_creases2',
+             'catmark_torus',
+             'catmark_torus_creases0',
+             'catmark_chaikin0',
+             'catmark_chaikin1',
+             'catmark_chaikin2',
+             'catmark_hole_test1',
+             'catmark_hole_test2',
+             'catmark_hole_test3',
+             'catmark_hole_test4',
+             'catmark_helmet',
+             'catmark_car',
+             'catmark_bishop',
+             'catmark_rook',
+             'catmark_pawn',
+             'babarian'])
+        .onChange(function(value){
+            loadModel(value);
+            redraw();
+        });
+
+
+    $("#version").text(version);
+
+    // events
     $("#main").keypress(function(e) {
         console.log(e.which);
         if (e.which == "f") {
@@ -1604,87 +1718,7 @@ $(function(){
 
     window.addEventListener('resize', resizeCanvas);
 
-    $("#modelSelect").selectmenu( {
-        change: function(event, ui) {
-            loadModel(this.value);
-            redraw();
-        } }).selectmenu("menuWidget").addClass("overflow");
-
-    $( "#tessFactorRadio" ).buttonset();
-    $( "#tf3" ).attr('checked', 'checked');
-    $( "#tessFactorRadio" ).buttonset('refresh');
-    $( 'input[name="tessFactorRadio"]:radio' ).change(
-        function() {
-            var tf = ({tf1:1, tf2:2, tf3:3, tf4:4, tf5:5, tf6:6, tf7:7 })[this.id];
-            updateGeom(tf);
-        });
-
-    $( "#tessKernelRadio" ).buttonset();
-    $( "#tk2" ).attr('checked', 'checked');
-    $( "#tessKernelRadio" ).buttonset('refresh');
-    $( 'input[name="tessKernelRadio"]:radio' ).change(
-        function() {
-            gpuTess = ({tk1:false, tk2:true, tk3:true })[this.id];
-            gpuAdaptive = ({tk1:false, tk2:false, tk3:true })[this.id];
-            updateGeom(tessFactor);
-        });
-
-    $( "#radio" ).buttonset();
-    $(["#displayShade", "#displayPatchColor", "#displayWire", "#displayNormal",
-     "#displayPatchCoord"][displayMode]).attr('checked', 'checked');
-    $( "#radio" ).buttonset('refresh');
-    $( 'input[name="radio"]:radio' ).change(
-        function() {
-            displayMode = ({
-                displayShade:0,
-                displayPatchColor:1,
-                displayWire:2,
-                displayNormal:3,
-                displayPatchCoord:4
-            })[this.id];
-            initialize();
-            redraw();
-        });
-
-    $( "#hullCheckbox" ).button().change(
-        function(event, ui){
-            drawHull = !drawHull;
-            redraw();
-        });
-
-    $( "#deformCheckbox" ).button().change(
-        function(event, ui){
-            deform = !deform;
-            if (deform) {
-                interval = setInterval(idle, 16);
-            } else {
-                clearInterval(interval);
-                interval = null;
-                idle();
-            }
-            redraw();
-        });
-    $("#displaceScale").slider({
-        min: 0,
-        max: 100,
-        change: function(event, ui){
-            setDisplacementScale(model.diag*ui.value*0.0001);
-            redraw();
-        },
-        slide: function(event, ui){
-            setDisplacementScale(model.diag*ui.value*0.0001);
-            redraw();
-        }});
-
-    var modelName = getUrlParameter("model");
-    if (modelName == undefined) {
-        loadModel("face");
-        //loadModel("cube");
-        //loadModel("torus");
-        //loadModel("catmark_edgecorner");
-    } else {
-        loadModel("modelName");
-    }
+    loadModel(app.model);
 
     resizeCanvas();
 });

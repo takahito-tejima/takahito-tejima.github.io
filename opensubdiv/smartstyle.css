@@ -1,91 +1,38 @@
 html {
-    overflow: hidden;
+    overflow:hidden;
     height: 100%;
     margin: 0;
 }
 body {
     height: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: #303030;
     color:white;
     font-size: 10pt;
 }
-div#control
-{
-    float: right;
-}
-.ui-state-active .ui-button-text
-{
-    background-color: gold;
-}
-.ui-button-text {
-    font-size: 8pt !important;
-}
-
-#global
-{
-    float: left;
-}
-
-#kernel
-{
-    float: right;
-}
-
-#modelSelect-button
-{
-    font-size: 6pt;
-}
-
-#modelSelect {
-    background-color: #303030;
-    color:white;
-}
-
-#container {
-    width: 100%;
-    height: 100%;
-    margin: 0 auto;
-}
 
 #header {
-    background-color: black;
-    margin: 0;
-    padding: 0;
-}
-
-#nav {
-    margin: 0;
-    padding: 0;
-}
-
-#content {
-    height:60%;
-    margin: 0;
-}
-
-#displaceScale {
-    width: 70%;
-    margin-left: 50px;
-}
-
-#repolink {
-    display: none;
+    position:absolute;
+    top: 0;
+    left: 0;
+    color: #00ff00;
 }
 
 #footer {
+    position: absolute;
     clear: left;
-    width: 100%;
-    margin: 0;
-    background-color: black;
+    bottom: 0;
+    right: 0;
 }
 
 canvas#main
 {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     cursor: default;
-    background-color: #101020;
-    margin:0;
+    background-color: #020208;
 }
+
+a:link { color: #ffff00; }
+a:visited { color: #ffff80; }
