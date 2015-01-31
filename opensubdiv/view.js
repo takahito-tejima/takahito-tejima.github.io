@@ -1266,7 +1266,7 @@ function prepareBatch(mvpMatrix, projection, aspect)
     // level buckets
     for (var d = 0; d < 8; ++d) {
         model.bsplineInstanceData[d] = new Float32Array(nPatches*16);
-        model.gregoryInstanceData[d] = new Float32Array(nPatches*16);
+        model.gregoryInstanceData[d] = new Float32Array(nGregoryPatches*16);
         model.bsplineInstanceData[d].nPatches = 0;
         model.gregoryInstanceData[d].nPatches = 0;
     }
@@ -1444,7 +1444,6 @@ function drawGregory()
         gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 16*4, 8*4);
         gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 16*4, 12*4);
 
-        var nPatches = instanceData[d].length/16;
         ext.drawElementsInstancedANGLE(gl.TRIANGLES,
                                       tessMesh.numTris*3,
                                       gl.UNSIGNED_SHORT,
