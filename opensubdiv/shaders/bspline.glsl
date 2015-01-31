@@ -46,16 +46,45 @@ vec2 getVertexIndex(float patchIndex, float cpIndex) {
 }
 
 void main() {
+    float B[4], D[4];
     vec3 cp[16];
     vec2 vids[16];
+#if 0  // seemingly Android chrome crashes with this kind of loop....
     for (int i = 0; i < 16; ++i) {
         vids[i] = getVertexIndex(patchData.x, float(i));
     }
+#else
+    vids[ 0] = getVertexIndex(patchData.x, 0.0);
+    vids[ 1] = getVertexIndex(patchData.x, 1.0);
+    vids[ 2] = getVertexIndex(patchData.x, 2.0);
+    vids[ 3] = getVertexIndex(patchData.x, 3.0);
+    vids[ 4] = getVertexIndex(patchData.x, 4.0);
+    vids[ 5] = getVertexIndex(patchData.x, 5.0);
+    vids[ 6] = getVertexIndex(patchData.x, 6.0);
+    vids[ 7] = getVertexIndex(patchData.x, 7.0);
+    vids[ 8] = getVertexIndex(patchData.x, 8.0);
+    vids[ 9] = getVertexIndex(patchData.x, 9.0);
+    vids[10] = getVertexIndex(patchData.x, 10.0);
+    vids[11] = getVertexIndex(patchData.x, 11.0);
+    vids[12] = getVertexIndex(patchData.x, 12.0);
+    vids[13] = getVertexIndex(patchData.x, 13.0);
+    vids[14] = getVertexIndex(patchData.x, 14.0);
+    vids[15] = getVertexIndex(patchData.x, 15.0);
+#endif
+
     if (vids[9].x == -1.0) {
         // corner
-        for (int i = 0; i < 9; ++i) {
-            cp[i+4] = texture2D(texCP, vids[i]).xyz;
-        }
+#ifndef ANDROID
+        cp[ 4] = texture2D(texCP, vids[ 0]).xyz;
+        cp[ 5] = texture2D(texCP, vids[ 1]).xyz;
+        cp[ 6] = texture2D(texCP, vids[ 2]).xyz;
+        cp[ 7] = texture2D(texCP, vids[ 3]).xyz;
+        cp[ 8] = texture2D(texCP, vids[ 4]).xyz;
+        cp[ 9] = texture2D(texCP, vids[ 5]).xyz;
+        cp[10] = texture2D(texCP, vids[ 6]).xyz;
+        cp[11] = texture2D(texCP, vids[ 7]).xyz;
+        cp[12] = texture2D(texCP, vids[ 8]).xyz;
+
         cp[14] = cp[12];
         cp[13] = cp[11];
         cp[12] = cp[10];
@@ -69,26 +98,46 @@ void main() {
         cp[7] = cp[6]*2.0 - cp[5];
         cp[11] = cp[10]*2.0 - cp[9];
         cp[15] = cp[14]*2.0 - cp[13];
-    } else if (vids[15].x == -1.0) {
+#endif
+    } else if (vids[15].x < 0.0) {
+#ifndef ANDROID
         // boundary
-        for (int i = 0; i < 12; ++i) {
-            cp[i+4] = texture2D(texCP, vids[i]).xyz;
-        }
+        cp[ 4] = texture2D(texCP, vids[ 0]).xyz;
+        cp[ 5] = texture2D(texCP, vids[ 1]).xyz;
+        cp[ 6] = texture2D(texCP, vids[ 2]).xyz;
+        cp[ 7] = texture2D(texCP, vids[ 3]).xyz;
+        cp[ 8] = texture2D(texCP, vids[ 4]).xyz;
+        cp[ 9] = texture2D(texCP, vids[ 5]).xyz;
+        cp[10] = texture2D(texCP, vids[ 6]).xyz;
+        cp[11] = texture2D(texCP, vids[ 7]).xyz;
+        cp[12] = texture2D(texCP, vids[ 8]).xyz;
+        cp[13] = texture2D(texCP, vids[ 9]).xyz;
+        cp[14] = texture2D(texCP, vids[10]).xyz;
+        cp[15] = texture2D(texCP, vids[11]).xyz;
         cp[0] = cp[4]*2.0 - cp[8];
         cp[1] = cp[5]*2.0 - cp[9];
         cp[2] = cp[6]*2.0 - cp[10];
         cp[3] = cp[7]*2.0 - cp[11];
+#endif
     } else {
         // regular
-        for (int i = 0; i < 16; ++i) {
-            cp[i] = texture2D(texCP, vids[i]).xyz;
-        }
+        cp[ 0] = texture2D(texCP, vids[ 0]).xyz;
+        cp[ 1] = texture2D(texCP, vids[ 1]).xyz;
+        cp[ 2] = texture2D(texCP, vids[ 2]).xyz;
+        cp[ 3] = texture2D(texCP, vids[ 3]).xyz;
+        cp[ 4] = texture2D(texCP, vids[ 4]).xyz;
+        cp[ 5] = texture2D(texCP, vids[ 5]).xyz;
+        cp[ 6] = texture2D(texCP, vids[ 6]).xyz;
+        cp[ 7] = texture2D(texCP, vids[ 7]).xyz;
+        cp[ 8] = texture2D(texCP, vids[ 8]).xyz;
+        cp[ 9] = texture2D(texCP, vids[ 9]).xyz;
+        cp[10] = texture2D(texCP, vids[10]).xyz;
+        cp[11] = texture2D(texCP, vids[11]).xyz;
+        cp[12] = texture2D(texCP, vids[12]).xyz;
+        cp[13] = texture2D(texCP, vids[13]).xyz;
+        cp[14] = texture2D(texCP, vids[14]).xyz;
+        cp[15] = texture2D(texCP, vids[15]).xyz;
     }
-
-    float B[4], D[4];
-    vec3 BUCP[4], DUCP[4];
-    BUCP[0] = BUCP[1] = BUCP[2] = BUCP[3] = vec3(0);
-    DUCP[0] = DUCP[1] = DUCP[2] = DUCP[3] = vec3(0);
 
     color = inColor.xyz;
 
@@ -116,25 +165,25 @@ void main() {
 
     evalCubicBSpline(pu, B, D);
 
-    for (int i=0; i<4; ++i) {
-        for (int j=0; j<4; ++j) {
-            vec3 A = cp[4*j + i].xyz;
-            BUCP[i] += A * B[j];
-            DUCP[i] += A * D[j];
-        }
-    }
+    vec3 BUCP[4], DUCP[4];
+    vec3 WorldPos, Tangent, BiTangent;
 
-    vec3 WorldPos  = vec3(0);
-    vec3 Tangent   = vec3(0);
-    vec3 BiTangent = vec3(0);
+    BUCP[0] = cp[0]*B[0] + cp[4]*B[1] + cp[ 8]*B[2] + cp[12]*B[3];
+    BUCP[1] = cp[1]*B[0] + cp[5]*B[1] + cp[ 9]*B[2] + cp[13]*B[3];
+    BUCP[2] = cp[2]*B[0] + cp[6]*B[1] + cp[10]*B[2] + cp[14]*B[3];
+    BUCP[3] = cp[3]*B[0] + cp[7]*B[1] + cp[11]*B[2] + cp[15]*B[3];
+
+    DUCP[0] = cp[0]*D[0] + cp[4]*D[1] + cp[ 8]*D[2] + cp[12]*D[3];
+    DUCP[1] = cp[1]*D[0] + cp[5]*D[1] + cp[ 9]*D[2] + cp[13]*D[3];
+    DUCP[2] = cp[2]*D[0] + cp[6]*D[1] + cp[10]*D[2] + cp[14]*D[3];
+    DUCP[3] = cp[3]*D[0] + cp[7]*D[1] + cp[11]*D[2] + cp[15]*D[3];
 
     evalCubicBSpline(pv, B, D);
 
-    for (int k=0; k<4; ++k) {
-        WorldPos  += B[k] * BUCP[k];
-        Tangent   += B[k] * DUCP[k];
-        BiTangent += D[k] * BUCP[k];
-    }
+    WorldPos  = B[0]*BUCP[0] + B[1]*BUCP[1] + B[2]*BUCP[2] + B[3]*BUCP[3];
+    Tangent   = B[0]*DUCP[0] + B[1]*DUCP[1] + B[2]*DUCP[2] + B[3]*DUCP[3];
+    BiTangent = D[0]*BUCP[0] + D[1]*BUCP[1] + D[2]*BUCP[2] + D[3]*BUCP[3];
+
     vec3 n = normalize(cross(BiTangent, Tangent));
 
     ptexCoord.xy = computePtexCoord(texPtexColorL,

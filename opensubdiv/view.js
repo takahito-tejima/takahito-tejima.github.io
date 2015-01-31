@@ -100,6 +100,10 @@ function buildProgram(shaderSource, attribBindings)
         "#extension GL_OES_standard_derivatives : enable\n" +
         "precision highp float;\n";
 
+    if (navigator.userAgent.indexOf('Android') > 0){
+        define += "#define ANDROID\n";
+    }
+
     if (usePtexColor) define += "#define PTEX_COLOR\n";
     if (usePtexDisplace) define += "#define PTEX_DISPLACE\n";
     define += "#define DISPLAY_MODE " + displayMode +"\n";
@@ -110,14 +114,18 @@ function buildProgram(shaderSource, attribBindings)
     var vshader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vshader, "#define VERTEX_SHADER\n"+define+shaderSource);
     gl.compileShader(vshader);
-    if (!gl.getShaderParameter(vshader, gl.COMPILE_STATUS))
+    if (!gl.getShaderParameter(vshader, gl.COMPILE_STATUS)) {
+        alert(gl.getShaderInfoLog(vshader));
         console.log(gl.getShaderInfoLog(vshader));
+    }
 
     var fshader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fshader, "#define FRAGMENT_SHADER\n"+define+shaderSource);
     gl.compileShader(fshader);
-    if (!gl.getShaderParameter(fshader, gl.COMPILE_STATUS))
+    if (!gl.getShaderParameter(fshader, gl.COMPILE_STATUS)) {
+        alert(gl.getShaderInfoLog(fshader));
         console.log(gl.getShaderInfoLog(fshader));
+    }
     gl.attachShader(program, vshader);
     gl.attachShader(program, fshader);
 
@@ -127,6 +135,7 @@ function buildProgram(shaderSource, attribBindings)
 
     gl.linkProgram(program)
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        alert(gl.getProgramInfoLog(program));
         console.log(gl.getProgramInfoLog(program));
     }
     return program;
@@ -985,8 +994,8 @@ function idle() {
     updateGeom();
 }
 
-function redraw() {
-
+function redraw()
+{
     if (model == null || model.patches == null) return;
 
     //gl.clearColor(.1, .1, .2, 1);
@@ -1691,6 +1700,7 @@ $(function(){
     if (modelName == undefined) {
         loadModel("face");
         //loadModel("cube");
+        //loadModel("torus");
         //loadModel("catmark_edgecorner");
     } else {
         loadModel("modelName");

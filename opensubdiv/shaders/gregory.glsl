@@ -29,14 +29,54 @@ vec2 getGregoryVertexIndex(float patchIndex, float cpIndex) {
 }
 void main(){
     vec3 p[20];
-    vec2 vids[20];
+    vec2 vid;
+#if 0  // Android crashes.
     for (int i = 0; i < 20; ++i) {
-        vids[i] = getGregoryVertexIndex(patchData.x, float(i));
+        vid = getGregoryVertexIndex(patchData.x, float(i));
+        p[i] = texture2D(texCP, vids).xyz;
     }
-    for (int i = 0; i < 20; ++i) {
-        p[i] = texture2D(texCP, vids[i]).xyz;
-    }
-
+#else
+    vid = getGregoryVertexIndex(patchData.x, 0.0);
+    p[0] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 1.0);
+    p[1] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 2.0);
+    p[2] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 3.0);
+    p[3] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 4.0);
+    p[4] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 5.0);
+    p[5] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 6.0);
+    p[6] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 7.0);
+    p[7] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 8.0);
+    p[8] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 9.0);
+    p[9] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 10.0);
+    p[10] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 11.0);
+    p[11] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 12.0);
+    p[12] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 13.0);
+    p[13] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 14.0);
+    p[14] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 15.0);
+    p[15] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 16.0);
+    p[16] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 17.0);
+    p[17] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 18.0);
+    p[18] = texture2D(texCP, vid).xyz;
+    vid = getGregoryVertexIndex(patchData.x, 19.0);
+    p[19] = texture2D(texCP, vid).xyz;
+#endif
     vec3 q[16];
 
     float u = inUV.x;
@@ -69,18 +109,19 @@ void main(){
 
     float B[4], D[4];
     vec3 BUCP[4], DUCP[4];
-    BUCP[0] = BUCP[1] = BUCP[2] = BUCP[3] = vec3(0);
-    DUCP[0] = DUCP[1] = DUCP[2] = DUCP[3] = vec3(0);
 
     evalCubicBezier(inUV.x, B, D);
 
-    for (int i=0; i<4; ++i) {
-        for (int j=0; j<4; ++j) {
-            vec3 A = q[4*j + i].xyz;
-            BUCP[i] += A * B[j];
-            DUCP[i] += A * D[j];
-        }
-    }
+    BUCP[0] = q[0]*B[0] + q[4]*B[1] + q[ 8]*B[2] + q[12]*B[3];
+    BUCP[1] = q[1]*B[0] + q[5]*B[1] + q[ 9]*B[2] + q[13]*B[3];
+    BUCP[2] = q[2]*B[0] + q[6]*B[1] + q[10]*B[2] + q[14]*B[3];
+    BUCP[3] = q[3]*B[0] + q[7]*B[1] + q[11]*B[2] + q[15]*B[3];
+
+    DUCP[0] = q[0]*D[0] + q[4]*D[1] + q[ 8]*D[2] + q[12]*D[3];
+    DUCP[1] = q[1]*D[0] + q[5]*D[1] + q[ 9]*D[2] + q[13]*D[3];
+    DUCP[2] = q[2]*D[0] + q[6]*D[1] + q[10]*D[2] + q[14]*D[3];
+    DUCP[3] = q[3]*D[0] + q[7]*D[1] + q[11]*D[2] + q[15]*D[3];
+
 
     vec3 WorldPos  = vec3(0);
     vec3 Tangent   = vec3(0);
