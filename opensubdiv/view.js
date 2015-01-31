@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-13:05:44"
+var version = "last updated:2015/01/31-13:08:17"
 
 var app = {
     IsGPU : function() {
@@ -1646,7 +1646,8 @@ $(function(){
             } else if(button == 3) {
                 camera.dolly(0.005*d[0]*model.diag);
             } else if(button == 2){
-                camera.translate(d[0]*0.01*model.diag, d[1]*0.01*model.diag);
+                camera.translate(d[0]*0.001*model.diag,
+                                 d[1]*0.001*model.diag);
             }
             redraw();
         }
