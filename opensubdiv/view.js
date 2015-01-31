@@ -981,7 +981,6 @@ function createUVmesh()
 
         model.tessMeshes.push(tessMesh);
     }
-//    console.log("Bind", ibo, vbo);
 }
 
 function idle() {
@@ -1059,9 +1058,10 @@ function redraw()
 
         prepareBatch(mvpMatrix, proj, aspect);
 
-        // common textures
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
 
         // bspline patches
         var program = tessProgram;
@@ -1091,14 +1091,10 @@ function redraw()
                          model.dimPtexDisplaceL[0], model.dimPtexDisplaceL[1]);
         }
 
-        //gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplace"), 4);
         gl.uniform1f(gl.getUniformLocation(program, "patchRes"),
                      model.nPatchRes);
 
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
-
-        drawBSpline();
+        drawPatches(model.bsplineInstanceData);
 
         // gregory patches
         var program = gregoryProgram;
@@ -1131,7 +1127,7 @@ function redraw()
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
 
-        drawGregory();
+        drawPatches(model.gregoryInstanceData);
 
         gl.disableVertexAttribArray(0);
         gl.disableVertexAttribArray(1);
@@ -1143,25 +1139,27 @@ function redraw()
         ext.vertexAttribDivisorANGLE(3, 0);
         ext.vertexAttribDivisorANGLE(4, 0);
     } else {
+        gl.enableVertexAttribArray(0);
+        gl.enableVertexAttribArray(1);
+        gl.enableVertexAttribArray(2);
+        gl.enableVertexAttribArray(3);
+        gl.enableVertexAttribArray(4);
+
+        gl.useProgram(triProgram);
+
+        gl.uniformMatrix4fv(triProgram.modelViewMatrix, false, modelView);
+        gl.uniformMatrix4fv(triProgram.projMatrix, false, proj);
+        gl.uniformMatrix4fv(triProgram.mvpMatrix, false, mvpMatrix);
+        gl.uniform1i(triProgram.displayMode, displayMode);
+        gl.uniform1f(gl.getUniformLocation(triProgram, "displaceScale"),
+                     displaceScale);
+        gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexColor"), 2);
+        gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexDisplace"), 4);
+
         for (var i = 0; i < model.batches.length; ++i) {
             var batch = model.batches[i];
             if (batch.vboUnvarying == null) continue;
-            gl.useProgram(triProgram);
 
-            gl.uniformMatrix4fv(triProgram.modelViewMatrix, false, modelView);
-            gl.uniformMatrix4fv(triProgram.projMatrix, false, proj);
-            gl.uniformMatrix4fv(triProgram.mvpMatrix, false, mvpMatrix);
-            gl.uniform1i(triProgram.displayMode, displayMode);
-            gl.uniform1f(gl.getUniformLocation(triProgram, "displaceScale"),
-                         displaceScale);
-            gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexColor"), 2);
-            gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexDisplace"), 4);
-
-            gl.enableVertexAttribArray(0);
-            gl.enableVertexAttribArray(1);
-            gl.enableVertexAttribArray(2);
-            gl.enableVertexAttribArray(3);
-            gl.enableVertexAttribArray(4);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo);
             gl.bindBuffer(gl.ARRAY_BUFFER, batch.vbo);
             gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 6*4, 0);    // XYZ
@@ -1172,15 +1170,14 @@ function redraw()
             gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 12*4, 8*4); // ptexFace, ptexU, ptexV
 
             gl.drawElements(gl.TRIANGLES, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
-            //gl.drawElements(gl.POINTS, batch.nTris*3, gl.UNSIGNED_SHORT, 0);
 
             drawTris += batch.nTris;
-            gl.disableVertexAttribArray(0);
-            gl.disableVertexAttribArray(1);
-            gl.disableVertexAttribArray(2);
-            gl.disableVertexAttribArray(3);
-            gl.disableVertexAttribArray(4);
         }
+        gl.disableVertexAttribArray(0);
+        gl.disableVertexAttribArray(1);
+        gl.disableVertexAttribArray(2);
+        gl.disableVertexAttribArray(3);
+        gl.disableVertexAttribArray(4);
     }
 
 
@@ -1393,40 +1390,8 @@ function prepareBatch(mvpMatrix, projection, aspect)
     }
 }
 
-function drawBSpline()
+function drawPatches(instanceData)
 {
-    var instanceData = model.bsplineInstanceData;
-
-    // draw by patch level
-    for (var d = 0; d < instanceData.length; ++d) {
-        var nPatches = instanceData[d].nPatches;
-        if (nPatches == 0) continue;
-        var tessMesh = model.tessMeshes[d];
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tessMesh.IBO);
-        gl.bindBuffer(gl.ARRAY_BUFFER, tessMesh.VBO);
-        gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4*4, 0);  // uv, iuiv
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, model.instanceVBO);
-        gl.bufferData(gl.ARRAY_BUFFER, instanceData[d], gl.STATIC_DRAW);
-        gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 16*4, 0);
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, 16*4, 4*4);
-        gl.vertexAttribPointer(3, 4, gl.FLOAT, false, 16*4, 8*4);
-        gl.vertexAttribPointer(4, 4, gl.FLOAT, false, 16*4, 12*4);
-
-        ext.drawElementsInstancedANGLE(gl.TRIANGLES,
-                                      tessMesh.numTris*3,
-                                      gl.UNSIGNED_SHORT,
-                                      0, nPatches);
-
-        drawTris += tessMesh.numTris * nPatches;
-    }
-}
-
-function drawGregory()
-{
-    var instanceData = model.gregoryInstanceData;
-
     // draw by patch level
     for (var d = 0; d < instanceData.length; ++d) {
         var nPatches = instanceData[d].nPatches;
