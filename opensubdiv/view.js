@@ -3,19 +3,19 @@
 //
 //
 
-var version = "last updated:2015/01/31-11:58:29"
+var version = "last updated:2015/01/31-13:05:44"
 
 var app = {
-    kernel : 'GPU Uniform',
     IsGPU : function() {
         return (this.kernel == "GPU Uniform" || this.kernel == "GPU Adaptive");
     },
+    kernel : 'GPU Uniform',
     tessFactor : 3,
     displayMode : 2,
     animation : false,
     hull : false,
     displacement:  0,
-    model : 'cube'
+    model : 'cube',
 };
 
 var button = false;
@@ -33,8 +33,6 @@ var prevTime = 0;
 var fps = 0;
 var ext = null;
 
-var uvtex = null;
-
 var cageProgram = null;
 var triProgram = null;
 var tessProgram = null;
@@ -45,38 +43,6 @@ var interval = null;
 
 var floatFilter = 0;
 var drawTris = 0;
-
-var patchColors = [[[1.0,  1.0,  1.0,  1.0],   // regular
-                    [1.0,  0.5,  0.5,  1.0],   // single crease
-                    [0.8,  0.0,  0.0,  1.0],   // boundary
-                    [0.0,  1.0,  0.0,  1.0],   // corner
-                    [1.0,  1.0,  0.0,  1.0],   // gregory
-                    [1.0,  0.5,  0.0,  1.0],   // gregory boundary
-                    [1.0,  1.0,  0.0,  1.0]],  // gregory basis
-
-                   [[0.0,  1.0,  1.0,  1.0],   // regular pattern 0
-                    [0.0,  0.5,  1.0,  1.0],   // regular pattern 1
-                    [0.0,  0.5,  0.5,  1.0],   // regular pattern 2
-                    [0.5,  0.0,  1.0,  1.0],   // regular pattern 3
-                    [1.0,  0.5,  1.0,  1.0]],  // regular pattern 4
-
-                   [[1.0,  0.7,  0.6,  1.0],   // single crease pattern 0
-                    [1.0,  0.7,  0.6,  1.0],   // single crease pattern 1
-                    [1.0,  0.7,  0.6,  1.0],   // single crease pattern 2
-                    [1.0,  0.7,  0.6,  1.0],   // single crease pattern 3
-                    [1.0,  0.7,  0.6,  1.0]],  // single crease pattern 4
-
-                   [[0.0,  0.0,  0.75, 1.0],   // boundary pattern 0
-                    [0.0,  0.2,  0.75, 1.0],   // boundary pattern 1
-                    [0.0,  0.4,  0.75, 1.0],   // boundary pattern 2
-                    [0.0,  0.6,  0.75, 1.0],   // boundary pattern 3
-                    [0.0,  0.8,  0.75, 1.0]],  // boundary pattern 4
-
-                   [[0.25, 0.25, 0.25, 1.0],   // corner pattern 0
-                    [0.25, 0.25, 0.25, 1.0],   // corner pattern 1
-                    [0.25, 0.25, 0.25, 1.0],   // corner pattern 2
-                    [0.25, 0.25, 0.25, 1.0],   // corner pattern 3
-                    [0.25, 0.25, 0.25, 1.0]]]; // corner pattern 4
 
 
 function windowEvent()
@@ -536,7 +502,8 @@ function setModel(data, modelName)
 
     fitCamera();
 
-    updateGeom(app.tessFactor);
+    initGeom();
+    updateGeom();
 }
 
 function animate(time)
@@ -562,18 +529,18 @@ function animate(time)
     }
 }
 
-function updateGeom(tf)
+function initGeom()
 {
-    if (tf != null) {
-        app.tessFactor = tf;
-        if (!app.IsGPU()) {
-            model.batches = [];
-            tessellateIndexAndUnvarying(model.patches, model.patchParams, false, 0);
-            tessellateIndexAndUnvarying(model.gregoryPatches, model.patchParams,
-                                        true, model.patches.length/16);
-        }
+    if (!app.IsGPU()) {
+        model.batches = [];
+        tessellateIndexAndUnvarying(model.patches, model.patchParams, false, 0);
+        tessellateIndexAndUnvarying(model.gregoryPatches, model.patchParams,
+                                    true, model.patches.length/16);
     }
+}
 
+function updateGeom()
+{
     refine();
     evalGregory();
 
@@ -1436,28 +1403,19 @@ function loadModel(modelName)
     var xhr = new XMLHttpRequest();
     var now = new Date();
     xhr.open('GET', url + "?"+now.getTime(), true);
+
+    $("#status").text("Loading model "+modelName);
     xhr.onload = function(e) {
         var data = eval("("+this.response+")");
-        setModel(data.model, modelName);
-        initialize();
-        redraw();
+        $("#status").text("Building mesh...");
+        setTimeout(function(){
+            setModel(data.model, modelName);
+            initialize();
+            redraw();
+            $("#status").text("");
+        }, 0);
     }
     xhr.send();
-/*
-    var type = "text";
-    $("#loading").show();
-    $.ajax({
-        type: "GET",
-        url: url,
-        responseType:type,
-        success: function(data) {
-            console.log(data);
-            setModel(data.model);
-            displaceScale = 0;
-            $("#loading").hide();
-        }
-    });
-*/
 }
 
 function resizeCanvas() {
@@ -1545,15 +1503,24 @@ $(function(){
                             'GPU Uniform',
                             'GPU Adaptive'])
         .onChange(function(value) {
-            //app.kernel = value;
-            updateGeom(app.tessFactor);
+            $("#status").text("Initializing mesh...");
+            setTimeout(function(){
+                initGeom();
+                updateGeom();
+                $("#status").text("");
+            }, 0);
         });
 
     // tess factor
     gui.add(app, 'tessFactor', 1, 7)
         .step(1)
         .onChange(function(value) {
-            updateGeom(app.tessFactor);
+            $("#status").text("Initializing mesh...");
+            setTimeout(function(){
+                initGeom();
+                updateGeom();
+                $("#status").text("");
+            }, 0);
         });
 
     // display style
@@ -1625,7 +1592,7 @@ $(function(){
              'catmark_bishop',
              'catmark_rook',
              'catmark_pawn',
-             'babarian'])
+             'barbarian'])
         .onChange(function(value){
             loadModel(value);
             redraw();
