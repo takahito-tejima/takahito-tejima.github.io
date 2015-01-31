@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-13:54:57"
+var version = "last updated:2015/01/31-14:32:12"
 
 var app = {
     IsGPU : function() {
@@ -992,6 +992,10 @@ function redraw()
     var mvpMatrix = mat4.create();
     mat4.multiply(mvpMatrix, proj, modelView);
 
+    // draw grid
+    glUtil.drawGrid(mvpMatrix);
+
+    // draw hull
     if (app.hull && model.cageLines != null) {
         gl.useProgram(cageProgram);
         gl.uniformMatrix4fv(cageProgram.mvpMatrix, false, mvpMatrix);
@@ -1004,6 +1008,7 @@ function redraw()
         gl.drawElements(gl.LINES, model.cageLines.length, gl.UNSIGNED_SHORT, 0);
     }
 
+    // draw subdiv
     drawTris = 0;
     if (model.ptexTexture_color != undefined) {
         gl.activeTexture(gl.TEXTURE2);
