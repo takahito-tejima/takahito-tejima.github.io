@@ -3,20 +3,20 @@
 //
 //
 
-var version = "last updated:2015/01/31-20:01:50"
+var version = "last updated:2015/01/31-20:39:59"
 
 var app = {
     IsGPU : function() {
         return (this.kernel == "GPU Uniform" || this.kernel == "GPU Adaptive");
     },
-    //kernel : 
     kernel : 'GPU Uniform',
     tessFactor : 3,
-    displayMode : 0,
+    displayMode : 2,
     animation : false,
     hull : false,
     displacement:  0,
     model : 'cube',
+    sculpt : false
 };
 
 var time = 0;
@@ -455,6 +455,10 @@ function setModel(data, modelName)
     model.nGregoryPatchRes = [20, nGregoryPatches];
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 20, nGregoryPatches, 0, gl.RGB, gl.FLOAT, fd);
 
+    // framebuffer prep
+    if (framebuffer) gl.deleteFramebuffer(framebuffer);
+    framebuffer = gl.createFramebuffer();
+
     // PTEX read
     usePtexColor = false;
     usePtexDisplace = false;
@@ -502,13 +506,6 @@ function setModel(data, modelName)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-            // framebuffer prep
-            if (framebuffer) gl.deleteFramebuffer(framebuffer);
-            framebuffer = gl.createFramebuffer();
-            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
-                                    gl.TEXTURE_2D, model.ptexTexture_color, 0);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
             model.dimPtexColor = [image.width, image.height];
 
             redraw();
@@ -516,6 +513,8 @@ function setModel(data, modelName)
         image.src = "./objs/"+modelName+"_color.png?"+now.getTime();
     }
     if (data.ptexDim_displace != undefined) {
+        app.displacement = 1;
+
         usePtexDisplace = true;
         model.ptexDim_displace = data.ptexDim_displace;
         model.ptexLayout_displace = data.ptexLayout_displace;
@@ -553,6 +552,17 @@ function setModel(data, modelName)
         xhr.responseType = "arraybuffer";
 
         xhr.onload = function(e) {
+            // expand to RGB (unfortunately)
+            var w = model.ptexDim_displace[0];
+            var h = model.ptexDim_displace[1];
+            var fdata = new Float32Array(this.response);
+            var data = new Float32Array(w*h*3);
+            for (var i = 0; i < w*h; ++i) {
+                data[i*3+0] = fdata[i];
+                data[i*3+1] = fdata[i];
+                data[i*3+2] = fdata[i];
+            }
+
             model.ptexTexture_displace = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
@@ -560,19 +570,12 @@ function setModel(data, modelName)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE,
-                          model.ptexDim_displace[0], model.ptexDim_displace[1],
-                          0, gl.LUMINANCE, gl.FLOAT,
-                          new Float32Array(this.response));
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
+                          0, gl.RGB, gl.FLOAT, data);
         }
         xhr.send();
-    }
-
-    // tessellation mesh
-    if (app.IsGPU()) {
-        createUVmesh();
-        model.bsplineInstanceData = [];
-        model.gregoryInstanceData = [];
+    } else {
+        app.displacement = 0;
     }
 
     fitCamera();
@@ -606,7 +609,11 @@ function animate(time)
 
 function initGeom()
 {
-    if (!app.IsGPU()) {
+    if (app.IsGPU()) {
+        createUVmesh();
+        model.bsplineInstanceData = [];
+        model.gregoryInstanceData = [];
+    } else {
         model.batches = [];
         tessellateIndexAndUnvarying(model.patches, model.patchParams, false, 0);
         tessellateIndexAndUnvarying(model.gregoryPatches, model.patchParams,
@@ -1439,7 +1446,12 @@ function drawPatches(instanceData)
 
 function paint(x, y)
 {
+    var texture = model.ptexTexture_displace;
+    var dim = model.ptexDim_displace;
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+                            gl.TEXTURE_2D, texture, 0);
 
     gl.viewport(0, 0, model.dimPtexColor[0], model.dimPtexColor[1]);
 
@@ -1662,12 +1674,20 @@ $(function(){
             redraw();
         });
 
+    // mode (tmp)
+    gui.add(app, 'sculpt')
+        .onChange(function(value){
+            if(value) {
+                camera.override = paint;
+            } else {
+                camera.override = null;
+            }
+        });
+
     $("#version").text(version);
 
     // events
     camera.bindControl("#main", redraw);
-
-    camera.override = paint;
 
     document.oncontextmenu = function(e){ return false; }
 

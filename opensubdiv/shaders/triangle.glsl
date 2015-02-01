@@ -19,7 +19,8 @@ varying vec4 ptexCoord;
 void main()
 {
     vec3 WorldPos = position.xyz;
-    normal = (modelViewMatrix * vec4(normalize(inNormal.xyz), 0)).xyz;
+    vec3 WorldNormal = normalize(inNormal.xyz);
+    normal = (modelViewMatrix * vec4(WorldNormal, 0)).xyz;
 
     ptexCoord = inPtexCoord;
     // apply displacement
@@ -28,7 +29,7 @@ void main()
     ptexCoord.zw = WorldPos.xz*4.0;
 #endif
     float d = displacement(ptexCoord.zw);
-    WorldPos.xyz += d*normal;
+    WorldPos.xyz += d*WorldNormal;
 #endif
     vec3 p = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
 
@@ -36,7 +37,8 @@ void main()
     Peye = p;
 #ifdef PAINT
     uv = projMatrix * vec4(p, 1);
-    gl_Position = vec4(ptexCoord.x*2.0-1.0, ptexCoord.y*2.0-1.0, 0, 1);
+    //gl_Position = vec4(ptexCoord.x*2.0-1.0, ptexCoord.y*2.0-1.0, 0, 1);
+    gl_Position = vec4(ptexCoord.z*2.0-1.0, ptexCoord.w*2.0-1.0, 0, 1);
 #else
     uv = inUV;
     gl_Position = projMatrix * vec4(p, 1);
@@ -61,12 +63,8 @@ void main()
 {
 #ifdef PAINT
     vec2 Pclip = uv.xy/uv.w;
-    float dist = distance(Pclip.xy, paintPos);
-    if (dist < 0.02) {
-      gl_FragColor = vec4(0, 0, 1, 0.5);
-} else {
-      gl_FragColor = vec4(1, 1, 1, 0);
-}
+    float pd = 10.0*max(0.0, 0.05-distance(Pclip.xy, paintPos));
+    gl_FragColor = vec4(5,5,5,pd);
     return;
 #endif
     vec3 fnormal = normal;

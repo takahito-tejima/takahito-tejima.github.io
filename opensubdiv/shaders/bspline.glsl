@@ -208,7 +208,7 @@ void main() {
 #ifdef PAINT
     uv = projMatrix * vec4(p, 1);
     Peye = p;
-    gl_Position = vec4(ptexCoord.x*2.0-1.0, ptexCoord.y*2.0-1.0, 0, 1);
+    gl_Position = vec4(ptexCoord.z*2.0-1.0, ptexCoord.w*2.0-1.0, 0, 1);
 #else
     uv = inUV;
     Peye = p;
@@ -233,13 +233,8 @@ void main()
 {
 #ifdef PAINT
     vec2 Pclip = uv.xy/uv.w;
-    float dist = distance(Pclip.xy, paintPos);
-    if (dist < 0.02) {
-      gl_FragColor = vec4(0, 0, 1, 0.5);
-} else {
-      gl_FragColor = vec4(1, 1, 1, 0);
-}
-    gl_FragColor = ptexCoord;
+    float pd = 10.0*max(0.0, 0.05-distance(Pclip.xy, paintPos));
+    gl_FragColor = vec4(5,5,5,pd);
     return;
 #endif
 
