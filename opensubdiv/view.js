@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/02/01-14:11:47"
+var version = "last updated:2015/02/01-14:40:25"
 
 var app = {
     IsGPU : function() {
@@ -14,7 +14,7 @@ var app = {
     displayMode : 2,
     animation : false,
     hull : false,
-    displacement:  0,
+    displacement:  1.0,
     model : 'cube',
     sculpt : false,
     paintColor : [0, 100, 20]
@@ -526,8 +526,7 @@ function setModel(data, modelName)
         model.ptxColor = {
             layout : {
                 data : data.ptexLayout_color,  // copy of JSON
-                dim : [512, Math.ceil(numPtexFace/512)],
-                texture : gl.createTexture()
+                dim : [512, Math.ceil(numPtexFace/512)]
             },
             texel : {
                 dim : [data.ptexDim_color[0], data.ptexDim_color[1]],
@@ -568,7 +567,6 @@ function setModel(data, modelName)
             layout : {
                 data : data.ptexLayout_displace,  // copy of JSON (for tri)
                 dim : [512, Math.ceil(numPtexFace/512)],
-                texture : gl.createTexture()
             },
             texel : {
                 dim : [data.ptexDim_displace[0], data.ptexDim_displace[1]],
@@ -576,27 +574,11 @@ function setModel(data, modelName)
             },
         };
 
-        // ptex layout
-        var layout = new Float32Array(4*model.ptxDisplace.layout.dim[0]*model.ptxDisplace.layout.dim[1]);
-        var dim = model.ptxDisplace.texel.dim;
-        for (var i = 0; i < numPtexFace; ++i) {
-            layout[i*4+0] = model.ptxDisplace.layout.data[i*6 + 2]/dim[0];
-            layout[i*4+1] = model.ptxDisplace.layout.data[i*6 + 3]/dim[1];
-            var wh        = model.ptxDisplace.layout.data[i*6 + 5];
-            layout[i*4+2] = ((1<<(wh >> 8)))/(dim[0]);
-            layout[i*4+3] = ((1<<(wh & 0xff)))/(dim[1]);
-        }
-
-        gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.layout.texture);
-        gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-                      model.ptxDisplace.layout.dim[0],
-                      model.ptxDisplace.layout.dim[1],
-                      0, gl.RGBA, gl.FLOAT, layout);
+        model.ptxDisplace.layout.texture =
+            createPtexLayoutTexture(numPtexFace,
+                                    model.ptxDisplace.layout.data,
+                                    model.ptxDisplace.layout.dim,
+                                    model.ptxDisplace.texel.dim);
 
         // ptex texel
         var xhr = new XMLHttpRequest();
@@ -624,15 +606,45 @@ function setModel(data, modelName)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
                           0, gl.RGB, gl.FLOAT, data);
+            redraw();
         }
         xhr.send();
     }
     // if the ptex color exists and the displacement doesn't,
     // use ptex color's layout for displacement.
-    if (data.ptxColor && !data.ptxDisplace) {
+    if (model.ptxColor && !model.ptxDisplace) {
+        usePtexDisplace = true;
+
+        model.ptxDisplace = {
+            layout : {
+                data : model.ptxColor.layout.data,
+                dim : model.ptxColor.layout.dim,
+                texture : model.ptxColor.layout.texture
+            },
+            texel : {
+                dim : model.ptxColor.texel.dim,
+            }
+        }
+        var w = model.ptxDisplace.texel.dim[0];
+        var h = model.ptxDisplace.texel.dim[1];
+        var data = new Float32Array(w*h*3);
+        for (var i = 0; i < w*h*3; ++i) {
+            data[i] = 0;
+        }
+
+        model.ptxDisplace.texel.texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
+                      0, gl.RGB, gl.FLOAT, data);
     }
 
     fitCamera();
+    setDisplacementScale(model.diag * app.displacement * 0.01);
 
     initGeom();
     updateGeom();
