@@ -43,6 +43,9 @@ function getPatchColor(type, pattern)
 
 function getShaderSource(url)
 {
+    var now = new Date();
+    url += "?" +now.getTime();
+
     var req = new XMLHttpRequest();
     req.open("GET", url, false);
     req.send(null);

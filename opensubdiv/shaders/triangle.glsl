@@ -32,10 +32,15 @@ void main()
 #endif
     vec3 p = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
 
-    uv = inUV;
     color = inColor;
     Peye = p;
+#ifdef PAINT
+    uv = projMatrix * vec4(p, 1);
+    gl_Position = vec4(ptexCoord.x*2.0-1.0, ptexCoord.y*2.0-1.0, 0, 1);
+#else
+    uv = inUV;
     gl_Position = projMatrix * vec4(p, 1);
+#endif
 }
 
 #endif
@@ -50,8 +55,20 @@ varying vec4 ptexCoord;
 
 uniform int displayMode;
 
+uniform vec2 paintPos;
+
 void main()
 {
+#ifdef PAINT
+    vec2 Pclip = uv.xy/uv.w;
+    float dist = distance(Pclip.xy, paintPos);
+    if (dist < 0.02) {
+      gl_FragColor = vec4(0, 0, 1, 0.5);
+} else {
+      gl_FragColor = vec4(1, 1, 1, 0);
+}
+    return;
+#endif
     vec3 fnormal = normal;
 #ifdef DISPLACEMENT
     if (displaceScale > 0.0) {

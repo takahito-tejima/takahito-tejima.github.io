@@ -3,15 +3,16 @@
 //
 //
 
-var version = "last updated:2015/01/31-17:50:03"
+var version = "last updated:2015/01/31-20:01:50"
 
 var app = {
     IsGPU : function() {
         return (this.kernel == "GPU Uniform" || this.kernel == "GPU Adaptive");
     },
+    //kernel : 
     kernel : 'GPU Uniform',
     tessFactor : 3,
-    displayMode : 2,
+    displayMode : 0,
     animation : false,
     hull : false,
     displacement:  0,
@@ -25,17 +26,22 @@ var usePtexDisplace = false;
 var dpr = 1;
 var displaceScale = 0;
 
+var framebuffer = null;
+
 var prevTime = 0;
 var fps = 0;
 var ext = null;
 
 var cageProgram = null;
-var triProgram = null;
-var tessProgram = null;
-var gregoryProgram = null;
+
+var drawPrograms = null;
+var paintPrograms = null;
 
 var interval = null;
 
+var paintInfo = {
+    pos : [0, 0]
+};
 
 var floatFilter = 0;
 var drawTris = 0;
@@ -149,6 +155,8 @@ function setUniforms(program)
 {
     camera.setMatrixUniforms(program);
 
+    // TODO: remove getUniformLocations...
+
     var location;
     location = gl.getUniformLocation(program, "pointRes");
     if (location)
@@ -190,6 +198,11 @@ function setUniforms(program)
     location = gl.getUniformLocation(program, "displaceScale")
     if (location)
         gl.uniform1f(location, displaceScale);
+
+    // paint
+    location = gl.getUniformLocation(program, "paintPos");
+    if (location)
+        gl.uniform2f(location, paintInfo.pos[0], paintInfo.pos[1]);
 }
 
 function initShaders()
@@ -202,23 +215,24 @@ function initShaders()
                               { position: 0 });
     cageProgram.mvpMatrix = gl.getUniformLocation(cageProgram, "mvpMatrix");
 
-    // surface programs
+    // surface drawing programs
+    drawPrograms = {};
 
     // triangle
-    if (triProgram != null) gl.deleteProgram(triProgram);
-    triProgram = buildProgram(common+getShaderSource("shaders/triangle.glsl"),
-                              { position : 0,
-                                inNormal : 1,
-                                inUV : 2,
-                                inColor : 3 });
+    var triProgram = buildProgram(common+getShaderSource("shaders/triangle.glsl"),
+                                  { position : 0,
+                                    inNormal : 1,
+                                    inUV : 2,
+                                    inColor : 3,
+                                    inPtexCoord : 4});
     triProgram.mvpMatrix = gl.getUniformLocation(triProgram, "mvpMatrix");
     triProgram.modelViewMatrix = gl.getUniformLocation(triProgram, "modelViewMatrix");
     triProgram.projMatrix = gl.getUniformLocation(triProgram, "projMatrix");
     triProgram.displayMode = gl.getUniformLocation(triProgram, "displayMode");
+    drawPrograms.triProgram = triProgram;
 
     // bspline
-    if (tessProgram != null) gl.deleteProgram(tessProgram);
-    tessProgram = buildProgram(common+getShaderSource("shaders/bspline.glsl"),
+    var tessProgram = buildProgram(common+getShaderSource("shaders/bspline.glsl"),
                               { inUV : 0,
                                 patchData : 1,
                                 tessLevel : 2,
@@ -228,11 +242,11 @@ function initShaders()
     tessProgram.modelViewMatrix = gl.getUniformLocation(tessProgram, "modelViewMatrix");
     tessProgram.projMatrix = gl.getUniformLocation(tessProgram, "projMatrix");
     tessProgram.displayMode = gl.getUniformLocation(tessProgram, "displayMode");
+    drawPrograms.bsplineProgram = tessProgram;
 
 
     // gregory
-    if (gregoryProgram != null) gl.deleteProgram(gregoryProgram);
-    gregoryProgram = buildProgram(common+getShaderSource("shaders/gregory.glsl"),
+    var gregoryProgram = buildProgram(common+getShaderSource("shaders/gregory.glsl"),
                                   { inUV : 0,
                                     patchData : 1,
                                     tessLevel : 2,
@@ -242,6 +256,38 @@ function initShaders()
     gregoryProgram.modelViewMatrix = gl.getUniformLocation(gregoryProgram, "modelViewMatrix");
     gregoryProgram.projMatrix = gl.getUniformLocation(gregoryProgram, "projMatrix");
     gregoryProgram.displayMode = gl.getUniformLocation(gregoryProgram, "displayMode");
+    drawPrograms.gregoryProgram = gregoryProgram;
+
+    // ptex painting programs
+    paintPrograms = {};
+
+    // triangle
+    var paintdef = "#define PAINT\n";
+    var triProgram = buildProgram(paintdef+common+getShaderSource("shaders/triangle.glsl"),
+                                  { position : 0,
+                                    inNormal : 1,
+                                    inUV : 2,
+                                    inColor : 3,
+                                    inPtexCoord : 4});
+    triProgram.mvpMatrix = gl.getUniformLocation(triProgram, "mvpMatrix");
+    triProgram.modelViewMatrix = gl.getUniformLocation(triProgram, "modelViewMatrix");
+    triProgram.projMatrix = gl.getUniformLocation(triProgram, "projMatrix");
+    triProgram.displayMode = gl.getUniformLocation(triProgram, "displayMode");
+    paintPrograms.triProgram = triProgram;
+
+    // bspline
+    var tessProgram = buildProgram(paintdef+common+
+                                   getShaderSource("shaders/bspline.glsl"),
+                                   { inUV : 0,
+                                     patchData : 1,
+                                     tessLevel : 2,
+                                     inColor : 3,
+                                     ptexParam : 4 });
+    tessProgram.mvpMatrix = gl.getUniformLocation(tessProgram, "mvpMatrix");
+    tessProgram.modelViewMatrix = gl.getUniformLocation(tessProgram, "modelViewMatrix");
+    tessProgram.projMatrix = gl.getUniformLocation(tessProgram, "projMatrix");
+    tessProgram.displayMode = gl.getUniformLocation(tessProgram, "displayMode");
+    paintPrograms.bsplineProgram = tessProgram;
 }
 
 function deleteModel()
@@ -455,6 +501,16 @@ function setModel(data, modelName)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+            // framebuffer prep
+            if (framebuffer) gl.deleteFramebuffer(framebuffer);
+            framebuffer = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+                                    gl.TEXTURE_2D, model.ptexTexture_color, 0);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            model.dimPtexColor = [image.width, image.height];
+
             redraw();
         }
         image.src = "./objs/"+modelName+"_color.png?"+now.getTime();
@@ -992,21 +1048,8 @@ function idle() {
     updateGeom();
 }
 
-function drawModel()
+function drawModel(programs)
 {
-    if (model.ptexTexture_color != undefined) {
-        gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
-        gl.activeTexture(gl.TEXTURE3);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_colorL);
-    }
-    if (model.ptexTexture_displace != undefined) {
-        gl.activeTexture(gl.TEXTURE4);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
-        gl.activeTexture(gl.TEXTURE5);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
-    }
-
     gl.enableVertexAttribArray(0);
     gl.enableVertexAttribArray(1);
     gl.enableVertexAttribArray(2);
@@ -1023,36 +1066,40 @@ function drawModel()
         gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
 
         // bspline patches
-        gl.useProgram(tessProgram);
+        if (programs.bsplineProgram) {
+            gl.useProgram(programs.bsplineProgram);
 
-        setUniforms(tessProgram);
-        gl.uniform1f(gl.getUniformLocation(tessProgram, "patchRes"),
-                     model.nPatchRes);
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
+            setUniforms(programs.bsplineProgram);
+            gl.uniform1f(gl.getUniformLocation(programs.bsplineProgram, "patchRes"),
+                         model.nPatchRes);
+            gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
 
-        drawTris += drawPatches(model.bsplineInstanceData);
+            drawTris += drawPatches(model.bsplineInstanceData);
+        }
 
         // gregory patches
-        gl.useProgram(gregoryProgram);
+        if (programs.gregoryProgram) {
+            gl.useProgram(programs.gregoryProgram);
 
-        setUniforms(gregoryProgram);
-        gl.uniform2f(gl.getUniformLocation(gregoryProgram, "patchRes"),
-                     model.nGregoryPatchRes[0], model.nGregoryPatchRes[1]);
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
+            setUniforms(programs.gregoryProgram);
+            gl.uniform2f(gl.getUniformLocation(programs.gregoryProgram, "patchRes"),
+                         model.nGregoryPatchRes[0], model.nGregoryPatchRes[1]);
+            gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
 
-        drawTris += drawPatches(model.gregoryInstanceData);
+            drawTris += drawPatches(model.gregoryInstanceData);
+        }
 
         ext.vertexAttribDivisorANGLE(1, 0);
         ext.vertexAttribDivisorANGLE(2, 0);
         ext.vertexAttribDivisorANGLE(3, 0);
         ext.vertexAttribDivisorANGLE(4, 0);
     } else {
-        gl.useProgram(triProgram);
+        gl.useProgram(programs.triProgram);
 
-        camera.setMatrixUniforms(triProgram);
-        setUniforms(triProgram);
+        camera.setMatrixUniforms(programs.triProgram);
+        setUniforms(programs.triProgram);
 
         for (var i = 0; i < model.batches.length; ++i) {
             var batch = model.batches[i];
@@ -1083,7 +1130,7 @@ function redraw()
 {
     if (model == null || model.patches == null) return;
 
-    gl.clearColor(.1, .1, .2, 0);
+    gl.clearColor(.1, .1, .2, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
@@ -1119,11 +1166,35 @@ function redraw()
     drawTris = 0;
 
     if (app.IsGPU()) {
+        if (model.bsplineInstanceData == null) return;
         prepareBatch(camera.mvpMatrix, camera.proj, camera.aspect);
     }
 
-    if (tessProgram && gregoryProgram && triProgram)
-        drawModel();
+    // bind ptexs if exist
+    if (model.ptexTexture_color != undefined) {
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_colorL);
+    }
+    if (model.ptexTexture_displace != undefined) {
+        gl.activeTexture(gl.TEXTURE4);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+        gl.activeTexture(gl.TEXTURE5);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
+    }
+
+    if (drawPrograms) drawModel(drawPrograms);
+
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.activeTexture(gl.TEXTURE4);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.activeTexture(gl.TEXTURE5);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
 
     var time = Date.now();
     var drawTime = time - prevTime;
@@ -1366,6 +1437,32 @@ function drawPatches(instanceData)
     return nTris;
 }
 
+function paint(x, y)
+{
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+
+    gl.viewport(0, 0, model.dimPtexColor[0], model.dimPtexColor[1]);
+
+    var canvas = $('#main');
+    var w = canvas.width();
+    var h = canvas.height();
+    paintInfo.pos[0] = 2.0 * (x / w) - 1.0;
+    paintInfo.pos[1] = 1.0 - 2.0 * (y / h);
+
+    gl.disable(gl.CULL_FACE);
+    gl.disable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    if (paintPrograms) drawModel(paintPrograms);
+
+    gl.disable(gl.BLEND);
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+}
+
 function loadModel(modelName)
 {
     var url = "objs/" + modelName + ".json";
@@ -1445,7 +1542,7 @@ $(function(){
     }
     ext = gl.getExtension('ANGLE_instanced_arrays');
     if(!ext) {
-        alert("requires ANGLE_instanced_arrays");
+//        alert("requires ANGLE_instanced_arrays");
     }
 
     // URL parameters
@@ -1569,6 +1666,8 @@ $(function(){
 
     // events
     camera.bindControl("#main", redraw);
+
+    camera.override = paint;
 
     document.oncontextmenu = function(e){ return false; }
 
