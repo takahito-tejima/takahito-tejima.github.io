@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-17:44:48"
+var version = "last updated:2015/01/31-17:50:03"
 
 var app = {
     IsGPU : function() {
@@ -1007,12 +1007,13 @@ function drawModel()
         gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
     }
 
+    gl.enableVertexAttribArray(0);
+    gl.enableVertexAttribArray(1);
+    gl.enableVertexAttribArray(2);
+    gl.enableVertexAttribArray(3);
+    gl.enableVertexAttribArray(4);
+
     if (app.IsGPU()) {
-        gl.enableVertexAttribArray(0);
-        gl.enableVertexAttribArray(1);
-        gl.enableVertexAttribArray(2);
-        gl.enableVertexAttribArray(3);
-        gl.enableVertexAttribArray(4);
         ext.vertexAttribDivisorANGLE(1, 1);
         ext.vertexAttribDivisorANGLE(2, 1);
         ext.vertexAttribDivisorANGLE(3, 1);
@@ -1021,54 +1022,37 @@ function drawModel()
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
 
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
-
         // bspline patches
         gl.useProgram(tessProgram);
 
         setUniforms(tessProgram);
-        gl.uniform1f(gl.getUniformLocation(tessProgram, "patchRes"), model.nPatchRes);
+        gl.uniform1f(gl.getUniformLocation(tessProgram, "patchRes"),
+                     model.nPatchRes);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
 
-        drawPatches(model.bsplineInstanceData);
+        drawTris += drawPatches(model.bsplineInstanceData);
 
         // gregory patches
         gl.useProgram(gregoryProgram);
 
         setUniforms(gregoryProgram);
-
         gl.uniform2f(gl.getUniformLocation(gregoryProgram, "patchRes"),
                      model.nGregoryPatchRes[0], model.nGregoryPatchRes[1]);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
 
-        drawPatches(model.gregoryInstanceData);
+        drawTris += drawPatches(model.gregoryInstanceData);
 
-        gl.disableVertexAttribArray(0);
-        gl.disableVertexAttribArray(1);
-        gl.disableVertexAttribArray(2);
-        gl.disableVertexAttribArray(3);
-        gl.disableVertexAttribArray(4);
         ext.vertexAttribDivisorANGLE(1, 0);
         ext.vertexAttribDivisorANGLE(2, 0);
         ext.vertexAttribDivisorANGLE(3, 0);
         ext.vertexAttribDivisorANGLE(4, 0);
     } else {
-        gl.enableVertexAttribArray(0);
-        gl.enableVertexAttribArray(1);
-        gl.enableVertexAttribArray(2);
-        gl.enableVertexAttribArray(3);
-        gl.enableVertexAttribArray(4);
-
         gl.useProgram(triProgram);
 
         camera.setMatrixUniforms(triProgram);
-
-        gl.uniform1i(triProgram.displayMode, app.displayMode);
-        gl.uniform1f(gl.getUniformLocation(triProgram, "displaceScale"),
-                     displaceScale);
-        gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexColor"), 2);
-        gl.uniform1i(gl.getUniformLocation(triProgram, "texPtexDisplace"), 4);
+        setUniforms(triProgram);
 
         for (var i = 0; i < model.batches.length; ++i) {
             var batch = model.batches[i];
@@ -1087,12 +1071,12 @@ function drawModel()
 
             drawTris += batch.nTris;
         }
-        gl.disableVertexAttribArray(0);
-        gl.disableVertexAttribArray(1);
-        gl.disableVertexAttribArray(2);
-        gl.disableVertexAttribArray(3);
-        gl.disableVertexAttribArray(4);
     }
+    gl.disableVertexAttribArray(0);
+    gl.disableVertexAttribArray(1);
+    gl.disableVertexAttribArray(2);
+    gl.disableVertexAttribArray(3);
+    gl.disableVertexAttribArray(4);
 }
 
 function redraw()
@@ -1355,6 +1339,7 @@ function prepareBatch(mvpMatrix, projection, aspect)
 function drawPatches(instanceData)
 {
     // draw by patch level
+    var nTris = 0;
     for (var d = 0; d < instanceData.length; ++d) {
         var nPatches = instanceData[d].nPatches;
         if (nPatches == 0) continue;
@@ -1376,8 +1361,9 @@ function drawPatches(instanceData)
                                       gl.UNSIGNED_SHORT,
                                       0, nPatches);
 
-        drawTris += tessMesh.numTris * nPatches;
+        nTris += tessMesh.numTris * nPatches;
     }
+    return nTris;
 }
 
 function loadModel(modelName)
