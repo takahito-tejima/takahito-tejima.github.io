@@ -77,8 +77,7 @@ float displacement(vec2 uv) {
 #ifdef PTEX_DISPLACE
     return displaceScale*texture2D(texPtexDisplace, uv).x;
 #else
-    float freq = 100.0;
-    return displaceScale*(sin(freq*uv.x)*cos(freq*uv.y));
+    return 0.0;
 #endif
 }
 

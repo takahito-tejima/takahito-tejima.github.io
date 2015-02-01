@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/02/01-14:40:25"
+var version = "last updated:2015/02/01-14:44:39"
 
 var app = {
     IsGPU : function() {
@@ -339,14 +339,18 @@ function deleteModel()
     if (model.gregoryPatchIndexTexture)
         gl.deleteTexture(model.gregoryPatchIndexTexture);
 
-    if (model.ptxColor.layout.texture)
-        gl.deleteTexture(model.ptxColor.layout.texture);
-    if (model.ptxColor.texel.texture)
-        gl.deleteTexture(model.ptxColor.texel.texture);
-    if (model.ptxDisplace.layout.texture)
-        gl.deleteTexture(model.ptxDisplace.layout.texture);
-    if (model.ptxDisplace.texel.texture)
-        gl.deleteTexture(model.ptxDisplace.texel.texture);
+    if (model.ptxColor) {
+        if (model.ptxColor.layout.texture)
+            gl.deleteTexture(model.ptxColor.layout.texture);
+        if (model.ptxColor.texel.texture)
+            gl.deleteTexture(model.ptxColor.texel.texture);
+    }
+    if (model.ptxDisplace) {
+        if (model.ptxDisplace.layout.texture)
+            gl.deleteTexture(model.ptxDisplace.layout.texture);
+        if (model.ptxDisplace.texel.texture)
+            gl.deleteTexture(model.ptxDisplace.texel.texture);
+    }
 
     model.vTexture = null;
     model.patchIndexTexture = null;
@@ -530,7 +534,6 @@ function setModel(data, modelName)
             },
             texel : {
                 dim : [data.ptexDim_color[0], data.ptexDim_color[1]],
-                texture : gl.createTexture()
             },
         };
 
@@ -543,6 +546,8 @@ function setModel(data, modelName)
         // ptex texel read
         var image = new Image();
         image.onload = function() {
+
+            model.ptxColor.texel.texture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.texel.texture);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -1244,19 +1249,25 @@ function redraw()
     }
 
     // bind ptexs if exist
-    if (model.ptxColor.texel.texture) {
-        gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.texel.texture);
-    }
-    if (model.ptxColor.layout.texture) {
-        gl.activeTexture(gl.TEXTURE3);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.layout.texture);
+    if (model.ptxColor) {
+        if (model.ptxColor.texel.texture) {
+            gl.activeTexture(gl.TEXTURE2);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.texel.texture);
+        }
+        if (model.ptxColor.layout.texture) {
+            gl.activeTexture(gl.TEXTURE3);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.layout.texture);
+        }
     }
     if (model.ptxDisplace) {
-        gl.activeTexture(gl.TEXTURE4);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
-        gl.activeTexture(gl.TEXTURE5);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.layout.texture);
+        if (model.ptxDisplace.texel.texture) {
+            gl.activeTexture(gl.TEXTURE4);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
+        }
+        if (model.ptxDisplace.layout.texture) {
+            gl.activeTexture(gl.TEXTURE5);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.layout.texture);
+        }
     }
 
     if (drawPrograms) drawModel(drawPrograms);
