@@ -47,6 +47,9 @@
       #toolbox .sculptTool .ui-button-text {
           background-image: url('/images/ic_sculpt.png');
       }
+      #toolbox .revertTool .ui-button-text {
+          background-image: url('/images/ic_undo_black_24dp.png');
+      }
       #toolbox .ui-state-active { background: gold; }
     </style>
   </head>
@@ -70,6 +73,10 @@
       <div>
         <input type="radio" id="toolSculpt" name="toolRadio" />
         <label class="sculptTool" for="toolSculpt"></label>
+      </div>
+      <div>
+        <input type="radio" id="toolRevert" name="toolRadio" />
+        <label class="revertTool" for="toolRevert"></label>
       </div>
     </div>
 
