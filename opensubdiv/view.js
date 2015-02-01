@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-16:58:22"
+var version = "last updated:2015/01/31-17:44:48"
 
 var app = {
     IsGPU : function() {
@@ -139,13 +139,60 @@ function setDisplacementScale(scale)
     if ((displaceScale == 0 && scale > 0) ||
         (displaceScale > 0 && scale == 0)) {
         displaceScale = scale;
-        initialize();
+        initShaders();
     } else {
         displaceScale = scale;
     }
 }
 
-function initialize()
+function setUniforms(program)
+{
+    camera.setMatrixUniforms(program);
+
+    var location;
+    location = gl.getUniformLocation(program, "pointRes");
+    if (location)
+        gl.uniform1f(location, model.nPointRes);
+    location = gl.getUniformLocation(program, "texCP");
+    if (location)
+        gl.uniform1i(location, 0);
+    location = gl.getUniformLocation(program, "texPatch");
+    if (location)
+        gl.uniform1i(location, 1);
+
+    if (model.dimPtexColorL) {
+        location = gl.getUniformLocation(program, "texPtexColor");
+        if (location)
+            gl.uniform1i(location, 2);
+        location = gl.getUniformLocation(program, "texPtexColorL");
+        if (location)
+            gl.uniform1i(location, 3);
+        location = gl.getUniformLocation(program, "dimPtexColorL");
+        if (location)
+            gl.uniform2f(location, model.dimPtexColorL[0], model.dimPtexColorL[1]);
+    }
+    if (model.dimPtexDisplaceL) {
+        location = gl.getUniformLocation(program, "texPtexDisplace");
+        if (location)
+            gl.uniform1i(location, 4);
+        location = gl.getUniformLocation(program, "texPtexDisplaceL");
+        if (location)
+            gl.uniform1i(location, 5);
+        location = gl.getUniformLocation(program, "dimPtexDisplaceL");
+        if (location)
+            gl.uniform2f(location, model.dimPtexDisplaceL[0], model.dimPtexDisplaceL[1]);
+    }
+
+    // appearance
+    if (program.displayMode)
+        gl.uniform1i(program.displayMode, app.displayMode);
+
+    location = gl.getUniformLocation(program, "displaceScale")
+    if (location)
+        gl.uniform1f(location, displaceScale);
+}
+
+function initShaders()
 {
     var common = getShaderSource("shaders/common.glsl");
 
@@ -182,6 +229,7 @@ function initialize()
     tessProgram.projMatrix = gl.getUniformLocation(tessProgram, "projMatrix");
     tessProgram.displayMode = gl.getUniformLocation(tessProgram, "displayMode");
 
+
     // gregory
     if (gregoryProgram != null) gl.deleteProgram(gregoryProgram);
     gregoryProgram = buildProgram(common+getShaderSource("shaders/gregory.glsl"),
@@ -194,7 +242,6 @@ function initialize()
     gregoryProgram.modelViewMatrix = gl.getUniformLocation(gregoryProgram, "modelViewMatrix");
     gregoryProgram.projMatrix = gl.getUniformLocation(gregoryProgram, "projMatrix");
     gregoryProgram.displayMode = gl.getUniformLocation(gregoryProgram, "displayMode");
-
 }
 
 function deleteModel()
@@ -973,69 +1020,24 @@ function drawModel()
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
+
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, model.patchIndexTexture);
 
         // bspline patches
-        var program = tessProgram;
-        gl.useProgram(program);
+        gl.useProgram(tessProgram);
 
-        camera.setMatrixUniforms(program);
-
-        gl.uniform1i(program.displayMode, app.displayMode);
-
-        gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
-                     model.nPointRes);
-        gl.uniform1f(gl.getUniformLocation(program, "displaceScale"),
-                     displaceScale);
-        gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
-        gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
-
-        if (model.dimPtexColorL) {
-            gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
-            gl.uniform1i(gl.getUniformLocation(program, "texPtexColorL"), 3);
-            gl.uniform2f(gl.getUniformLocation(program, "dimPtexColorL"),
-                         model.dimPtexColorL[0], model.dimPtexColorL[1]);
-        }
-        if (model.dimPtexDisplaceL) {
-            gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplace"), 4);
-            gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplaceL"), 5);
-            gl.uniform2f(gl.getUniformLocation(program, "dimPtexDisplaceL"),
-                         model.dimPtexDisplaceL[0], model.dimPtexDisplaceL[1]);
-        }
-
-        gl.uniform1f(gl.getUniformLocation(program, "patchRes"),
-                     model.nPatchRes);
+        setUniforms(tessProgram);
+        gl.uniform1f(gl.getUniformLocation(tessProgram, "patchRes"), model.nPatchRes);
 
         drawPatches(model.bsplineInstanceData);
 
         // gregory patches
-        var program = gregoryProgram;
-        gl.useProgram(program);
+        gl.useProgram(gregoryProgram);
 
-        camera.setMatrixUniforms(program);
+        setUniforms(gregoryProgram);
 
-        gl.uniform1i(program.displayMode, app.displayMode);
-
-        gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
-                     model.nPointRes);
-        gl.uniform1f(gl.getUniformLocation(program, "displaceScale"),
-                     displaceScale);
-        gl.uniform1i(gl.getUniformLocation(program, "texCP"), 0);
-        gl.uniform1i(gl.getUniformLocation(program, "texPatch"), 1);
-        if (model.dimPtexColorL) {
-            gl.uniform1i(gl.getUniformLocation(program, "texPtexColor"), 2);
-            gl.uniform1i(gl.getUniformLocation(program, "texPtexColorL"), 3);
-            gl.uniform2f(gl.getUniformLocation(program, "dimPtexColorL"),
-                         model.dimPtexColorL[0], model.dimPtexColorL[1]);
-        }
-        if (model.dimPtexDisplaceL) {
-            gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplace"), 4);
-            gl.uniform1i(gl.getUniformLocation(program, "texPtexDisplaceL"), 5);
-            gl.uniform2f(gl.getUniformLocation(program, "dimPtexDisplaceL"),
-                         model.dimPtexDisplaceL[0], model.dimPtexDisplaceL[1]);
-        }
-        gl.uniform2f(gl.getUniformLocation(program, "patchRes"),
+        gl.uniform2f(gl.getUniformLocation(gregoryProgram, "patchRes"),
                      model.nGregoryPatchRes[0], model.nGregoryPatchRes[1]);
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, model.gregoryPatchIndexTexture);
@@ -1060,9 +1062,8 @@ function drawModel()
 
         gl.useProgram(triProgram);
 
-        gl.uniformMatrix4fv(triProgram.modelViewMatrix, false, modelView);
-        gl.uniformMatrix4fv(triProgram.projMatrix, false, proj);
-        gl.uniformMatrix4fv(triProgram.mvpMatrix, false, mvpMatrix);
+        camera.setMatrixUniforms(triProgram);
+
         gl.uniform1i(triProgram.displayMode, app.displayMode);
         gl.uniform1f(gl.getUniformLocation(triProgram, "displaceScale"),
                      displaceScale);
@@ -1118,7 +1119,7 @@ function redraw()
     glUtil.drawGrid(camera.mvpMatrix);
 
     // draw hull
-    if (app.hull && model.cageLines != null) {
+    if (app.hull && cagePrgoram && model.cageLines != null) {
         gl.useProgram(cageProgram);
         gl.uniformMatrix4fv(cageProgram.mvpMatrix, false, mvpMatrix);
 
@@ -1137,7 +1138,8 @@ function redraw()
         prepareBatch(camera.mvpMatrix, camera.proj, camera.aspect);
     }
 
-    drawModel();
+    if (tessProgram && gregoryProgram && triProgram)
+        drawModel();
 
     var time = Date.now();
     var drawTime = time - prevTime;
@@ -1391,7 +1393,7 @@ function loadModel(modelName)
         $("#status").text("Building mesh...");
         setTimeout(function(){
             setModel(data.model, modelName);
-            initialize();
+            initShaders();
             redraw();
             $("#status").text("");
         }, 0);
@@ -1474,9 +1476,6 @@ $(function(){
         app.model = modelName;
     }
 
-    // load shaders
-    initialize();
-
     // GUI build
     var gui = new dat.GUI();
 
@@ -1512,7 +1511,7 @@ $(function(){
                                  Normal : 3,
                                  Coord : 4})
         .onChange(function(value) {
-            initialize();
+            initShaders();
             redraw();
         });
 
