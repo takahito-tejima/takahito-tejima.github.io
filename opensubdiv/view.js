@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/02/01-13:13:06"
+var version = "last updated:2015/02/01-14:11:47"
 
 var app = {
     IsGPU : function() {
@@ -17,7 +17,7 @@ var app = {
     displacement:  0,
     model : 'cube',
     sculpt : false,
-    paintColor : [200, 200, 80]
+    paintColor : [0, 100, 20]
 };
 
 var time = 0;
@@ -185,7 +185,7 @@ function setUniforms(program)
                          model.ptxColor.layout.dim[0],
                          model.ptxColor.layout.dim[1]);
     }
-    if (model.dimPtexDisplaceL) {
+    if (model.ptxDisplace) {
         location = gl.getUniformLocation(program, "texPtexDisplace");
         if (location)
             gl.uniform1i(location, 4);
@@ -194,7 +194,9 @@ function setUniforms(program)
             gl.uniform1i(location, 5);
         location = gl.getUniformLocation(program, "dimPtexDisplaceL");
         if (location)
-            gl.uniform2f(location, model.dimPtexDisplaceL[0], model.dimPtexDisplaceL[1]);
+            gl.uniform2f(location,
+                         model.ptxDisplace.layout.dim[0],
+                         model.ptxDisplace.layout.dim[1]);
     }
 
     // appearance
@@ -337,16 +339,20 @@ function deleteModel()
     if (model.gregoryPatchIndexTexture)
         gl.deleteTexture(model.gregoryPatchIndexTexture);
 
-    if (model.ptexTexture_color)
-        gl.deleteTexture(model.ptexTexture_color);
-    if (model.ptexTexture_displace)
-        gl.deleteTexture(model.ptexTexture_displace);
+    if (model.ptxColor.layout.texture)
+        gl.deleteTexture(model.ptxColor.layout.texture);
+    if (model.ptxColor.texel.texture)
+        gl.deleteTexture(model.ptxColor.texel.texture);
+    if (model.ptxDisplace.layout.texture)
+        gl.deleteTexture(model.ptxDisplace.layout.texture);
+    if (model.ptxDisplace.texel.texture)
+        gl.deleteTexture(model.ptxDisplace.texel.texture);
 
     model.vTexture = null;
     model.patchIndexTexture = null;
     model.gregoryPatchIndexTexture = null;
-    model.ptexTexture_color = null;
-    model.ptexTexture_displace = null;
+    model.ptxColor = null;
+    model.ptxDisplace = null;
 }
 
 function fitCamera()
@@ -373,6 +379,31 @@ function fitCamera()
     camera.setCenter((max[0]+min[0])*0.5,
                      (max[1]+min[1])*0.5,
                      (max[2]+min[2])*0.5);
+}
+
+function createPtexLayoutTexture(numPtexFace, data, layoutDim, texelDim)
+{
+    var layout = new Float32Array(4*layoutDim[0]*layoutDim[1]);
+    var dim = texelDim;
+    for (var i = 0; i < numPtexFace; ++i) {
+        layout[i*4+0] = data[i*6 + 2]/dim[0];
+        layout[i*4+1] = data[i*6 + 3]/dim[1];
+        var wh        = data[i*6 + 5];
+        layout[i*4+2] = ((1<<(wh >> 8)))/(dim[0]);
+        layout[i*4+3] = ((1<<(wh & 0xff)))/(dim[1]);
+    }
+
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
+                  layoutDim[0], layoutDim[1],
+                  0, gl.RGBA, gl.FLOAT, layout);
+    return texture;
 }
 
 function setModel(data, modelName)
@@ -487,47 +518,33 @@ function setModel(data, modelName)
     // PTEX read
     usePtexColor = false;
     usePtexDisplace = false;
-    if (data.ptexDim_color != undefined) {
+    if (data.ptexDim_color) {
         usePtexColor = true;
-        model.ptexDim_color = data.ptexDim_color;
-        model.ptexLayout_color = data.ptexLayout_color;
-        var now = new Date();
 
         // ptex layout
-        var numPtexFace = model.ptexLayout_color.length/6;
+        var numPtexFace = data.ptexLayout_color.length/6;
         model.ptxColor = {
             layout : {
-                dim : [512, Math.ceil(numPtexFace/512)]
-            }
+                data : data.ptexLayout_color,  // copy of JSON
+                dim : [512, Math.ceil(numPtexFace/512)],
+                texture : gl.createTexture()
+            },
+            texel : {
+                dim : [data.ptexDim_color[0], data.ptexDim_color[1]],
+                texture : gl.createTexture()
+            },
         };
-        model.ptexNumFace_color = numPtexFace;
-        var layout = new Float32Array(4*model.ptxColor.layout.dim[0]*model.ptxColor.layout.dim[1]);
-        var dim = model.ptexDim_color;
-        for (var i = 0; i < numPtexFace; ++i) {
-            layout[i*4+0] = model.ptexLayout_color[i*6 + 2]/dim[0];
-            layout[i*4+1] = model.ptexLayout_color[i*6 + 3]/dim[1];
-            var wh = model.ptexLayout_color[i*6 + 5];
-            layout[i*4+2] = ((1<<(wh >> 8)))/(dim[0]);
-            layout[i*4+3] = ((1<<(wh & 0xff)))/(dim[1]);
-        }
 
-        model.ptexTexture_colorL = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_colorL);
-        gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-                      model.ptxColor.layout.dim[0],
-                      model.ptxColor.layout.dim[1],
-                      0, gl.RGBA, gl.FLOAT, layout);
+        model.ptxColor.layout.texture =
+            createPtexLayoutTexture(numPtexFace,
+                                    model.ptxColor.layout.data,
+                                    model.ptxColor.layout.dim,
+                                    model.ptxColor.texel.dim);
 
-        // ptex texel
+        // ptex texel read
         var image = new Image();
         image.onload = function() {
-            model.ptexTexture_color = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.texel.texture);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -535,58 +552,62 @@ function setModel(data, modelName)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-            model.dimPtexColor = [image.width, image.height];
+            // update image size
+            model.ptxColor.texel.dim = [image.width, image.height];
 
             redraw();
         }
+        var now = new Date();
         image.src = "./objs/"+modelName+"_color.png?"+now.getTime();
     }
-    // if the ptex color exists and the displacement doesn't,
-    // use ptex color's layout for displacement.
-    if (data.ptexDim_color && !data.ptexDim_displace) {
-    }
-
     if (data.ptexDim_displace != undefined) {
         usePtexDisplace = true;
-        model.ptexDim_displace = data.ptexDim_displace;
-        model.ptexLayout_displace = data.ptexLayout_displace;
-        var now = new Date();
+
+        var numPtexFace = data.ptexLayout_displace.length/6;
+        model.ptxDisplace = {
+            layout : {
+                data : data.ptexLayout_displace,  // copy of JSON (for tri)
+                dim : [512, Math.ceil(numPtexFace/512)],
+                texture : gl.createTexture()
+            },
+            texel : {
+                dim : [data.ptexDim_displace[0], data.ptexDim_displace[1]],
+                texture : gl.createTexture()
+            },
+        };
 
         // ptex layout
-        var numPtexFace = model.ptexLayout_displace.length/6;
-        model.dimPtexDisplaceL = [512, Math.ceil(numPtexFace/512)];
-        model.ptexNumFace_displace = numPtexFace;
-        var layout = new Float32Array(4*model.dimPtexDisplaceL[0]*model.dimPtexDisplaceL[1]);
-        var dim = model.ptexDim_displace;
+        var layout = new Float32Array(4*model.ptxDisplace.layout.dim[0]*model.ptxDisplace.layout.dim[1]);
+        var dim = model.ptxDisplace.texel.dim;
         for (var i = 0; i < numPtexFace; ++i) {
-            layout[i*4+0] = model.ptexLayout_displace[i*6 + 2]/dim[0];
-            layout[i*4+1] = model.ptexLayout_displace[i*6 + 3]/dim[1];
-            var wh = model.ptexLayout_displace[i*6 + 5];
+            layout[i*4+0] = model.ptxDisplace.layout.data[i*6 + 2]/dim[0];
+            layout[i*4+1] = model.ptxDisplace.layout.data[i*6 + 3]/dim[1];
+            var wh        = model.ptxDisplace.layout.data[i*6 + 5];
             layout[i*4+2] = ((1<<(wh >> 8)))/(dim[0]);
             layout[i*4+3] = ((1<<(wh & 0xff)))/(dim[1]);
         }
 
-        model.ptexTexture_displaceL = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.layout.texture);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-                      model.dimPtexDisplaceL[0],
-                      model.dimPtexDisplaceL[1],
+                      model.ptxDisplace.layout.dim[0],
+                      model.ptxDisplace.layout.dim[1],
                       0, gl.RGBA, gl.FLOAT, layout);
 
         // ptex texel
         var xhr = new XMLHttpRequest();
+        var now = new Date();
         xhr.open('GET', "./objs/"+modelName+"_displace.raw?"+now.getTime(), true);
         xhr.responseType = "arraybuffer";
 
         xhr.onload = function(e) {
             // expand to RGB (unfortunately)
-            var w = model.ptexDim_displace[0];
-            var h = model.ptexDim_displace[1];
+            var w = model.ptxDisplace.texel.dim[0];
+            var h = model.ptxDisplace.texel.dim[1];
             var fdata = new Float32Array(this.response);
             var data = new Float32Array(w*h*3);
             for (var i = 0; i < w*h; ++i) {
@@ -595,8 +616,7 @@ function setModel(data, modelName)
                 data[i*3+2] = fdata[i];
             }
 
-            model.ptexTexture_displace = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
@@ -606,6 +626,10 @@ function setModel(data, modelName)
                           0, gl.RGB, gl.FLOAT, data);
         }
         xhr.send();
+    }
+    // if the ptex color exists and the displacement doesn't,
+    // use ptex color's layout for displacement.
+    if (data.ptxColor && !data.ptxDisplace) {
     }
 
     fitCamera();
@@ -829,16 +853,16 @@ function tessellateIndexAndUnvarying(patches, patchParams, gregory, patchOffset)
         var ptexFace = patchParams[patchIndex*8+7];
 
         // resolve ptex coordinate here!
-        if (model.ptexLayout_color != undefined) {
+        if (model.ptxColor) {
             getPtexPacking(ptexPackingColor,
-                           model.ptexLayout_color,
-                           model.ptexDim_color,
+                           model.ptxColor.layout.data,
+                           model.ptxColor.texel.dim,
                            ptexFace);
         }
-        if (model.ptexLayout_displace != undefined) {
+        if (model.ptxDisplace) {
             getPtexPacking(ptexPackingDisplace,
-                           model.ptexLayout_displace,
-                           model.ptexDim_displace,
+                           model.ptxDisplace.layout.data,
+                           model.ptxDisplace.texel.dim,
                            ptexFace);
         }
 
@@ -1208,17 +1232,19 @@ function redraw()
     }
 
     // bind ptexs if exist
-    if (model.ptexTexture_color != undefined) {
+    if (model.ptxColor.texel.texture) {
         gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
-        gl.activeTexture(gl.TEXTURE3);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_colorL);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.texel.texture);
     }
-    if (model.ptexTexture_displace != undefined) {
+    if (model.ptxColor.layout.texture) {
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.layout.texture);
+    }
+    if (model.ptxDisplace) {
         gl.activeTexture(gl.TEXTURE4);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displace);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
         gl.activeTexture(gl.TEXTURE5);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.layout.texture);
     }
 
     if (drawPrograms) drawModel(drawPrograms);
@@ -1476,12 +1502,12 @@ function drawPatches(instanceData)
 
 function sculpt(x, y)
 {
-    ptexDraw(x, y, sculptPrograms, model.ptexTexture_displace, model.ptexDim_displace)
+    ptexDraw(x, y, sculptPrograms, model.ptxDisplace.texel.texture, model.ptxDisplace.texel.dim);
 
 }
 function paint(x, y)
 {
-    ptexDraw(x, y, paintPrograms, model.ptexTexture_color, model.dimPtexColor)
+    ptexDraw(x, y, paintPrograms, model.ptxColor.texel.texture, model.ptxColor.texel.dim);
 }
 
 function ptexDraw(x, y, programs, texture, dim)
@@ -1505,13 +1531,13 @@ function ptexDraw(x, y, programs, texture, dim)
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    if (model.ptexTexture_color != undefined) {
+    if (model.ptxColor && model.ptxColor.layout.texture) {
         gl.activeTexture(gl.TEXTURE3);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_colorL);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.layout.texture);
     }
-    if (model.ptexTexture_displace != undefined) {
+    if (model.ptxDisplace && model.ptxDisplace.layout.texture) {
         gl.activeTexture(gl.TEXTURE5);
-        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.layout.texture);
     }
 
     if (paintPrograms) drawModel(programs);
