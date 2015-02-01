@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/02/01-12:36:49"
+var version = "last updated:2015/02/01-12:51:24"
 
 var app = {
     IsGPU : function() {
@@ -16,7 +16,8 @@ var app = {
     hull : false,
     displacement:  0,
     model : 'cube',
-    sculpt : false
+    sculpt : false,
+    paintColor : [255, 255, 255]
 };
 
 var time = 0;
@@ -203,11 +204,18 @@ function setUniforms(program)
     location = gl.getUniformLocation(program, "paintPos");
     if (location)
         gl.uniform2f(location, paintInfo.pos[0], paintInfo.pos[1]);
+
+    if (program.paintColor) {
+        gl.uniform3f(program.paintColor,
+                     app.paintColor[0]/255,
+                     app.paintColor[1]/255,
+                     app.paintColor[2]/255);
+    }
 }
 
 function setUniformLocations(program)
 {
-    var uniforms = ["mvpMatrix", "modelViewMatrix", "projMatrix"]
+    var uniforms = ["mvpMatrix", "modelViewMatrix", "projMatrix", "paintColor"]
     for (var i = 0; i < uniforms.length; ++i) {
         program[uniforms[i]] = gl.getUniformLocation(program, uniforms[i]);
     }
@@ -1639,11 +1647,11 @@ $(function(){
         });
 
     // display style
-    gui.add(app, 'displayMode', {Shade : 0,
-                                 Patch : 1,
-                                 Wire : 2,
-                                 Normal : 3,
-                                 Coord : 4})
+    var displayMode = gui.add(app, 'displayMode', {Shade : 0,
+                                                   Patch : 1,
+                                                   Wire : 2,
+                                                   Normal : 3,
+                                                   Coord : 4})
         .onChange(function(value) {
             initShaders();
             redraw();
@@ -1715,6 +1723,9 @@ $(function(){
             redraw();
         });
 
+    // paint color
+    gui.addColor(app, 'paintColor');
+
     // mode (tmp)
     $( "#toolbox" ).buttonset().addClass("ui-buttonset-vertical")
         .find( "label" ).removeClass( "ui-corner-left ui-corner-right" )
@@ -1732,6 +1743,10 @@ $(function(){
             camera.override = null;
         } else if (this.id == "toolPaint") {
             camera.override = paint;
+            app.displayMode = 0;
+            initShaders();
+            redraw();
+            displayMode.updateDisplay();
         } else if (this.id == "toolSculpt") {
             camera.override = sculpt;
         }
