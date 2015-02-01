@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-21:52:02"
+var version = "last updated:2015/01/31-22:16:59"
 
 var app = {
     IsGPU : function() {
@@ -84,9 +84,9 @@ function buildProgram(shaderSource, attribBindings)
         define += "#define ANDROID\n";
     }
 
+    define += "#define DISPLAY_MODE " + app.displayMode +"\n";
     if (usePtexColor) define += "#define PTEX_COLOR\n";
     if (usePtexDisplace) define += "#define PTEX_DISPLACE\n";
-    define += "#define DISPLAY_MODE " + app.displayMode +"\n";
     if (displaceScale > 0) define += "#define DISPLACEMENT 1\n";
 
     var program = glUtil.linkProgram(
@@ -377,13 +377,13 @@ function setModel(data, modelName)
     model.cageVerts   = new Float32Array(data.points.length)
     for (var i = 0; i < data.points.length; i++) {
         model.cageVerts[i*3+0] = data.points[i*3+0];
-        model.cageVerts[i*3+1] = data.points[i*3+1];
+        model.cageVerts[i*3+1] = data.points[i*3+1]+0.2;
         model.cageVerts[i*3+2] = data.points[i*3+2];
         model.animVerts[i*3+0] = data.points[i*3+0];
-        model.animVerts[i*3+1] = data.points[i*3+1];
+        model.animVerts[i*3+1] = data.points[i*3+1]+0.2;
         model.animVerts[i*3+2] = data.points[i*3+2];
         model.patchVerts[i*3+0] = data.points[i*3+0];
-        model.patchVerts[i*3+1] = data.points[i*3+1];
+        model.patchVerts[i*3+1] = data.points[i*3+1]+0.2;
         model.patchVerts[i*3+2] = data.points[i*3+2];
     }
     model.cageLines   = new Int16Array(data.hull.length)
@@ -515,8 +515,6 @@ function setModel(data, modelName)
         image.src = "./objs/"+modelName+"_color.png?"+now.getTime();
     }
     if (data.ptexDim_displace != undefined) {
-        app.displacement = 1;
-
         usePtexDisplace = true;
         model.ptexDim_displace = data.ptexDim_displace;
         model.ptexLayout_displace = data.ptexLayout_displace;
@@ -576,8 +574,6 @@ function setModel(data, modelName)
                           0, gl.RGB, gl.FLOAT, data);
         }
         xhr.send();
-    } else {
-        app.displacement = 0;
     }
 
     fitCamera();
@@ -1159,9 +1155,9 @@ function redraw()
     glUtil.drawGrid(camera.mvpMatrix);
 
     // draw hull
-    if (app.hull && cagePrgoram && model.cageLines != null) {
+    if (app.hull && cageProgram != null && model.cageLines != null) {
         gl.useProgram(cageProgram);
-        gl.uniformMatrix4fv(cageProgram.mvpMatrix, false, mvpMatrix);
+        camera.setMatrixUniforms(cageProgram);
 
         gl.enableVertexAttribArray(0);
         gl.bindBuffer(gl.ARRAY_BUFFER, model.hullVerts);
@@ -1572,7 +1568,7 @@ $(function(){
     }
     var dmode = getUrlParameter("displayMode");
     if (dmode != undefined) {
-        displayMode = dmode;
+        app.displayMode = dmode;
     }
     var modelName = getUrlParameter("model");
     if (modelName != undefined) {
@@ -1637,7 +1633,7 @@ $(function(){
         });
 
     // displace scale
-    gui.add(app, 'displacement', 0, 1)
+    gui.add(app, 'displacement', 0, 1).listen()
         .onChange(function(value){
             setDisplacementScale(model.diag*value*0.01);
             redraw();
