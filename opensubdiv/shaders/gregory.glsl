@@ -156,9 +156,15 @@ void main(){
     normal = (modelViewMatrix * vec4(n, 0)).xyz;
     uv = inUV;
     color = inColor;
+
     Peye = pos;
+#ifdef PAINT
+    uv = projMatrix * vec4(pos, 1);
+    gl_Position = vec4(ptexCoord.z*2.0-1.0, ptexCoord.w*2.0-1.0, 0, 1);
+#else
+    uv = inUV;
     gl_Position = projMatrix * vec4(pos, 1);
-    gl_PointSize=10.0;
+#endif
 }
 
 #endif
@@ -172,7 +178,11 @@ varying vec4 ptexCoord;
 
 void main()
 {
+#ifdef PAINT
+    gl_FragColor = paint(uv.xy/uv.w);
+#else
     gl_FragColor = lighting(Peye, normal, uv, color, ptexCoord);
+#endif
 }
 
 #endif

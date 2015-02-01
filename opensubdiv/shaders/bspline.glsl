@@ -226,18 +226,13 @@ varying vec3 color;
 varying vec3 Peye;
 varying vec4 ptexCoord;
 
-uniform vec2 paintPos;
-
 void main()
 {
 #ifdef PAINT
-    vec2 Pclip = uv.xy/uv.w;
-    float pd = 10.0*max(0.0, 0.05-distance(Pclip.xy, paintPos));
-    gl_FragColor = vec4(5,5,5,pd);
-    return;
-#endif
-
+    gl_FragColor = paint(uv.xy/uv.w);
+#else
     gl_FragColor = lighting(Peye, normal, uv, color, ptexCoord);
+#endif
 }
 
 #endif

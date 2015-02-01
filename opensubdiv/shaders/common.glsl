@@ -178,5 +178,13 @@ vec4 lighting(vec3 Peye, vec3 normal, vec4 uv, vec3 color, vec4 ptexCoord)
     return c;
 }
 
+uniform vec2 paintPos;
+
+vec4 paint(vec2 p)
+{
+    float pd = smoothstep(0.0, 1.0, 10.0*max(0.0, 0.05-distance(p, paintPos)));
+    return vec4(5,5,5,pd);
+}
+
 #endif
 

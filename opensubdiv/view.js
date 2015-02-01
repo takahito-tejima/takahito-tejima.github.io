@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-22:31:47"
+var version = "last updated:2015/01/31-23:09:52"
 
 var app = {
     IsGPU : function() {
@@ -194,9 +194,6 @@ function setUniforms(program)
     }
 
     // appearance
-    if (program.displayMode)
-        gl.uniform1i(program.displayMode, app.displayMode);
-
     location = gl.getUniformLocation(program, "displaceScale")
     if (location)
         gl.uniform1f(location, displaceScale);
@@ -230,7 +227,6 @@ function initShaders()
     triProgram.mvpMatrix = gl.getUniformLocation(triProgram, "mvpMatrix");
     triProgram.modelViewMatrix = gl.getUniformLocation(triProgram, "modelViewMatrix");
     triProgram.projMatrix = gl.getUniformLocation(triProgram, "projMatrix");
-    triProgram.displayMode = gl.getUniformLocation(triProgram, "displayMode");
     drawPrograms.triProgram = triProgram;
 
     // bspline
@@ -243,7 +239,6 @@ function initShaders()
     tessProgram.mvpMatrix = gl.getUniformLocation(tessProgram, "mvpMatrix");
     tessProgram.modelViewMatrix = gl.getUniformLocation(tessProgram, "modelViewMatrix");
     tessProgram.projMatrix = gl.getUniformLocation(tessProgram, "projMatrix");
-    tessProgram.displayMode = gl.getUniformLocation(tessProgram, "displayMode");
     drawPrograms.bsplineProgram = tessProgram;
 
 
@@ -257,7 +252,6 @@ function initShaders()
     gregoryProgram.mvpMatrix = gl.getUniformLocation(gregoryProgram, "mvpMatrix");
     gregoryProgram.modelViewMatrix = gl.getUniformLocation(gregoryProgram, "modelViewMatrix");
     gregoryProgram.projMatrix = gl.getUniformLocation(gregoryProgram, "projMatrix");
-    gregoryProgram.displayMode = gl.getUniformLocation(gregoryProgram, "displayMode");
     drawPrograms.gregoryProgram = gregoryProgram;
 
     // ptex painting programs
@@ -274,7 +268,6 @@ function initShaders()
     triProgram.mvpMatrix = gl.getUniformLocation(triProgram, "mvpMatrix");
     triProgram.modelViewMatrix = gl.getUniformLocation(triProgram, "modelViewMatrix");
     triProgram.projMatrix = gl.getUniformLocation(triProgram, "projMatrix");
-    triProgram.displayMode = gl.getUniformLocation(triProgram, "displayMode");
     paintPrograms.triProgram = triProgram;
 
     // bspline
@@ -288,7 +281,6 @@ function initShaders()
     tessProgram.mvpMatrix = gl.getUniformLocation(tessProgram, "mvpMatrix");
     tessProgram.modelViewMatrix = gl.getUniformLocation(tessProgram, "modelViewMatrix");
     tessProgram.projMatrix = gl.getUniformLocation(tessProgram, "projMatrix");
-    tessProgram.displayMode = gl.getUniformLocation(tessProgram, "displayMode");
     paintPrograms.bsplineProgram = tessProgram;
 }
 
@@ -1446,6 +1438,7 @@ function paint(x, y)
 {
     var texture = model.ptexTexture_displace;
     var dim = model.ptexDim_displace;
+    if (!texture || !dim) return;
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
@@ -1463,6 +1456,16 @@ function paint(x, y)
     gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+
+    if (model.ptexTexture_color != undefined) {
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_colorL);
+    }
+    if (model.ptexTexture_displace != undefined) {
+        gl.activeTexture(gl.TEXTURE5);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_displaceL);
+    }
 
     if (paintPrograms) drawModel(paintPrograms);
 
@@ -1681,16 +1684,17 @@ $(function(){
         });
 
     // mode (tmp)
-/*
-    gui.add(app, 'sculpt')
-        .onChange(function(value){
-            if(value) {
-                camera.override = paint;
-            } else {
-                camera.override = null;
-            }
-        });
-*/
+    if (navigator.userAgent.indexOf('Android') < 0 &&
+        navigator.userAgent.indexOf('iPhone') < 0) {
+        gui.add(app, 'sculpt')
+            .onChange(function(value){
+                if(value) {
+                    camera.override = paint;
+                } else {
+                    camera.override = null;
+                }
+            });
+    }
 
     $("#version").text(version);
 
