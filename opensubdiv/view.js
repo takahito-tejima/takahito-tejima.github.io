@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-14:49:17"
+var version = "last updated:2015/01/31-16:58:22"
 
 var app = {
     IsGPU : function() {
@@ -945,47 +945,8 @@ function idle() {
     updateGeom();
 }
 
-function redraw()
+function drawModel()
 {
-    if (model == null || model.patches == null) return;
-
-    gl.clearColor(.1, .1, .2, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
-    gl.disable(gl.BLEND);
-    gl.depthFunc(gl.LEQUAL);
-
-    var canvas = $('#main');
-    var w = canvas.width()*dpr;
-    var h = canvas.height()*dpr;
-    var aspect = w / h;
-    gl.viewport(0, 0, w, h);
-
-    camera.setAspect(aspect);
-    var proj = camera.getProjection();
-    var modelView = camera.getModelView();
-    var mvpMatrix = mat4.create();
-    mat4.multiply(mvpMatrix, proj, modelView);
-
-    // draw grid
-    glUtil.drawGrid(mvpMatrix);
-
-    // draw hull
-    if (app.hull && model.cageLines != null) {
-        gl.useProgram(cageProgram);
-        gl.uniformMatrix4fv(cageProgram.mvpMatrix, false, mvpMatrix);
-
-        gl.enableVertexAttribArray(0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, model.hullVerts);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.hullIndices);
-        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-
-        gl.drawElements(gl.LINES, model.cageLines.length, gl.UNSIGNED_SHORT, 0);
-    }
-
-    // draw subdiv
-    drawTris = 0;
     if (model.ptexTexture_color != undefined) {
         gl.activeTexture(gl.TEXTURE2);
         gl.bindTexture(gl.TEXTURE_2D, model.ptexTexture_color);
@@ -1010,8 +971,6 @@ function redraw()
         ext.vertexAttribDivisorANGLE(3, 1);
         ext.vertexAttribDivisorANGLE(4, 1);
 
-        prepareBatch(mvpMatrix, proj, aspect);
-
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, model.vTexture);
         gl.activeTexture(gl.TEXTURE1);
@@ -1020,9 +979,9 @@ function redraw()
         // bspline patches
         var program = tessProgram;
         gl.useProgram(program);
-        gl.uniformMatrix4fv(program.modelViewMatrix, false, modelView);
-        gl.uniformMatrix4fv(program.projMatrix, false, proj);
-        gl.uniformMatrix4fv(program.mvpMatrix, false, mvpMatrix);
+
+        camera.setMatrixUniforms(program);
+
         gl.uniform1i(program.displayMode, app.displayMode);
 
         gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
@@ -1053,9 +1012,9 @@ function redraw()
         // gregory patches
         var program = gregoryProgram;
         gl.useProgram(program);
-        gl.uniformMatrix4fv(program.modelViewMatrix, false, modelView);
-        gl.uniformMatrix4fv(program.projMatrix, false, proj);
-        gl.uniformMatrix4fv(program.mvpMatrix, false, mvpMatrix);
+
+        camera.setMatrixUniforms(program);
+
         gl.uniform1i(program.displayMode, app.displayMode);
 
         gl.uniform1f(gl.getUniformLocation(program, "pointRes"),
@@ -1133,7 +1092,52 @@ function redraw()
         gl.disableVertexAttribArray(3);
         gl.disableVertexAttribArray(4);
     }
+}
 
+function redraw()
+{
+    if (model == null || model.patches == null) return;
+
+    gl.clearColor(.1, .1, .2, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.disable(gl.BLEND);
+    gl.depthFunc(gl.LEQUAL);
+
+    var canvas = $('#main');
+    var w = canvas.width()*dpr;
+    var h = canvas.height()*dpr;
+    var aspect = w / h;
+    gl.viewport(0, 0, w, h);
+
+    camera.setAspect(aspect);
+    camera.computeMatrixUniforms();
+
+    // draw grid
+    glUtil.drawGrid(camera.mvpMatrix);
+
+    // draw hull
+    if (app.hull && model.cageLines != null) {
+        gl.useProgram(cageProgram);
+        gl.uniformMatrix4fv(cageProgram.mvpMatrix, false, mvpMatrix);
+
+        gl.enableVertexAttribArray(0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, model.hullVerts);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.hullIndices);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+
+        gl.drawElements(gl.LINES, model.cageLines.length, gl.UNSIGNED_SHORT, 0);
+    }
+
+    // draw subdiv
+    drawTris = 0;
+
+    if (app.IsGPU()) {
+        prepareBatch(camera.mvpMatrix, camera.proj, camera.aspect);
+    }
+
+    drawModel();
 
     var time = Date.now();
     var drawTime = time - prevTime;
@@ -1466,6 +1470,9 @@ $(function(){
         displayMode = dmode;
     }
     var modelName = getUrlParameter("model");
+    if (modelName != undefined) {
+        app.model = modelName;
+    }
 
     // load shaders
     initialize();
