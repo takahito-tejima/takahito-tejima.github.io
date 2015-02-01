@@ -185,6 +185,11 @@ vec4 paint(vec2 p)
     float pd = smoothstep(0.0, 1.0, 10.0*max(0.0, 0.05-distance(p, paintPos)));
     return vec4(5,5,5,pd);
 }
+vec4 sculpt(vec2 p)
+{
+    float pd = smoothstep(0.0, 1.0, 10.0*max(0.0, 0.05-distance(p, paintPos)));
+    return vec4(5,5,5,pd);
+}
 
 #endif
 

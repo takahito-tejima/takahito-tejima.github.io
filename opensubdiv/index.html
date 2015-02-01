@@ -38,7 +38,7 @@
           height: 18px;
           background-size: contain;
       }
-      #toolbox .cameraTool .ui-button-text {
+      #toolbox .cameraTool span.ui-button-text {
           background-image: url('/images/ic_3d_rotation_black_24dp.png');
       }
       #toolbox .paintTool .ui-button-text {
@@ -60,16 +60,16 @@
 
     <div id="toolbox">
       <div>
-        <input type="radio" id="radio1" name="toolRadio" checked="checked"/>
-        <label for="radio1"></label>
+        <input type="radio" id="toolCamera" name="toolRadio" checked="checked"/>
+        <label class="cameraTool" for="toolCamera"></label>
       </div>
       <div>
-        <input type="radio" id="radio2" name="toolRadio" />
-        <label for="radio2"></label>
+        <input type="radio" id="toolPaint" name="toolRadio" />
+        <label class="paintTool" for="toolPaint"></label>
       </div>
       <div>
-        <input type="radio" id="radio3" name="toolRadio" />
-        <label for="radio3"></label>
+        <input type="radio" id="toolSculpt" name="toolRadio" />
+        <label class="sculptTool" for="toolSculpt"></label>
       </div>
     </div>
 

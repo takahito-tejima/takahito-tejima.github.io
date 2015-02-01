@@ -205,7 +205,11 @@ void main() {
     vec3 p = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
     normal = (modelViewMatrix * vec4(n, 0)).xyz;
 
-#ifdef PAINT
+#if defined(PAINT)
+    uv = projMatrix * vec4(p, 1);
+    Peye = p;
+    gl_Position = vec4(ptexCoord.x*2.0-1.0, ptexCoord.y*2.0-1.0, 0, 1);
+#elif defined(SCULPT)
     uv = projMatrix * vec4(p, 1);
     Peye = p;
     gl_Position = vec4(ptexCoord.z*2.0-1.0, ptexCoord.w*2.0-1.0, 0, 1);
@@ -228,8 +232,10 @@ varying vec4 ptexCoord;
 
 void main()
 {
-#ifdef PAINT
+#if defined(PAINT)
     gl_FragColor = paint(uv.xy/uv.w);
+#elif defined(SCULPT)
+    gl_FragColor = sculpt(uv.xy/uv.w);
 #else
     gl_FragColor = lighting(Peye, normal, uv, color, ptexCoord);
 #endif
