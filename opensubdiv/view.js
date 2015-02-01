@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/02/01-12:59:30"
+var version = "last updated:2015/02/01-13:13:06"
 
 var app = {
     IsGPU : function() {
@@ -172,7 +172,7 @@ function setUniforms(program)
     if (location)
         gl.uniform1i(location, 1);
 
-    if (model.dimPtexColorL) {
+    if (model.ptxColor) {
         location = gl.getUniformLocation(program, "texPtexColor");
         if (location)
             gl.uniform1i(location, 2);
@@ -181,7 +181,9 @@ function setUniforms(program)
             gl.uniform1i(location, 3);
         location = gl.getUniformLocation(program, "dimPtexColorL");
         if (location)
-            gl.uniform2f(location, model.dimPtexColorL[0], model.dimPtexColorL[1]);
+            gl.uniform2f(location,
+                         model.ptxColor.layout.dim[0],
+                         model.ptxColor.layout.dim[1]);
     }
     if (model.dimPtexDisplaceL) {
         location = gl.getUniformLocation(program, "texPtexDisplace");
@@ -493,9 +495,13 @@ function setModel(data, modelName)
 
         // ptex layout
         var numPtexFace = model.ptexLayout_color.length/6;
-        model.dimPtexColorL = [512, Math.ceil(numPtexFace/512)];
+        model.ptxColor = {
+            layout : {
+                dim : [512, Math.ceil(numPtexFace/512)]
+            }
+        };
         model.ptexNumFace_color = numPtexFace;
-        var layout = new Float32Array(4*model.dimPtexColorL[0]*model.dimPtexColorL[1]);
+        var layout = new Float32Array(4*model.ptxColor.layout.dim[0]*model.ptxColor.layout.dim[1]);
         var dim = model.ptexDim_color;
         for (var i = 0; i < numPtexFace; ++i) {
             layout[i*4+0] = model.ptexLayout_color[i*6 + 2]/dim[0];
@@ -513,8 +519,8 @@ function setModel(data, modelName)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-                      model.dimPtexColorL[0],
-                      model.dimPtexColorL[1],
+                      model.ptxColor.layout.dim[0],
+                      model.ptxColor.layout.dim[1],
                       0, gl.RGBA, gl.FLOAT, layout);
 
         // ptex texel
@@ -535,6 +541,11 @@ function setModel(data, modelName)
         }
         image.src = "./objs/"+modelName+"_color.png?"+now.getTime();
     }
+    // if the ptex color exists and the displacement doesn't,
+    // use ptex color's layout for displacement.
+    if (data.ptexDim_color && !data.ptexDim_displace) {
+    }
+
     if (data.ptexDim_displace != undefined) {
         usePtexDisplace = true;
         model.ptexDim_displace = data.ptexDim_displace;
