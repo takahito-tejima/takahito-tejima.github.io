@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/02/01-12:51:24"
+var version = "last updated:2015/02/01-12:59:30"
 
 var app = {
     IsGPU : function() {
@@ -17,7 +17,7 @@ var app = {
     displacement:  0,
     model : 'cube',
     sculpt : false,
-    paintColor : [255, 255, 255]
+    paintColor : [200, 200, 80]
 };
 
 var time = 0;
