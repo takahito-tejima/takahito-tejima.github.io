@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-20:39:59"
+var version = "last updated:2015/01/31-21:52:02"
 
 var app = {
     IsGPU : function() {
@@ -74,9 +74,11 @@ function getMousePosition()
 
 function buildProgram(shaderSource, attribBindings)
 {
-    var define =
-        "#extension GL_OES_standard_derivatives : enable\n" +
-        "precision highp float;\n";
+    var define = ""
+    if (OES_standard_derivatives)
+        define += "#extension GL_OES_standard_derivatives : enable\n"
+        + "#define HAS_OES_STANDARD_DERIVATIVES\n";
+    define += "precision highp float;\n";
 
     if (navigator.userAgent.indexOf('Android') > 0){
         define += "#define ANDROID\n";
@@ -1491,6 +1493,11 @@ function loadModel(modelName)
             initShaders();
             redraw();
             $("#status").text("");
+
+            // credit
+            if (modelName == "scorpion") {
+                $("#credit").text("\"re-scorpion\" (C) 2009 Kenichi Nishida");
+            }
         }, 0);
     }
     xhr.send();
@@ -1534,7 +1541,6 @@ $(function(){
     $.each(["webgl2", "experimental-webgl2", "webgl", "experimental-webgl", "webkit-3d", "moz-webgl"], function(i, name){
         try {
             gl = canvas.getContext(name);
-            gl.getExtension('OES_standard_derivatives');
         }
         catch (e) {
         }
@@ -1544,6 +1550,8 @@ $(function(){
         alert("WebGL is not supported in this browser!");
         return;
     }
+    OES_standard_derivatives =
+        gl.getExtension('OES_standard_derivatives');
     if(!gl.getExtension('OES_texture_float')){
         alert("requires OES_texture_float extension");
     }
@@ -1637,7 +1645,9 @@ $(function(){
 
     // model menu
     gui.add(app, 'model',
-            ['cube', 'ptex', 'torus', 'dino', 'face',
+            ['cube',
+             'scorpion',
+             'ptex', 'torus', 'dino', 'face',
              'catmark_cube_creases0',
              'catmark_cube_creases1',
              'catmark_cube_corner0',
@@ -1675,6 +1685,7 @@ $(function(){
         });
 
     // mode (tmp)
+/*
     gui.add(app, 'sculpt')
         .onChange(function(value){
             if(value) {
@@ -1683,6 +1694,7 @@ $(function(){
                 camera.override = null;
             }
         });
+*/
 
     $("#version").text(version);
 

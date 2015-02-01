@@ -70,7 +70,7 @@ void main()
     vec3 fnormal = normal;
 #ifdef DISPLACEMENT
     if (displaceScale > 0.0) {
-#ifdef FLAT_NORMAL
+#if defined(FLAT_NORMAL) && defined(HAS_OES_STANDARD_DERIVATIVES)
         vec3 X = 100.0*dFdx(Peye);
         vec3 Y = 100.0*dFdy(Peye);
         fnormal = normalize( cross(X, Y) );
@@ -102,7 +102,11 @@ void main()
     vec2 vRel = fract(uv.zw);
     float edge = max(1.0-vRel.x, max(1.0-vRel.y, max(vRel.x, vRel.y)));
 
+#if defined(HAS_OES_STANDARD_DERIVATIVES)
     vec2 dist = fwidth(vRel);
+#else
+    vec2 dist = vec2(0);
+#endif
     vec2 a2 = smoothstep(vec2(0), dist*1.0, vRel);
     edge = 1.0 -(a2.x + a2.y)*0.5;
     c = mix(c, vec4(0,0,0,1), edge);

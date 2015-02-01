@@ -88,6 +88,7 @@ float displacement(vec2 uv) {
 vec3
 perturbNormalFromDisplacement(vec3 position, vec3 normal, vec2 uv)
 {
+#if defined(HAS_OES_STANDARD_DERIVATIVES)
     vec3 vSigmaS = dFdx(position);
     vec3 vSigmaT = dFdy(position);
     vec3 vN = normal;
@@ -114,6 +115,9 @@ perturbNormalFromDisplacement(vec3 position, vec3 normal, vec2 uv)
     float dBt = (Hul - Hll)/d;
     vec3 vSurfGrad = sign(fDet) * (dBs * vR1 + dBt * vR2);
     return normalize(abs(fDet) * vN - vSurfGrad);
+#else
+    return normal;
+#endif
 }
 
 

@@ -18,6 +18,13 @@ body {
     color: #00ff00;
 }
 
+#credit {
+    position:absolute;
+    bottom:1em;
+    left:1em;
+    font-size: 5pt;
+}
+
 #footer {
     position: absolute;
     clear: left;
