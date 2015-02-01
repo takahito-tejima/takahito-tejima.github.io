@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-22:16:59"
+var version = "last updated:2015/01/31-22:31:47"
 
 var app = {
     IsGPU : function() {
@@ -1633,7 +1633,7 @@ $(function(){
         });
 
     // displace scale
-    gui.add(app, 'displacement', 0, 1).listen()
+    gui.add(app, 'displacement', 0, 1)
         .onChange(function(value){
             setDisplacementScale(model.diag*value*0.01);
             redraw();

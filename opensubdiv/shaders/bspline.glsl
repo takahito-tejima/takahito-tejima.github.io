@@ -226,7 +226,6 @@ varying vec3 color;
 varying vec3 Peye;
 varying vec4 ptexCoord;
 
-uniform int displayMode;
 uniform vec2 paintPos;
 
 void main()
@@ -238,57 +237,7 @@ void main()
     return;
 #endif
 
-    vec3 fnormal = normal;
-#ifdef DISPLACEMENT
-    if (displaceScale > 0.0) {
-#if defined(FLAT_NORMAL) && defined(HAS_OES_STANDARD_DERIVATIVES)
-        vec3 X = 100.0*dFdx(Peye);
-        vec3 Y = 100.0*dFdy(Peye);
-        fnormal = normalize( cross(X, Y) );
-#else
-        fnormal = perturbNormalFromDisplacement(Peye,
-                                                fnormal, ptexCoord.zw);
-#endif
-    }
-#endif
-    vec3 l = normalize(vec3(-0.3,0.5,1));
-    float d = max(0.0, dot(fnormal, l));
-    vec3 h = normalize(l + vec3(0,0,1));    // directional viewer
-    float s = pow(max(0.0, dot(fnormal, h)), 64.0);
-    vec4 c = vec4(color, 1);
-
-#if DISPLAY_MODE == 0
-#ifdef PTEX_COLOR
-    c = getPtexColor(ptexCoord);
-#else
-    c.rgb = vec3(0.4, 0.4, 0.8);
-#endif
-
-    c = vec4(d*c.rgb + s*vec3(0.7),1);
-
-#elif DISPLAY_MODE == 1
-    c = vec4(d*c.rgb,1);
-#elif DISPLAY_MODE == 2
-    c = vec4(d*c.rgb,1);
-    vec2 vRel = fract(uv.zw);
-    float edge = max(1.0-vRel.x, max(1.0-vRel.y, max(vRel.x, vRel.y)));
-
-#if defined(HAS_OES_STANDARD_DERIVATIVES)
-    vec2 dist = fwidth(vRel);
-#else
-    vec2 dist = vec2(0);
-#endif
-    vec2 a2 = smoothstep(vec2(0), dist*1.0, vRel);
-    edge = 1.0 -(a2.x + a2.y)*0.5;
-    c = mix(c, vec4(0,0,0,1), edge);
-#elif DISPLAY_MODE == 3
-    c = vec4(fnormal, 1);
-#elif DISPLAY_MODE == 4
-    c = vec4(uv.x, uv.y, 1, 1);
-    c.rgb = vec3(ptexCoord.xy, 0);
-#endif
-
-    gl_FragColor = c;
+    gl_FragColor = lighting(Peye, normal, uv, color, ptexCoord);
 }
 
 #endif
