@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/01/31-23:09:52"
+var version = "last updated:2015/02/01-12:01:31"
 
 var app = {
     IsGPU : function() {
@@ -1493,9 +1493,13 @@ function loadModel(modelName)
             redraw();
             $("#status").text("");
 
-            // credit
+            // credit XXX: put into json.
             if (modelName == "scorpion") {
                 $("#credit").text("\"re-scorpion\" (C) 2009 Kenichi Nishida");
+            } else if (modelName == "barbarian") {
+                $("#credit").text("\"Turtle Barbarian\" (C) 2011 Jesse Sandifer");
+            } else {
+                $("#credit").text("");
             }
         }, 0);
     }
@@ -1684,17 +1688,29 @@ $(function(){
         });
 
     // mode (tmp)
-    if (navigator.userAgent.indexOf('Android') < 0 &&
-        navigator.userAgent.indexOf('iPhone') < 0) {
-        gui.add(app, 'sculpt')
-            .onChange(function(value){
-                if(value) {
-                    camera.override = paint;
-                } else {
-                    camera.override = null;
-                }
-            });
-    }
+    $( "#toolbox" ).buttonset().addClass("ui-buttonset-vertical")
+        .find( "label" ).removeClass( "ui-corner-left ui-corner-right" )
+        .on( "mouseenter", function( e ) {
+            $( this ).next().next().addClass( "ui-transparent-border-top" );
+        })
+        .on( "mouseleave", function( e ) {
+            $( this ).next().next().removeClass( "ui-transparent-border-top" );
+        })
+        .filter( ":first" ).addClass( "ui-corner-top" )
+        .end()
+        .filter( ":last" ).addClass( "ui-corner-bottom" );
+    $($('#toolbox .ui-button')[0]).addClass('cameraTool');
+    $($('#toolbox .ui-button')[1]).addClass('paintTool');
+    $($('#toolbox .ui-button')[2]).addClass('sculptTool');
+    $("#toolbox :radio").click(function(e) {
+        if (this.id == "radio1") {
+            camera.override = null;
+        } else if (this.id == "radio2") {
+            camera.override = paint;
+        } else if (this.id == "radio3") {
+            camera.override = paint;
+        }
+    });
 
     $("#version").text(version);
 

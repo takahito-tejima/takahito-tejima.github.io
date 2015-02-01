@@ -27,7 +27,7 @@ body {
     position:absolute;
     bottom:1em;
     left:1em;
-    font-size: 5pt;
+    font-size: 9pt;
 }
 
 #footer {
@@ -35,7 +35,7 @@ body {
     clear: left;
     bottom: 0;
     right: 3em;
-    font-size: 5pt;
+    font-size: 9pt;
 }
 
 canvas#main
