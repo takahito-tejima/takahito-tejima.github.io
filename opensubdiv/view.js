@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/02/01-14:44:39"
+var version = "last updated:2015/02/01-15:01:19"
 
 var app = {
     IsGPU : function() {
@@ -16,7 +16,7 @@ var app = {
     hull : false,
     displacement:  1.0,
     model : 'cube',
-    sculpt : false,
+    sculptValue : 2.0,
     paintColor : [0, 100, 20]
 };
 
@@ -215,11 +215,15 @@ function setUniforms(program)
                      app.paintColor[1]/255,
                      app.paintColor[2]/255);
     }
+    if (program.sculptValue) {
+        gl.uniform1f(program.sculptValue, app.sculptValue);
+    }
 }
 
 function setUniformLocations(program)
 {
-    var uniforms = ["mvpMatrix", "modelViewMatrix", "projMatrix", "paintColor"]
+    var uniforms = ["mvpMatrix", "modelViewMatrix", "projMatrix",
+                    "paintColor", "sculptValue"]
     for (var i = 0; i < uniforms.length; ++i) {
         program[uniforms[i]] = gl.getUniformLocation(program, uniforms[i]);
     }
@@ -1808,6 +1812,10 @@ $(function(){
             redraw();
             displayMode.updateDisplay();
         } else if (this.id == "toolSculpt") {
+            app.sculptValue = 2.0;
+            camera.override = sculpt;
+        } else if (this.id == "toolRevert") {
+            app.sculptValue = 0.0;
             camera.override = sculpt;
         }
     });
