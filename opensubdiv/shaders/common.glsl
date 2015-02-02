@@ -61,6 +61,13 @@ vec2 computePtexCoord(sampler2D ptexLayout, vec2 ptexLayoutDim, vec4 ptexParam, 
         + float(rot==3.0)*vec2(uv.y, 1.0-uv.x);
 
     vec2 puv = vec2(uv*vec2(1)/lv) + p/lv;
+
+#if defined(PAINT) || defined(SCULPT)
+    //    puv = puv + (puv - 0.5)*0.01;
+#else
+    // puv = puv - (puv - 0.5)*0.01;
+#endif
+
 #if DISPLAY_MODE == 4
     return puv;
 #endif

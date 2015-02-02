@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/02/01-15:01:19"
+var version = "last updated:2015/02/01-20:41:00"
 
 var app = {
     IsGPU : function() {
@@ -25,7 +25,6 @@ var model = {};
 var usePtexColor = false;
 var usePtexDisplace = false;
 var dpr = 1;
-var displaceScale = 0;
 
 var framebuffer = null;
 
@@ -46,6 +45,8 @@ var paintInfo = {
 };
 
 var floatFilter = 0;
+var mobile = false;
+
 var drawTris = 0;
 
 
@@ -87,9 +88,9 @@ function buildProgram(shaderSource, attribBindings)
     }
 
     define += "#define DISPLAY_MODE " + app.displayMode +"\n";
+    define += "#define DISPLACEMENT 1\n";
     if (usePtexColor) define += "#define PTEX_COLOR\n";
     if (usePtexDisplace) define += "#define PTEX_DISPLACE\n";
-    if (displaceScale > 0) define += "#define DISPLACEMENT 1\n";
 
     var program = glUtil.linkProgram(
         "#define VERTEX_SHADER\n"+define+shaderSource,
@@ -144,17 +145,6 @@ function createVertexTexture(reso)
     return texture;
 }
 
-function setDisplacementScale(scale)
-{
-    if ((displaceScale == 0 && scale > 0) ||
-        (displaceScale > 0 && scale == 0)) {
-        displaceScale = scale;
-        initShaders();
-    } else {
-        displaceScale = scale;
-    }
-}
-
 function setUniforms(program)
 {
     camera.setMatrixUniforms(program);
@@ -202,7 +192,7 @@ function setUniforms(program)
     // appearance
     location = gl.getUniformLocation(program, "displaceScale")
     if (location)
-        gl.uniform1f(location, displaceScale);
+        gl.uniform1f(location, model.diag * 0.005 * app.displacement);
 
     // paint
     location = gl.getUniformLocation(program, "paintPos");
@@ -556,6 +546,8 @@ function setModel(data, modelName)
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -579,7 +571,6 @@ function setModel(data, modelName)
             },
             texel : {
                 dim : [data.ptexDim_displace[0], data.ptexDim_displace[1]],
-                texture : gl.createTexture()
             },
         };
 
@@ -600,21 +591,46 @@ function setModel(data, modelName)
             var w = model.ptxDisplace.texel.dim[0];
             var h = model.ptxDisplace.texel.dim[1];
             var fdata = new Float32Array(this.response);
-            var data = new Float32Array(w*h*3);
-            for (var i = 0; i < w*h; ++i) {
-                data[i*3+0] = fdata[i];
-                data[i*3+1] = fdata[i];
-                data[i*3+2] = fdata[i];
-            }
 
+            model.ptxDisplace.texel.texture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
-                          0, gl.RGB, gl.FLOAT, data);
+
+            if (mobile) {
+                var data = new Uint8Array(w*h*3);
+                var len = Math.min(w*h, fdata.length);
+                // normalize
+                var max = 0, min = 0;
+                for (var i = 0; i < len; ++i) {
+                    if (isNaN(fdata[i])) fdata[i] = 0;
+                    max = Math.max(max, fdata[i]);
+                    min = Math.min(min, fdata[i]);
+                }
+                for (var i = 0; i < len; ++i) {
+                    // XXX: shader needs min offset...
+                    var val = Math.floor((fdata[i]-min)/(max-min)*255);
+                    data[i*3+0] = val;
+                    data[i*3+1] = val;
+                    data[i*3+2] = val;
+                }
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
+                              0, gl.RGB, gl.UNSIGNED_BYTE, data);
+            } else {
+                var data = new Float32Array(w*h*3);
+                for (var i = 0; i < w*h; ++i) {
+                    data[i*3+0] = fdata[i];
+                    data[i*3+1] = fdata[i];
+                    data[i*3+2] = fdata[i];
+                }
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
+                              0, gl.RGB, gl.FLOAT, data);
+            }
             redraw();
         }
         xhr.send();
@@ -636,24 +652,34 @@ function setModel(data, modelName)
         }
         var w = model.ptxDisplace.texel.dim[0];
         var h = model.ptxDisplace.texel.dim[1];
-        var data = new Float32Array(w*h*3);
-        for (var i = 0; i < w*h*3; ++i) {
-            data[i] = 0;
-        }
 
         model.ptxDisplace.texel.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
-                      0, gl.RGB, gl.FLOAT, data);
+
+        if (mobile) {
+            var data = new Uint8Array(w*h*3);
+            for (var i = 0; i < w*h*3; ++i) {
+                data[i] = 0;
+            }
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h, 0, gl.RGB, gl.UNSIGNED_BYTE, data);
+        } else {
+            var data = new Float32Array(w*h*3);
+            for (var i = 0; i < w*h*3; ++i) {
+                data[i] = 0;
+            }
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h, 0, gl.RGB, gl.FLOAT, data);
+        }
+
     }
 
     fitCamera();
-    setDisplacementScale(model.diag * app.displacement * 0.01);
 
     initGeom();
     updateGeom();
@@ -1668,6 +1694,11 @@ $(function(){
 //        alert("requires ANGLE_instanced_arrays");
     }
 
+    if (navigator.userAgent.indexOf('Android') >= 0 ||
+        navigator.userAgent.indexOf('iPhone') >= 0) {
+        mobile = true;
+    }
+
     // URL parameters
     var tess = getUrlParameter("tessFactor");
     if (tess != undefined) {
@@ -1740,9 +1771,8 @@ $(function(){
         });
 
     // displace scale
-    gui.add(app, 'displacement', 0, 1)
+    gui.add(app, 'displacement', 0, 2)
         .onChange(function(value){
-            setDisplacementScale(model.diag*value*0.01);
             redraw();
         });
 
