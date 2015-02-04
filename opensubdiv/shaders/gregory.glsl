@@ -30,10 +30,10 @@ vec2 getGregoryVertexIndex(float patchIndex, float cpIndex) {
 void main(){
     vec3 p[20];
     vec2 vid;
-#if 0  // Android crashes.
+#if 1  // Android crashes.
     for (int i = 0; i < 20; ++i) {
         vid = getGregoryVertexIndex(patchData.x, float(i));
-        p[i] = texture2D(texCP, vids).xyz;
+        p[i] = texture2D(texCP, vid).xyz;
     }
 #else
     vid = getGregoryVertexIndex(patchData.x, 0.0);

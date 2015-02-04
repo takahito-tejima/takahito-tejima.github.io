@@ -49,7 +49,7 @@ void main() {
     float B[4], D[4];
     vec3 cp[16];
     vec2 vids[16];
-#if 0  // seemingly Android chrome crashes with this kind of loop....
+#ifndef ANDROID  // seemingly Android chrome crashes with this kind of loop....
     for (int i = 0; i < 16; ++i) {
         vids[i] = getVertexIndex(patchData.x, float(i));
     }

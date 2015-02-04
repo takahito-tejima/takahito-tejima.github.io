@@ -3,13 +3,14 @@
 //
 //
 
-var version = "last updated:2015/02/01-20:41:00"
+var version = "last updated:2015/02/03-22:58:35"
 
 var app = {
     IsGPU : function() {
         return (this.kernel == "GPU Uniform" || this.kernel == "GPU Adaptive");
     },
     kernel : 'GPU Uniform',
+    //kernel : 'JS',
     tessFactor : 3,
     displayMode : 2,
     animation : false,
@@ -33,6 +34,7 @@ var fps = 0;
 var ext = null;
 
 var cageProgram = null;
+var gutterProgram = null;
 
 var drawPrograms = null;
 var paintPrograms = null;
@@ -546,19 +548,56 @@ function setModel(data, modelName)
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+            // ping-pong texture
+            model.ptxColor.texel.texture2 = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.texel.texture2);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
             // update image size
             model.ptxColor.texel.dim = [image.width, image.height];
-
             redraw();
         }
         var now = new Date();
         image.src = "./objs/"+modelName+"_color.png?"+now.getTime();
+
+        // mask texel read
+        var maskImage = new Image();
+        maskImage.onload = function() {
+            model.ptxColor.texel.maskTexture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.texel.maskTexture);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, maskImage);
+
+            // update image size
+            // XXX mask has to be same size.
+            //model.ptxColor.texel.dim = [image.width, image.height];
+
+            // also update displace's mask if needed..
+            if (model.ptxDisplace && model.ptxDisplace.copyFromColor) {
+                model.ptxDisplace.texel.maskTexture = gl.createTexture();
+                gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.maskTexture);
+                gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, maskImage);
+            }
+        }
+        maskImage.src = "./objs/"+modelName+"_color_mask.png?"+now.getTime();
     }
     if (data.ptexDim_displace != undefined) {
         usePtexDisplace = true;
@@ -593,7 +632,12 @@ function setModel(data, modelName)
             var fdata = new Float32Array(this.response);
 
             model.ptxDisplace.texel.texture = gl.createTexture();
+            model.ptxDisplace.texel.texture2 = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture2);
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -615,6 +659,12 @@ function setModel(data, modelName)
                     data[i*3+1] = val;
                     data[i*3+2] = val;
                 }
+                gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
+                              0, gl.RGB, gl.UNSIGNED_BYTE, data);
+                gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture2);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
@@ -626,6 +676,12 @@ function setModel(data, modelName)
                     data[i*3+1] = fdata[i];
                     data[i*3+2] = fdata[i];
                 }
+                gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
+                              0, gl.RGB, gl.FLOAT, data);
+                gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture2);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h,
@@ -634,6 +690,25 @@ function setModel(data, modelName)
             redraw();
         }
         xhr.send();
+
+        // mask texel read (for displacement)
+        var maskImage = new Image();
+        maskImage.onload = function() {
+            model.ptxDisplace.texel.maskTexture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.maskTexture);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, maskImage);
+
+            // update image size
+            // XXX mask has to be same size.
+            //model.ptxColor.texel.dim = [image.width, image.height];
+        }
+        maskImage.src = "./objs/"+modelName+"_displace_mask.png?"+now.getTime();
+
     }
     // if the ptex color exists and the displacement doesn't,
     // use ptex color's layout for displacement.
@@ -648,13 +723,19 @@ function setModel(data, modelName)
             },
             texel : {
                 dim : model.ptxColor.texel.dim,
-            }
+            },
+            copyFromColor : true
         }
         var w = model.ptxDisplace.texel.dim[0];
         var h = model.ptxDisplace.texel.dim[1];
 
         model.ptxDisplace.texel.texture = gl.createTexture();
+        model.ptxDisplace.texel.texture2 = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture2);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, true);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -664,6 +745,11 @@ function setModel(data, modelName)
             for (var i = 0; i < w*h*3; ++i) {
                 data[i] = 0;
             }
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h, 0, gl.RGB, gl.UNSIGNED_BYTE, data);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture2);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h, 0, gl.RGB, gl.UNSIGNED_BYTE, data);
@@ -672,11 +758,15 @@ function setModel(data, modelName)
             for (var i = 0; i < w*h*3; ++i) {
                 data[i] = 0;
             }
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h, 0, gl.RGB, gl.FLOAT, data);
+            gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture2);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, w, h, 0, gl.RGB, gl.FLOAT, data);
         }
-
     }
 
     fitCamera();
@@ -1283,6 +1373,8 @@ function redraw()
         if (model.ptxColor.texel.texture) {
             gl.activeTexture(gl.TEXTURE2);
             gl.bindTexture(gl.TEXTURE_2D, model.ptxColor.texel.texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         }
         if (model.ptxColor.layout.texture) {
             gl.activeTexture(gl.TEXTURE3);
@@ -1293,6 +1385,8 @@ function redraw()
         if (model.ptxDisplace.texel.texture) {
             gl.activeTexture(gl.TEXTURE4);
             gl.bindTexture(gl.TEXTURE_2D, model.ptxDisplace.texel.texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, floatFilter);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, floatFilter);
         }
         if (model.ptxDisplace.layout.texture) {
             gl.activeTexture(gl.TEXTURE5);
@@ -1555,21 +1649,22 @@ function drawPatches(instanceData)
 
 function sculpt(x, y)
 {
-    ptexDraw(x, y, sculptPrograms, model.ptxDisplace.texel.texture, model.ptxDisplace.texel.dim);
+    ptexDraw(x, y, sculptPrograms, model.ptxDisplace);
 
 }
 function paint(x, y)
 {
-    ptexDraw(x, y, paintPrograms, model.ptxColor.texel.texture, model.ptxColor.texel.dim);
+    ptexDraw(x, y, paintPrograms, model.ptxColor);
 }
 
-function ptexDraw(x, y, programs, texture, dim)
+function ptexDraw(x, y, programs, ptx)
 {
-    if (!texture || !dim) return;
+    if (!ptx || !ptx.texel.texture) return;
+    var dim = ptx.texel.dim;
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
-                            gl.TEXTURE_2D, texture, 0);
+                            gl.TEXTURE_2D, ptx.texel.texture, 0);
 
     gl.viewport(0, 0, dim[0], dim[1]);
 
@@ -1596,9 +1691,53 @@ function ptexDraw(x, y, programs, texture, dim)
     if (paintPrograms) drawModel(programs);
 
     gl.disable(gl.BLEND);
+
+    // draw guttering mask
+    if (!mobile && ptx.texel.maskTexture) {
+        if(gutterProgram == null) {
+            gutterProgram = buildProgram(getShaderSource("shaders/gutter.glsl"),
+                                         { position: 0 });
+            gutterProgram.src = gl.getUniformLocation(gutterProgram, "src");
+            gutterProgram.mask = gl.getUniformLocation(gutterProgram, "mask");
+            gutterProgram.size = gl.getUniformLocation(gutterProgram, "size");
+        }
+
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+                                gl.TEXTURE_2D, ptx.texel.texture2, 0);
+
+        gl.useProgram(gutterProgram);
+
+        gl.uniform1i(gutterProgram.src, 0);
+        gl.uniform1i(gutterProgram.mask, 1);
+        gl.uniform2f(gutterProgram.size, dim[0], dim[1]);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, ptx.texel.texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, ptx.texel.maskTexture);
+
+        var buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(
+            [-1.0, -1.0, 1.0, -1.0, -1.0,  1.0, -1.0,  1.0, 1.0, -1.0, 1.0,  1.0]), gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        gl.disableVertexAttribArray(0);
+
+        gl.useProgram(null);
+
+        var a = ptx.texel.texture;
+        ptx.texel.texture = ptx.texel.texture2;
+        ptx.texel.texture2 = a;
+    }
+
     gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
-
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 

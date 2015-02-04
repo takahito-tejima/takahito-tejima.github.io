@@ -68,9 +68,6 @@ vec2 computePtexCoord(sampler2D ptexLayout, vec2 ptexLayoutDim, vec4 ptexParam, 
     // puv = puv - (puv - 0.5)*0.01;
 #endif
 
-#if DISPLAY_MODE == 4
-    return puv;
-#endif
     vec2 face = vec2(fract((ptexParam.x+0.5)/ptexLayoutDim.x),
                      (floor(ptexParam.x/ptexLayoutDim.x)+0.5)/ptexLayoutDim.y);
     vec4 ptexPacking = texture2D(ptexLayout, face);
@@ -178,9 +175,9 @@ vec4 lighting(vec3 Peye, vec3 normal, vec4 uv, vec3 color, vec4 ptexCoord)
 #elif DISPLAY_MODE == 3
     c = vec4(fnormal, 1);
 #elif DISPLAY_MODE == 4
-    c = vec4(uv.x, uv.y, 1, 1);
-    c.rgb = vec3(ptexCoord.xy, 0);
+    c.rgb = vec3(d*uv.xy, 0);
 #endif
+
     return c;
 }
 
