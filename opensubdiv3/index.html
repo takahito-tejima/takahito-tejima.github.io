@@ -1,0 +1,63 @@
+<html>
+  <head>
+    <title>OpenSubdiv 3.0 viewer</title>
+
+    <link media="only screen and (max-device-width:480px)"
+          href="smartstyle.css" type="text/css" rel="stylesheet" />
+    <link media="screen and (min-device-width:481px)" href="fullstyle.css"
+          type="text/css" rel="stylesheet" />
+
+    <script src="../lib/jquery-1.11.3.min.js"></script>
+    <script src="../lib/gl-matrix-min.js"></script>
+    <script src="../lib/camera.js"></script>
+    <script src="../lib/dat.gui.min.js"></script>
+    <script src="osd.js?20150613"></script>
+    <script src="svgview.js?20150613"></script>
+  </head>
+
+  <body>
+    <svg id="main" xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <defs>
+        <linearGradient id="grad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#f0f0f0"/>
+          <stop offset="100%" stop-color="#303030"/>
+        </linearGradient>
+      </defs>
+        <rect width="100%" height="100%" fill="url(#grad)"/>
+      <g id="frame">
+        <g id="mesh" />
+      </g>
+    </svg>
+
+    <div id="header">
+      <span id="title">OpenSubdiv 3.0 viewer (SVG + emscripten)</span>
+      &nbsp;&nbsp;&nbsp;<a href="../opensubdiv/index.html">go to WebGL version</a>
+      <br>
+      <span id="status"></span>
+    </div>
+    <div id="version">version</div>
+    <div id="footer">
+      <span id="patches"></span> patches
+      <span id="repolink">
+        <a href="https://github.com/takahito-tejima/takahito-tejima.github.io">Repository</a>
+        <a href="LICENSE">License</a>
+      </span>
+    </div>
+  </body>
+<html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

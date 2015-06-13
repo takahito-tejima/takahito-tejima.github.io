@@ -1,6 +1,7 @@
 html {
     height: 100%;
 }
+
 body {
     height: 100%;
     color:white;
@@ -14,8 +15,8 @@ body {
     top: 0;
     left: 1em;
 }
-#header #title {
-    color: #00ff00;
+#header {
+    color: #000000;
 }
 
 #version {
@@ -30,6 +31,7 @@ body {
     bottom:1em;
     left:1em;
     font-size: 9pt;
+    color: #000000;
 }
 
 #footer {
@@ -38,9 +40,10 @@ body {
     bottom: 0;
     right: 3em;
     font-size: 9pt;
+    color: #000000;
 }
 
-canvas#main
+#main
 {
     position: absolute;
     top: 0;
@@ -48,7 +51,7 @@ canvas#main
     width: 100%;
     height: 100%;
     cursor: default;
-    background-color: #020208;
+    background-color: #ffffff;
 }
 
 #loading
@@ -58,5 +61,5 @@ canvas#main
     left:100px;
 }
 
-a:link { color: #ffff00; }
-a:visited { color: #ffff80; }
+a:link { color: #000000; }
+a:visited { color: #000080; }

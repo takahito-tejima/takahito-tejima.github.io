@@ -7,6 +7,8 @@ body {
     height: 100%;
     color:white;
     font-size: 10pt;
+    margin:0;
+    padding:0;
 }
 
 #header {
