@@ -36,7 +36,7 @@ body {
     color: #000000;
 }
 
-canvas#main
+#main
 {
     position: absolute;
     top: 0;
