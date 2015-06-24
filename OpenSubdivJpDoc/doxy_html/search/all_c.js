@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['next',['Next',['../a00080.html#a659a293dd51073a1b9560bb80f687705',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::Stencil::Next()'],['../a00047.html#a659a293dd51073a1b9560bb80f687705',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::LimitStencil::Next()']]],
+  ['non_5fpatch',['NON_PATCH',['../a00063.html#a1d1cfd8ffb84e947f82999c682b666a7a3a0c2fc8a9cab2764314c3324a8a68b2',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::PatchDescriptor']]],
+  ['noncopyable',['NonCopyable',['../a00054.html',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd']]],
+  ['noncopyable',['NonCopyable',['../a00054.html#ae88e85799c45f2b269f189ba6656624b',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd::NonCopyable']]],
+  ['noncopyable_2eh',['nonCopyable.h',['../a00138.html',1,'']]],
+  ['noncopyable_3c_20clpatchtable_20_3e',['NonCopyable&lt; CLPatchTable &gt;',['../a00054.html',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd']]],
+  ['noncopyable_3c_20cudapatchtable_20_3e',['NonCopyable&lt; CudaPatchTable &gt;',['../a00054.html',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd']]],
+  ['noncopyable_3c_20d3d11legacygregorypatchtable_20_3e',['NonCopyable&lt; D3D11LegacyGregoryPatchTable &gt;',['../a00054.html',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd']]],
+  ['noncopyable_3c_20d3d11patchtable_20_3e',['NonCopyable&lt; D3D11PatchTable &gt;',['../a00054.html',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd']]],
+  ['noncopyable_3c_20gllegacygregorypatchtable_20_3e',['NonCopyable&lt; GLLegacyGregoryPatchTable &gt;',['../a00054.html',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd']]],
+  ['noncopyable_3c_20glpatchtable_20_3e',['NonCopyable&lt; GLPatchTable &gt;',['../a00054.html',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd']]],
+  ['nonquadroot',['NonQuadRoot',['../a00068.html#aa6eef27e1d62e183a887ae7c01c1c035',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::PatchParam']]],
+  ['normalize',['Normalize',['../a00068.html#a580385a789116b4d3d6fe202bc45fc93',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::PatchParam']]],
+  ['num_5fmesh_5fbits',['NUM_MESH_BITS',['../a00162.html#a1af6b50e9f8ae13d3d2f9d5b03b35492a5676712c77d29cfdd330e2802db1c464',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd']]],
+  ['numcorners',['numCorners',['../a00084.html#a5ea0fa49c8b73deae98be1cdf67a48dd',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::TopologyDescriptor']]],
+  ['numcreases',['numCreases',['../a00084.html#ab8975c25a0f7d3a9f1fca83e267bc21e',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::TopologyDescriptor']]],
+  ['numfaces',['numFaces',['../a00084.html#a523d3dc0299fc8921db1c26cc908f084',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::TopologyDescriptor']]],
+  ['numfvarchannels',['numFVarChannels',['../a00056.html#ad17511fd9b0cea1b15b6bc31c0fc3e80',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::PatchTableFactory::Options::numFVarChannels()'],['../a00084.html#ad17511fd9b0cea1b15b6bc31c0fc3e80',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::TopologyDescriptor::numFVarChannels()']]],
+  ['numholes',['numHoles',['../a00084.html#aba3adf422acc0fc845afeba3a5df2b8f',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::TopologyDescriptor']]],
+  ['numlocations',['numLocations',['../a00051.html#ab9e5cd822f289b54101de5a704d68ac5',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::LimitStencilTableFactory::LocationArray']]],
+  ['numpatches',['numPatches',['../a00061.html#a82068dd0cc1a89684d7ddf2ed27f95f3',1,'OpenSubdiv::OPENSUBDIV_VERSION::Osd::PatchArray']]],
+  ['numvalues',['numValues',['../a00034.html#aa0d5f7bfb1ba01e0cb648ff6fc249437',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::TopologyDescriptor::FVarChannel']]],
+  ['numvertices',['numVertices',['../a00084.html#a29cac0aff7e6d15e55e9a8285799fe87',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::TopologyDescriptor']]],
+  ['numvertsperface',['numVertsPerFace',['../a00084.html#a79e9d33aa1203818c4b765007d10be63',1,'OpenSubdiv::OPENSUBDIV_VERSION::Far::TopologyDescriptor']]]
+];

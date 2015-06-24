@@ -1,0 +1,359 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>hbr_tutorial_0.cpp</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="hbr-tutorial-0-cpp">
+<h1 class="title">hbr_tutorial_0.cpp</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">hbr_tutorial_0.cpp</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/hbr/tutorial_0/hbr_tutorial_0.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/hbr/tutorial_0/hbr_tutorial_0.cpp</a></p>
+<hr class="docutils" />
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/hbr_tutorial_0.rst</tt>, line 9)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c
+
+    //------------------------------------------------------------------------------
+    // Tutorial description:
+    //
+    // This tutorial presents in a very succint way the requisite steps to
+    // instantiate an Hbr mesh from simple topological data.
+    //
+
+    #include &lt;opensubdiv/hbr/mesh.h&gt;
+    #include &lt;opensubdiv/hbr/catmark.h&gt;
+
+    #include &lt;cstdio&gt;
+
+    //------------------------------------------------------------------------------
+    // Vertex container implementation.
+    //
+    // The HbrMesh&lt;T&gt; class is a templated interface that expects a vertex class to
+    // perform interpolation on arbitrary vertex data.
+    //
+    // For the template specialization of the HbrMesh interface to be met, our
+    // Vertex object to implement a minimal set of constructors and member
+    // functions.
+    //
+    // Since we are not going to subdivide the mesh, the struct presented here has
+    // been left minimalistic. The only customization added to our container was to
+    // provide storage and accessors for the position of a 3D vertex.
+    //
+    struct Vertex {
+
+        // Hbr minimal required interface ----------------------
+        Vertex() { }
+
+        Vertex(int /*i*/) { }
+
+        Vertex(Vertex const &amp; src) {
+            _position[0] = src._position[0];
+            _position[1] = src._position[1];
+            _position[2] = src._position[2];
+        }
+
+        void Clear( void * =0 ) { }
+
+        void AddWithWeight(Vertex const &amp;, float ) { }
+
+        void AddVaryingWithWeight(Vertex const &amp;, float) { }
+
+        // Public interface ------------------------------------
+        void SetPosition(float x, float y, float z) {
+            _position[0]=x;
+            _position[1]=y;
+            _position[2]=z;
+        }
+
+        const float * GetPosition() const {
+            return _position;
+        }
+
+    private:
+        float _position[3];
+    };
+
+    typedef OpenSubdiv::HbrMesh&lt;Vertex&gt;      Hmesh;
+    typedef OpenSubdiv::HbrFace&lt;Vertex&gt;      Hface;
+    typedef OpenSubdiv::HbrVertex&lt;Vertex&gt;    Hvertex;
+    typedef OpenSubdiv::HbrHalfedge&lt;Vertex&gt;  Hhalfedge;
+
+
+    //------------------------------------------------------------------------------
+    // Pyramid geometry from catmark_pyramid.h
+    static float verts[5][3] = {{ 0.0f,  0.0f,  2.0f},
+                                { 0.0f, -2.0f,  0.0f},
+                                { 2.0f,  0.0f,  0.0f},
+                                { 0.0f,  2.0f,  0.0f},
+                                {-2.0f,  0.0f,  0.0f}};
+
+    static int nverts = 5,
+               nfaces = 5;
+
+    static int facenverts[5] = { 3, 3, 3, 3, 4 };
+
+    static int faceverts[16] = { 0, 1, 2,
+                                 0, 2, 3,
+                                 0, 3, 4,
+                                 0, 4, 1,
+                                 4, 3, 2, 1 };
+
+    //------------------------------------------------------------------------------
+    int main(int, char **) {
+
+        // Create a subdivision scheme (Catmull-Clark here)
+        OpenSubdiv::HbrCatmarkSubdivision&lt;Vertex&gt; * catmark =
+            new OpenSubdiv::HbrCatmarkSubdivision&lt;Vertex&gt;();
+
+        // Create an empty Hbr mesh
+        Hmesh * hmesh = new Hmesh(catmark);
+
+        // Populate the vertices
+        Vertex v;
+        for (int i=0; i&lt;nverts; ++i) {
+
+            // Primitive variable data must be set here: in our case we set
+            // the 3D position of the vertex.
+            v.SetPosition(verts[i][0], verts[i][1], verts[i][2]);
+
+            // Add the vertex to the mesh.
+            hmesh-&gt;NewVertex(i, v);
+        }
+
+        // Create the topology
+        int * fv = faceverts;
+        for (int i=0; i&lt;nfaces; ++i) {
+
+            int nv = facenverts[i];
+
+            hmesh-&gt;NewFace(nv, fv, 0);
+
+            fv+=nv;
+        }
+
+        // Set subdivision options
+        //
+        // By default vertex interpolation is set to &quot;none&quot; on boundaries, which
+        // can produce un-expected results, so we change it to &quot;edge-only&quot;.
+        //
+        hmesh-&gt;SetInterpolateBoundaryMethod(Hmesh::k_InterpolateBoundaryEdgeOnly);
+
+        // Call 'Finish' to finalize the data structures before using the mesh.
+        hmesh-&gt;Finish();
+
+
+        printf(&quot;Created a pyramid with %d faces and %d vertices.\n&quot;,
+            hmesh-&gt;GetNumFaces(), hmesh-&gt;GetNumVertices());
+
+        delete hmesh;
+        delete catmark;
+    }
+
+    //------------------------------------------------------------------------------
+
+</pre>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

@@ -1,0 +1,532 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Sdc Overview</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="sdc-overview">
+<h1 class="title">Sdc Overview</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Sdc Overview</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#subdivision-core-sdc" id="id1">Subdivision Core (Sdc)</a></li>
+<li><a class="reference internal" href="#types-traits-and-options" id="id2">Types, Traits and Options</a></li>
+<li><a class="reference internal" href="#creasing-support" id="id3">Creasing support</a></li>
+<li><a class="reference internal" href="#scheme-specific-support" id="id4">Scheme-specific support</a><ul>
+<li><a class="reference internal" href="#the-face-edge-and-vertex-interfaces" id="id5">The &lt;FACE&gt;, &lt;EDGE&gt; and &lt;VERTEX&gt; interfaces</a></li>
+<li><a class="reference internal" href="#the-mask-interface" id="id6">The &lt;MASK&gt; interface</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="subdivision-core-sdc">
+<h3>Subdivision Core (Sdc)</h3>
+<p>Sdc is the lowest level layer in OpenSubdiv.  Its intent is to separate
+the core subdivision details from any particular representation of a mesh
+(it was previously bound to Hbr) to facilitate the generation of consistent
+results with other mesh representations, both internal and external to
+OpenSubdiv.</p>
+<p>The functionality can be divided roughly into three sections:</p>
+<blockquote>
+<ul class="simple">
+<li>types, traits and options for the supported subdivision schemes</li>
+<li>computations required to support semi-sharp creasing</li>
+<li>computations for mask weights of subdivided vertices for all schemes</li>
+</ul>
+</blockquote>
+<p>For most common usage, familiarity with only the first of these is necessary --
+primarily the use of public types and constants for the choice of subdivision
+scheme and its associated options.  The latter two provide the basis for a
+more comprehensive implementation of subdivision, which requires considerably
+more understanding and effort.</p>
+<p>Overall, the approach was to extract the functionality at the lowest level
+possible.  In some cases, the implementation is not far from being simple
+global functions.  The intent was to start at a low level and build any higher
+level functionality as needed.  What exists now is functional for ongoing
+development and anticipated needs within OpenSubdiv for the near future.</p>
+<p>The intent of Sdc is to provide the building blocks for OpenSubdiv and its
+clients to efficiently process the specific set of supported subdivision
+schemes.  It is not intended to be a general framework for
+defining customized subdivision schemes.</p>
+</div>
+<div class="section" id="types-traits-and-options">
+<h3>Types, Traits and Options</h3>
+<p>The most basic type is the enum <em>Sdc::SchemeType</em> that identifies the fixed set of
+subdivision schemes supported by OpenSubdiv:  <em>Bilinear</em>, <em>Catmark</em> and <em>Loop</em>.
+With this alone, we intend to avoid all dynamic casting issues related to the
+scheme by simply adding members to the associated subclasses for inspection.</p>
+<p>In addition to the type enum itself, a class defining a fixed set of traits
+associated with each scheme is provided.  While these traits are available as
+static methods in the interface of a class supporting more functionality for each
+scheme (to be described shortly), the <em>SchemeTypeTraits</em> provide queries of the
+traits for a variable of type <em>Sdc::SchemeType</em> -- enabling parameterization
+of code by the value of a trait without templates or virtual inheritance (a
+simple internal table of traits is constructed and trivially indexed).</p>
+<p>The second contribution is the collection of all variations in one place that can
+be applied to the subdivision schemes, i.e. the boundary interpolation rules,
+creasing method, edge subdivision choices, etc.  The fact that these are all
+declared in one place alone should help clients see the full set of variations
+that are possible.</p>
+<p>A simple Options struct (a set of bitfields) aggregates all of these variations
+into a single object (the equivalent of an integer in this case) that are passed
+around to other Sdc classes and/or methods and are expected to be used at a higher
+level both within OpenSubdiv and externally.  By aggregating the options and
+passing them around as a group, it allows us to extend the set easily in future
+without the need to rewire a lot of interfaces to accommodate the new choice.
+Clients can enable new choices at the highest level and be assured that they will
+propagate to the lowest level where they are relevant.</p>
+<p>Unlike other &quot;options&quot; structs used elsewhere to specify variations of a
+particular method, <em>Sdc::Options</em> defines all options that affect the shape of
+the underlying limit surface of a subdivision mesh.  Other operations at higher
+levels in the library may have options that approximate the shape and so create
+a slightly different appearance, but <em>Sdc::Options</em> is a fundamental part of
+the definition of the true limit surface.</p>
+</div>
+<div class="section" id="creasing-support">
+<h3>Creasing support</h3>
+<p>Since the computations involved in the support of semi-sharp creasing are
+independent of the subdivision scheme, the goal in Sdc was to encapsulate all
+related creasing functionality in a similarly independent manner.  Computations
+involving sharpness values are also much less dependent on topology -- there
+are vertices and edges with sharpness values, but knowledge of faces or boundary
+edges is not required, -- so the complexity of topological neighborhoods required
+for more scheme-specific functionality is arguably not necessary here.</p>
+<p>Creasing computations have been provided as methods defined on a Crease class
+that is constructed with a set of Options.  Its methods typically take sharpness
+values as inputs and compute a corresponding set of sharpness values
+as a result.  For the &quot;Uniform&quot; creasing method (previously known as <em>&quot;Normal&quot;</em>),
+the computations may be so trivial as to question whether such an interface is
+worth it, but for &quot;Chaikin&quot; or other schemes in the future that are non-trivial,
+the benefits should be clear.  Functionality is divided between both uniform and
+non-uniform, so clients have some control over avoiding unnecessary overhead,
+e.g. non-uniform computations typically require neighboring sharpness values
+around a vertex, while uniform does not.</p>
+<p>Also included as part of the Crease class is the Rule enum -- this indicates if
+a vertex is Smooth, Crease, Dart or Corner (referred to as the &quot;mask&quot; in Hbr)
+and is a function of the sharpness values at and around a vertex.  Knowing the
+Rule for a vertex can accelerate mask queries, and the Rule can often be
+inferred based on the origin of a vertex (e.g. it originated from the middle of
+a face, was the child of a Smooth vertex, etc.).</p>
+<p>Methods are defined for the Crease class to:</p>
+<blockquote>
+<ul class="simple">
+<li>subdivide edge and vertex sharpness values</li>
+<li>determine the Rule for a vertex based on incident sharpness values</li>
+<li>determine the transitional weight between two sets of sharpness values</li>
+</ul>
+</blockquote>
+<p>Being all low-level and working directly on sharpness values, it is a client's
+responsibility to coordinate the application of any hierarchical crease edits
+with their computations.</p>
+<p>Similarly, in keeping with this as a low-level interface, values are passed as
+primitive arrays.  This follows the trend in OpenSubdiv of dealing with data of
+various kinds (e.g. weights, component indices, now sharpness values, etc.) in
+small contiguous sets of values.  In most internal cases we can refer to a set
+of values or gather what will typically be a small number of values on the stack
+for temporary use.</p>
+</div>
+<div class="section" id="scheme-specific-support">
+<h3>Scheme-specific support</h3>
+<p>While the SchemeTypeTraits class provides traits for each subdivision scheme
+supported by OpenSubdiv (i.e. <em>Bilinear</em>, <em>Catmark</em> and <em>Loop</em>), the Scheme class
+provides these more directly, Additionally, the Scheme class provides methods
+for computing the various sets of weights used to compute new vertices resulting
+from subdivision.  The collection of weights used to compute
+a single vertex at a new subdivision level is typically referred to as a
+<em>&quot;mask&quot;</em>.  The primary purpose of the Scheme class is to provide such masks in a
+manner both general and efficient.</p>
+<p>Each subdivision scheme has its own values for its masks, and each are provided
+as specializations of the template class <em>Scheme&lt;SchemeType TYPE&gt;</em>. The intent is to
+minimize the amount of code specific to each scheme.</p>
+<p>The computation of mask weights for subdivided vertices is the most significant
+contribution of Sdc. The use of semi-sharp creasing with each
+non-linear subdivision scheme complicates what are otherwise simple
+masks determined solely by the topology, and packaging that functionality to
+achieve both the generality and efficiency desired has been a challenge.</p>
+<p>Mask queries are defined in the <em>Scheme</em> class template, which has
+specializations for each of the supported subdivision schemes. Mask queries
+are defined in terms of interfaces for two template parameters: the first
+defining the topological neighborhood of a vertex, and a second defining a
+container in which to gather the individual weights:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/sdc_overview.rst</tt>, line 179)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    template &lt;typename FACE, typename MASK&gt;
+    void ComputeFaceVertexMask(FACE const&amp; faceNeighborhood, MASK&amp; faceVertexMask, ...) const;
+
+</pre>
+</div>
+<p>Each mask query is expected to call methods defined for the <strong>FACE</strong>, <strong>EDGE</strong> or
+<strong>VERTEX</strong> classes to obtain the information they require ; typically these
+methods are simple queries about the topology and associated sharpness values.
+Clients are free to use their own mesh representations to gather the requested
+information as quickly as possible, or to cache some subset as member variables
+for immediate inline retrieval.</p>
+<p>In general, the set of weights for a subdivided vertex is dependent on the following:</p>
+<blockquote>
+<ul class="simple">
+<li>the topology around the parent component from which the vertex originates</li>
+<li>the type of subdivision <em>Rule</em> applicable to the parent component</li>
+<li>the type of subdivision <em>Rule</em> applicable to the new child vertex</li>
+<li>a transitional weight blending the effect between differing parent and child rules</li>
+</ul>
+</blockquote>
+<p>This seems fairly straight-forward, until we look at some of the dependencies involved:</p>
+<blockquote>
+<ul class="simple">
+<li>the parent <em>Rule</em> requires the sharpness values at and around the parent component</li>
+<li>the child <em>Rule</em> requires the subdivided sharpness values at and around the new
+child vertex (though it can sometimes be trivially inferred from the parent)</li>
+<li>the transitional weight between differing rules requires all parent and child
+sharpness values</li>
+</ul>
+</blockquote>
+<p>Clearly the sharpness values are inspected multiple times and so it pays to have
+them available for retrieval.  Computing them on an as-needed basis may be simple
+for uniform creasing, but a non-uniform creasing method requires traversing
+topological neighborhoods, and that in addition to the computation itself can be
+costly.</p>
+<p>The point here is that it is potentially unreasonable to expect to evaluate the
+mask weights completely independent of any other consideration.  Expecting and
+encouraging the client to have subdivided sharpness values first, for use in more
+than one place, is therefore recommended.</p>
+<p>The complexity of the general case above is also unnecessary for most vertices.
+Any client using Sdc typically has more information about the nature of the vertex
+being subdivided and much of this can be avoided -- particularly for the smooth
+interior case that often dominates.  More on that in the details of the Scheme classes.</p>
+<p>Given that most of the complexity has been moved into the template parameters for
+the mask queries, the Scheme class remains fairly simple.  Like the Crease class,
+it is instantiated with a set of Options to avoid them cluttering the interface.
+It is currently little more than a few methods for the limit and refinement masks
+for each vertex type, plus the few fixed traits of the scheme as static methods.</p>
+<p>The mask queries have been written in a way that greatly simplifies the
+specializations required for each scheme. The generic implementation for both
+the edge-vertex and vertex-vertex masks take care of all of the creasing logic,
+requiring only a small set of specific masks to be assigned for each Scheme:
+smooth and crease masks for an edge-vertex, and smooth, crease and corner masks
+for a vertex-vertex.  Other than the <em>Bilinear</em> case, which will specialize the
+mask queries to trivialize them for linear interpolation, the specializations
+for each <em>Scheme</em> should only require defining this set of masks -- and with
+two of them common (edge-vertex crease and vertex-vertex corner) the Catmark
+scheme only needs to define three.</p>
+<div class="section" id="the-face-edge-and-vertex-interfaces">
+<h4>The &lt;FACE&gt;, &lt;EDGE&gt; and &lt;VERTEX&gt; interfaces</h4>
+<p>Mask queries require an interface to a topological neighborhood, currently
+labeled <strong>FACE</strong>, <strong>EDGE</strong> and <strong>VERTEX</strong>. This naming potentially implies more
+generality than intended, as such classes are only expected to provide the
+methods required of the mask queries to compute its associated weights.  While
+all methods must be defined, some may rarely be invoked, and the client has
+considerable flexibility in the implementation of these: they can defer some
+evaluations lazily until required, or be pro-active and cache information in
+member variables for immediate access.</p>
+<p>An approach discussed in the past has alluded to iterator classes that clients
+would write to traverse their meshes. The mask queries would then be parameterized
+in terms of a more general and generic mesh component that would make use of more
+general traversal iterators. The advantage here is the iterators are written once,
+then traversal is left to the query and only what is necessary is gathered.  The
+disadvantages are that clients are forced to write these to do anything, getting
+them correct and efficient may not be trivial (or possible in some cases), and that
+the same data (e.g. subdivided sharpness) may be gathered or computed multiple
+times for different purposes.</p>
+<p>The other extreme was to gather everything possible required at once, but that is
+objectionable. The approach taken here provides a reasonable compromise between
+the two.  The mask queries ask for exactly what they want, and the provided classes
+are expected to deliver it as efficiently as possible.  In some cases the client
+may already be storing it in a more accessible form and general topological
+iteration can be avoided.</p>
+<p>The information requested of these classes in the three mask queries is as follows:</p>
+<blockquote>
+<dl class="docutils">
+<dt>For <strong>FACE</strong>:</dt>
+<dd><ul class="first last simple">
+<li>the number of incident vertices</li>
+</ul>
+</dd>
+<dt>For <strong>EDGE</strong>:</dt>
+<dd><ul class="first last simple">
+<li>the number of incident faces</li>
+<li>the sharpness value of the parent edge</li>
+<li>the sharpness values of the two child edges</li>
+<li>the number of vertices per incident face</li>
+</ul>
+</dd>
+<dt>For <strong>VERTEX</strong>:</dt>
+<dd><ul class="first last simple">
+<li>the number of incident faces</li>
+<li>the number of incident edges</li>
+<li>the sharpness value of the parent vertex</li>
+<li>the sharpness values for each incident parent edge</li>
+<li>the sharpness value of the child vertex</li>
+<li>the sharpness values for each incident child edge</li>
+</ul>
+</dd>
+</dl>
+</blockquote>
+<p>The latter should not be surprising given the dependencies noted above.  There
+are also a few more to consider for future use, e.g. whether the <strong>EDGE</strong> or
+<strong>VERTEX</strong> is manifold or not.  In most cases, additional information can be
+provided to the mask queries (i.e. pre-determined Rules), and most of the child
+sharpness values are not necessary. The most demanding situation is a
+fractional crease that decays to zero -- in which case all parent and child
+sharpness values in the neighborhood are required to determine the proper
+transitional weight.</p>
+</div>
+<div class="section" id="the-mask-interface">
+<h4>The &lt;MASK&gt; interface</h4>
+<p>Methods dealing with the collections of weights defining a mask are typically
+parameterized by a <em>MASK</em> template parameter that contains the weights.  The set of
+mask weights is currently divided into vertex-weights, edge-weights and
+face-weights -- consistent with previous usage in OpenSubdiv and providing some
+useful correlation between the full set of weights and topology.  The
+vertex-weights refer to parent vertices incident the parent component from which a
+vertex originated, the edge-weights the vertices opposite incident edges of the
+parent, and the face-weights the center of incident parent faces.  Note the latter
+is <strong>NOT</strong> in terms of vertices of the parent but potentially vertices in the child
+originating from faces of the parent.  This has been done historically in
+OpenSubdiv but is finding less use -- particularly when it comes to providing
+greater support for the Loop scheme -- and is a point needing attention.</p>
+<p>So the mask queries require the following capabilities:</p>
+<blockquote>
+<ul class="simple">
+<li>assign the number of vertex, edge and/or face weights</li>
+<li>retrieve the number of vertex, edge and/or face weights</li>
+<li>assign individual vertex, edge and/or face weights by index</li>
+<li>retrieve individual vertex, edge and/or face weights by index</li>
+</ul>
+</blockquote>
+<p>through a set of methods required of all <em>MASK</em> classes. Since the maximum
+number of weights is typically known based on the topology, usage within Vtr,
+<em>Far</em> or <em>Hbr</em> is expected to simply define buffers on the stack. Another
+option is to utilize pre-allocated tables, partitioned into the three sets
+of weights on construction of a <em>MASK</em>, and populated by the mask queries.</p>
+<p>A potentially useful side-effect of this is that the client can define their
+weights to be stored in either single or double-precision. With that
+possibility in mind, care was taken within the mask queries to make use of a
+declared type in the <em>MASK</em> interface (<em>MASK::Weight</em>) for intermediate
+calculations. Having support for double-precision masks in <em>Sdc</em> does enable it
+at higher levels in OpenSubdiv if later desired, and that support is made
+almost trivial with <em>MASK</em> being generic.</p>
+<p>It is important to remember here that these masks are being defined consistent
+with existing usage within OpenSubdiv: both <em>Hbr</em> and the subdivision tables
+generated by <em>Far</em>. As noted above, the &quot;face weights&quot; correspond to the
+centers of incident faces, i.e. vertices on the same level as the vertex for
+which the mask is being computed, and not relative to vertices in the parent
+level as with the other sets of weights. It is true that the weights can be
+translated into a set in terms solely of parent vertices, but in the general
+case (i.e. <em>Catmark</em> subdivision with non-quads in the base mesh) this requires
+additional topological association. In general we would need N-3 weights for
+the N-3 vertices between the two incident edges, where N is the number of
+vertices of each face (typically 4 even at level 0). Perhaps such a
+translation method could be provided on the mask class, with an optional
+indication of the incident face topology for the irregular cases. The <em>Loop</em>
+scheme does not have <em>&quot;face weights&quot;</em>, for a vertex-vertex mask, but for an
+edge-vertex mask it does require weights associated with the faces incident the
+edge -- either the vertex opposite the edge for each triangle, or its center
+(which has no other use for Loop).</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

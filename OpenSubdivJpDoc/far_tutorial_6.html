@@ -1,0 +1,494 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>far_tutorial_6.cpp</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="far-tutorial-6-cpp">
+<h1 class="title">far_tutorial_6.cpp</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">far_tutorial_6.cpp</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_6/far_tutorial_6.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_6/far_tutorial_6.cpp</a></p>
+<hr class="docutils" />
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/far_tutorial_6.rst</tt>, line 9)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c
+
+    //------------------------------------------------------------------------------
+    // Tutorial description:
+    //
+    // This tutorial shows how to interpolate surface limits at arbitrary
+    // parametric locations using feature adaptive Far::PatchTables.
+    //
+    // The evaluation of the limit surface at arbitrary locations requires the
+    // adaptive isolation of topological features. This process converts the
+    // input polygonal control cage into a collection of bi-cubic patches.
+    //
+    // We can then evaluate the patches at random parametric locations and
+    // obtain analytical positions and tangents on the limit surface.
+    //
+    // The results are dumped into a MEL script that draws 'streak' particle
+    // systems that show the tangent and bi-tangent at the random samples locations.
+    //
+
+    #include &lt;opensubdiv/far/topologyDescriptor.h&gt;
+    #include &lt;opensubdiv/far/primvarRefiner.h&gt;
+    #include &lt;opensubdiv/far/patchTableFactory.h&gt;
+    #include &lt;opensubdiv/far/patchMap.h&gt;
+    #include &lt;opensubdiv/far/ptexIndices.h&gt;
+
+    #include &lt;cassert&gt;
+    #include &lt;cstdio&gt;
+    #include &lt;cstring&gt;
+    #include &lt;cfloat&gt;
+
+    using namespace OpenSubdiv;
+
+    // pyramid geometry from catmark_pyramid_crease0.h
+    static int const g_nverts = 5;
+    static float const g_verts[24] = { 0.0f,  0.0f, 2.0f,
+                                       0.0f, -2.0f, 0.0f,
+                                       2.0f,  0.0f, 0.0f,
+                                       0.0f,  2.0f, 0.0f,
+                                      -2.0f,  0.0f, 0.0f, };
+
+
+    static int const g_vertsperface[5] = { 3, 3, 3, 3, 4 };
+
+    static int const g_nfaces = 5;
+    static int const g_faceverts[16] = { 0, 1, 2,
+                                         0, 2, 3,
+                                         0, 3, 4,
+                                         0, 4, 1,
+                                         4, 3, 2, 1 };
+
+    static int const g_ncreases = 4;
+    static int const g_creaseverts[8] = { 4, 3, 3, 2, 2, 1, 1, 4 };
+    static float const g_creaseweights[4] = { 3.0f, 3.0f, 3.0f, 3.0f };
+
+    // Creates a Far::TopologyRefiner from the pyramid shape above
+    static Far::TopologyRefiner * createTopologyRefiner();
+
+    //------------------------------------------------------------------------------
+    // Vertex container implementation.
+    //
+    struct Vertex {
+
+        // Minimal required interface ----------------------
+        Vertex() { }
+
+        void Clear( void * =0 ) {
+             point[0] = point[1] = point[2] = 0.0f;
+        }
+
+        void AddWithWeight(Vertex const &amp; src, float weight) {
+            point[0] += weight * src.point[0];
+            point[1] += weight * src.point[1];
+            point[2] += weight * src.point[2];
+        }
+
+        void AddVaryingWithWeight(Vertex const &amp;, float) { }
+
+        float point[3];
+    };
+
+    //------------------------------------------------------------------------------
+    // Limit frame container implementation -- this interface is not strictly
+    // required but follows a similar pattern to Vertex.
+    //
+    struct LimitFrame {
+
+        void Clear( void * =0 ) {
+             point[0] =  point[1] =  point[2] = 0.0f;
+            deriv1[0] = deriv1[1] = deriv1[2] = 0.0f;
+            deriv2[0] = deriv2[1] = deriv2[2] = 0.0f;
+        }
+
+        void AddWithWeight(Vertex const &amp; src,
+            float weight, float d1Weight, float d2Weight) {
+
+            point[0] += weight * src.point[0];
+            point[1] += weight * src.point[1];
+            point[2] += weight * src.point[2];
+
+            deriv1[0] += d1Weight * src.point[0];
+            deriv1[1] += d1Weight * src.point[1];
+            deriv1[2] += d1Weight * src.point[2];
+
+            deriv2[0] += d2Weight * src.point[0];
+            deriv2[1] += d2Weight * src.point[1];
+            deriv2[2] += d2Weight * src.point[2];
+        }
+
+        float point[3],
+              deriv1[3],
+              deriv2[3];
+    };
+
+    //------------------------------------------------------------------------------
+    int main(int, char **) {
+
+        // Generate a FarTopologyRefiner (see far_tutorial_0 for details).
+        Far::TopologyRefiner * refiner = createTopologyRefiner();
+
+        // Adaptively refine the topology with an isolation level capped at 3
+        // because the sharpest crease in the shape is 3.0f (in g_creaseweights[])
+        int maxIsolation = 3;
+        refiner-&gt;RefineAdaptive(
+            Far::TopologyRefiner::AdaptiveOptions(maxIsolation));
+
+        // Generate a set of Far::PatchTable that we will use to evaluate the
+        // surface limit
+        Far::PatchTableFactory::Options patchOptions;
+        patchOptions.endCapType =
+            Far::PatchTableFactory::Options::ENDCAP_GREGORY_BASIS;
+
+        Far::PatchTable const * patchTable =
+            Far::PatchTableFactory::Create(*refiner, patchOptions);
+
+        // Compute the total number of points we need to evaluate patchtable.
+        // we use local points around extraordinary features.
+        int nRefinerVertices = refiner-&gt;GetNumVerticesTotal();
+        int nLocalPoints = patchTable-&gt;GetNumLocalPoints();
+
+        // Create a buffer to hold the position of the refined verts and
+        // local points, then copy the coarse positions at the beginning.
+        std::vector&lt;Vertex&gt; verts(nRefinerVertices + nLocalPoints);
+        memcpy(&amp;verts[0], g_verts, g_nverts*3*sizeof(float));
+
+        // Interpolate vertex primvar data : they are the control vertices
+        // of the limit patches (see far_tutorial_0 for details)
+        Vertex * src = &amp;verts[0];
+        for (int level = 1; level &lt;= maxIsolation; ++level) {
+            Vertex * dst = src + refiner-&gt;GetLevel(level-1).GetNumVertices();
+            Far::PrimvarRefiner(*refiner).Interpolate(level, src, dst);
+            src = dst;
+        }
+
+        // Evaluate local points from interpolated vertex primvars.
+        patchTable-&gt;ComputeLocalPointValues(&amp;verts[0], &amp;verts[nRefinerVertices]);
+
+        // Create a Far::PatchMap to help locating patches in the table
+        Far::PatchMap patchmap(*patchTable);
+
+        // Create a Far::PtexIndices to help find indices of ptex faces.
+        Far::PtexIndices ptexIndices(*refiner);
+
+        // Generate random samples on each ptex face
+        int nsamples = 200,
+            nfaces = ptexIndices.GetNumFaces();
+
+        std::vector&lt;LimitFrame&gt; samples(nsamples * nfaces);
+
+        srand( static_cast&lt;int&gt;(2147483647) );
+
+        float pWeights[20], dsWeights[20], dtWeights[20];
+
+        for (int face=0, count=0; face&lt;nfaces; ++face) {
+
+            for (int sample=0; sample&lt;nsamples; ++sample, ++count) {
+
+                float s = (float)rand()/(float)RAND_MAX,
+                      t = (float)rand()/(float)RAND_MAX;
+
+                // Locate the patch corresponding to the face ptex idx and (s,t)
+                Far::PatchTable::PatchHandle const * handle =
+                    patchmap.FindPatch(face, s, t);
+                assert(handle);
+
+                // Evaluate the patch weights, identify the CVs and compute the limit frame:
+                patchTable-&gt;EvaluateBasis(*handle, s, t, pWeights, dsWeights, dtWeights);
+
+                Far::ConstIndexArray cvs = patchTable-&gt;GetPatchVertices(*handle);
+
+                LimitFrame &amp; dst = samples[count];
+                dst.Clear();
+                for (int cv=0; cv &lt; cvs.size(); ++cv) {
+                    dst.AddWithWeight(verts[cvs[cv]], pWeights[cv], dsWeights[cv], dtWeights[cv]);
+                }
+
+            }
+        }
+
+        { // Visualization with Maya : print a MEL script that generates particles
+          // at the location of the limit vertices
+
+            int nsamples = (int)samples.size();
+
+            printf(&quot;file -f -new;\n&quot;);
+
+            // Output particle positions for the tangent
+            printf(&quot;particle -n deriv1 &quot;);
+            for (int sample=0; sample&lt;nsamples; ++sample) {
+                float const * pos = samples[sample].point;
+                printf(&quot;-p %f %f %f\n&quot;, pos[0], pos[1], pos[2]);
+            }
+            printf(&quot;;\n&quot;);
+            // Set per-particle direction using the limit tangent (display as 'Streak')
+            printf(&quot;setAttr \&quot;deriv1.particleRenderType\&quot; 6;\n&quot;);
+            printf(&quot;setAttr \&quot;deriv1.velocity\&quot; -type \&quot;vectorArray\&quot; %d &quot;,nsamples);
+            for (int sample=0; sample&lt;nsamples; ++sample) {
+                float const * tan1 = samples[sample].deriv1;
+                printf(&quot;%f %f %f\n&quot;, tan1[0], tan1[1], tan1[2]);
+            }
+            printf(&quot;;\n&quot;);
+
+            // Output particle positions for the bi-tangent
+            printf(&quot;particle -n deriv2 &quot;);
+            for (int sample=0; sample&lt;nsamples; ++sample) {
+                float const * pos = samples[sample].point;
+                printf(&quot;-p %f %f %f\n&quot;, pos[0], pos[1], pos[2]);
+            }
+            printf(&quot;;\n&quot;);
+            printf(&quot;setAttr \&quot;deriv2.particleRenderType\&quot; 6;\n&quot;);
+            printf(&quot;setAttr \&quot;deriv2.velocity\&quot; -type \&quot;vectorArray\&quot; %d &quot;,nsamples);
+            for (int sample=0; sample&lt;nsamples; ++sample) {
+                float const * tan2 = samples[sample].deriv2;
+                printf(&quot;%f %f %f\n&quot;, tan2[0], tan2[1], tan2[2]);
+            }
+            printf(&quot;;\n&quot;);
+
+            // Exercise to the reader : cross tangent &amp; bi-tangent for limit
+            // surface normal...
+
+            // Force Maya DAG update to see the result in the viewport
+            printf(&quot;currentTime -edit `currentTime -q`;\n&quot;);
+            printf(&quot;select deriv1Shape deriv2Shape;\n&quot;);
+        }
+
+    }
+
+    //------------------------------------------------------------------------------
+    static Far::TopologyRefiner *
+    createTopologyRefiner() {
+
+
+        typedef Far::TopologyDescriptor Descriptor;
+
+        Sdc::SchemeType type = OpenSubdiv::Sdc::SCHEME_CATMARK;
+
+        Sdc::Options options;
+        options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
+
+        Descriptor desc;
+        desc.numVertices = g_nverts;
+        desc.numFaces = g_nfaces;
+        desc.numVertsPerFace = g_vertsperface;
+        desc.vertIndicesPerFace = g_faceverts;
+        desc.numCreases = g_ncreases;
+        desc.creaseVertexIndexPairs = g_creaseverts;
+        desc.creaseWeights = g_creaseweights;
+
+        // Instantiate a FarTopologyRefiner from the descriptor.
+        Far::TopologyRefiner * refiner =
+            Far::TopologyRefinerFactory&lt;Descriptor&gt;::Create(desc,
+                Far::TopologyRefinerFactory&lt;Descriptor&gt;::Options(type, options));
+
+        return refiner;
+    }
+
+</pre>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

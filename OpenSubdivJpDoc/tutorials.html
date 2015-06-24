@@ -1,0 +1,334 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Tutorials</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="tutorials">
+<h1 class="title">Tutorials</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Tutorials</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<hr class="docutils" />
+<p>The tutorial source code can be found in the <a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/tree/master/tutorials">github.com repository</a>
+or in your local <tt class="docutils literal">&lt;repository <span class="pre">root&gt;/turorials</span></tt>.</p>
+<hr class="docutils" />
+<style> .line {text-align:justify;} </style><hr class="docutils" />
+<table border="1" class="quickref docutils">
+<caption><strong>Far Tutorials</strong></caption>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><div class="first last line-block">
+<div class="line"><strong>Tutorial 0</strong></div>
+<div class="line">This tutorial presents in a very succinct way the requisite steps to
+instantiate a Far mesh from simple topological data. <a class="reference external" href="far_tutorial_0.html">[code]</a></div>
+<div class="line"><a class="reference external" href="images/far_tutorial_0.0.png"><img alt="far_tut_0" src="images/far_tutorial_0.0.png" style="width: 100px;" /></a></div>
+<div class="line"><br /></div>
+<div class="line"><strong>Tutorial 1</strong></div>
+<div class="line">This tutorial shows how to interface a high-level topology representation
+with Far for better efficiency. In tutorial 0, we showed how to instantiate
+topology from a simple face-vertex list. Here we will show how to take
+advantage of more complex data structures. <a class="reference external" href="far_tutorial_1.html">[code]</a></div>
+<div class="line"><br /></div>
+<div class="line"><strong>Tutorial 2</strong></div>
+<div class="line">Building on tutorial 0, this example shows how to instantiate a simple mesh,
+refine it uniformly and then interpolate both 'vertex' and 'varying' primvar
+data. <a class="reference external" href="far_tutorial_2.html">[code]</a></div>
+<div class="line"><a class="reference external" href="images/far_tutorial_1.0.png"><img alt="far_tut_1" src="images/far_tutorial_1.0.png" style="width: 100px;" /></a></div>
+<div class="line"><br /></div>
+<div class="line"><strong>Tutorial 3</strong></div>
+<div class="line">Building on tutorial 0, this example shows how to instantiate a simple mesh,
+refine it uniformly and then interpolate both 'vertex' and 'face-varying'
+primvar data.
+The resulting interpolated data is output as an 'obj' file, with the
+'face-varying' data recorded in the uv texture layout.  <a class="reference external" href="far_tutorial_3.html">[code]</a></div>
+<div class="line"><a class="reference external" href="images/far_tutorial_3.0.png"><img alt="far_tut_3" src="images/far_tutorial_3.0.png" style="width: 100px;" /></a></div>
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>Tutorial 4</strong></div>
+<div class="line">This tutorial shows how to create and manipulate FarStencilTable. We use the
+factorized stencils to interpolate vertex primvar data buffers. <a class="reference external" href="far_tutorial_4.html">[code]</a></div>
+<div class="line"><br /></div>
+<div class="line"><strong>Tutorial 5</strong></div>
+<div class="line">This tutorial shows how to create and manipulate both 'vertex' and 'varying'
+FarStencilTable to interpolate 2 primvar data buffers: vertex positions and
+vertex colors. <a class="reference external" href="far_tutorial_5.html">[code]</a></div>
+<div class="line"><br /></div>
+<div class="line"><strong>Tutorial 6</strong></div>
+<div class="line">This tutorial shows how to interpolate surface limits at arbitrary
+parametric locations using feature adaptive Far::PatchTable. <a class="reference external" href="far_tutorial_6.html">[code]</a></div>
+<div class="line"><a class="reference external" href="images/far_tutorial_6.0.png"><img alt="far_tut_6" src="images/far_tutorial_6.0.png" style="width: 100px;" /></a></div>
+<div class="line"><br /></div>
+<div class="line"><strong>Tutorial 7</strong></div>
+<div class="line">This tutorial shows how to create and manipulate tables of cascading
+stencils to apply hierarchical vertex edits. <a class="reference external" href="far_tutorial_7.html">[code]</a></div>
+<div class="line"><br /></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<table border="1" class="quickref docutils">
+<caption><strong>Osd Tutorials</strong></caption>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><div class="first last line-block">
+<div class="line"><strong>Tutorial 0</strong></div>
+<div class="line">This tutorial demonstrates the manipulation of Osd Evaluator and BufferDescriptor.
+<a class="reference external" href="osd_tutorial_0.html">[code]</a></div>
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="quickref docutils">
+<caption><strong>Hbr Tutorials</strong></caption>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><div class="first last line-block">
+<div class="line"><strong>Tutorial 0</strong></div>
+<div class="line">This tutorial presents, in a very succinct way, the requisite steps to
+instantiate an Hbr mesh from simple topological data. <a class="reference external" href="hbr_tutorial_0.html">[code]</a></div>
+<div class="line"><br /></div>
+<div class="line"><strong>Tutorial 1</strong></div>
+<div class="line">This tutorial shows how to safely create Hbr meshes from arbitrary topology.
+Because Hbr is a half-edge data structure, it cannot represent non-manifold
+topology. Ensuring that the geometry used is manifold is a requirement to use
+Hbr safely. This tutorial presents some simple tests to detect inappropriate
+topology. <a class="reference external" href="hbr_tutorial_1.html">[code]</a></div>
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>Tutorial 2</strong></div>
+<div class="line">This tutorial shows how to subdivide uniformly a simple Hbr mesh. We are
+building upon previous tutorials and assuming a fully instantiated mesh:
+we start with an HbrMesh pointer initialized from the same pyramid shape
+used in hbr_tutorial_0. We then apply the Refine() function sequentially
+to all the faces in the mesh to generate several levels of uniform
+subdivision. The resulting data is then dumped to the terminal in Wavefront
+OBJ format for inspection. <a class="reference external" href="hbr_tutorial_2.html">[code]</a></div>
+<div class="line"><a class="reference external" href="images/hbr_tutorial_2.0.png"><img alt="hbr_tut_2" src="images/hbr_tutorial_2.0.png" style="width: 100px;" /></a></div>
+<div class="line"><br /></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

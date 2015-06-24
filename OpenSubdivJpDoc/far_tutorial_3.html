@@ -1,0 +1,555 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>far_tutorial_3.cpp</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="far-tutorial-3-cpp">
+<h1 class="title">far_tutorial_3.cpp</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">far_tutorial_3.cpp</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_3/far_tutorial_3.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_3/far_tutorial_3.cpp</a></p>
+<hr class="docutils" />
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/far_tutorial_3.rst</tt>, line 9)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c
+
+    //------------------------------------------------------------------------------
+    // Tutorial description:
+    //
+    // Building on tutorial 0, this example shows how to instantiate a simple mesh,
+    // refine it uniformly and then interpolate both 'vertex' and 'face-varying'
+    // primvar data.
+    // The resulting interpolated data is output as an 'obj' file, with the
+    // 'face-varying' data recorded in the uv texture layout.
+    //
+
+    #include &lt;opensubdiv/far/topologyDescriptor.h&gt;
+    #include &lt;opensubdiv/far/primvarRefiner.h&gt;
+
+    #include &lt;cstdio&gt;
+
+    //------------------------------------------------------------------------------
+    // Face-varying implementation.
+    //
+    //
+    struct Vertex {
+
+        // Minimal required interface ----------------------
+        Vertex() { }
+
+        Vertex(Vertex const &amp; src) {
+            _position[0] = src._position[0];
+            _position[1] = src._position[1];
+            _position[2] = src._position[2];
+        }
+
+        void Clear( void * =0 ) {
+            _position[0]=_position[1]=_position[2]=0.0f;
+        }
+
+        void AddWithWeight(Vertex const &amp; src, float weight) {
+            _position[0]+=weight*src._position[0];
+            _position[1]+=weight*src._position[1];
+            _position[2]+=weight*src._position[2];
+        }
+
+        // Public interface ------------------------------------
+        void SetPosition(float x, float y, float z) {
+            _position[0]=x;
+            _position[1]=y;
+            _position[2]=z;
+        }
+
+        const float * GetPosition() const {
+            return _position;
+        }
+
+    private:
+        float _position[3];
+    };
+
+    //------------------------------------------------------------------------------
+    // Face-varying container implementation.
+    //
+    // We are using a uv texture layout as a 'face-varying' primtiive variable
+    // attribute. Because face-varying data is specified 'per-face-per-vertex',
+    // we cannot use the same container that we use for 'vertex' or 'varying'
+    // data. We specify a new container, which only carries (u,v) coordinates.
+    // Similarly to our 'Vertex' container, we add a minimaliztic interpolation
+    // interface with a 'Clear()' and 'AddWithWeight()' methods.
+    //
+    struct FVarVertexUV {
+
+        // Minimal required interface ----------------------
+        void Clear() {
+            u=v=0.0f;
+        }
+
+        void AddWithWeight(FVarVertexUV const &amp; src, float weight) {
+            u += weight * src.u;
+            v += weight * src.v;
+        }
+
+        // Basic 'uv' layout channel
+        float u,v;
+    };
+
+    struct FVarVertexColor {
+
+        // Minimal required interface ----------------------
+        void Clear() {
+            r=g=b=a=0.0f;
+        }
+
+        void AddWithWeight(FVarVertexColor const &amp; src, float weight) {
+            r += weight * src.r;
+            g += weight * src.g;
+            b += weight * src.b;
+            a += weight * src.a;
+        }
+
+        // Basic 'color' layout channel
+        float r,g,b,a;
+    };
+
+    //------------------------------------------------------------------------------
+    // Cube geometry from catmark_cube.h
+
+
+    // 'vertex' primitive variable data &amp; topology
+    static float g_verts[8][3] = {{ -0.5f, -0.5f,  0.5f },
+                                  {  0.5f, -0.5f,  0.5f },
+                                  { -0.5f,  0.5f,  0.5f },
+                                  {  0.5f,  0.5f,  0.5f },
+                                  { -0.5f,  0.5f, -0.5f },
+                                  {  0.5f,  0.5f, -0.5f },
+                                  { -0.5f, -0.5f, -0.5f },
+                                  {  0.5f, -0.5f, -0.5f }};
+    static int g_nverts = 8,
+               g_nfaces = 6;
+
+    static int g_vertsperface[6] = { 4, 4, 4, 4, 4, 4 };
+
+    static int g_vertIndices[24] = { 0, 1, 3, 2,
+                                     2, 3, 5, 4,
+                                     4, 5, 7, 6,
+                                     6, 7, 1, 0,
+                                     1, 7, 5, 3,
+                                     6, 0, 2, 4  };
+
+    // 'face-varying' primitive variable data &amp; topology for UVs
+    static float g_uvs[14][2] = {{ 0.375, 0.00 },
+                                 { 0.625, 0.00 },
+                                 { 0.375, 0.25 },
+                                 { 0.625, 0.25 },
+                                 { 0.375, 0.50 },
+                                 { 0.625, 0.50 },
+                                 { 0.375, 0.75 },
+                                 { 0.625, 0.75 },
+                                 { 0.375, 1.00 },
+                                 { 0.625, 1.00 },
+                                 { 0.875, 0.00 },
+                                 { 0.875, 0.25 },
+                                 { 0.125, 0.00 },
+                                 { 0.125, 0.25 }};
+
+    static int g_nuvs = 14;
+
+    static int g_uvIndices[24] = {  0,  1,  3,  2,
+                                    2,  3,  5,  4,
+                                    4,  5,  7,  6,
+                                    6,  7,  9,  8,
+                                    1, 10, 11,  3,
+                                   12,  0,  2, 13  };
+
+    // 'face-varying' primitive variable data &amp; topology for color
+    static float g_colors[24][4] = {{1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 0.0, 0.0, 1.0},
+                                    {1.0, 0.0, 0.0, 1.0},
+                                    {1.0, 0.0, 0.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0},
+                                    {1.0, 1.0, 1.0, 1.0}};
+
+    static int g_ncolors = 24;
+
+    static int g_colorIndices[24] = { 0,  3,  9,  6,
+                                      7, 10, 15, 12,
+                                     13, 16, 21, 18,
+                                     19, 22,  4,  1,
+                                      5, 23, 17, 11,
+                                     20,  2,  8, 14 };
+
+    using namespace OpenSubdiv;
+
+    //------------------------------------------------------------------------------
+    int main(int, char **) {
+
+        int maxlevel = 3;
+
+        typedef Far::TopologyDescriptor Descriptor;
+
+        Sdc::SchemeType type = OpenSubdiv::Sdc::SCHEME_CATMARK;
+
+        Sdc::Options options;
+        options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
+        options.SetFVarLinearInterpolation(Sdc::Options::FVAR_LINEAR_NONE);
+
+        // Populate a topology descriptor with our raw data
+        Descriptor desc;
+        desc.numVertices  = g_nverts;
+        desc.numFaces     = g_nfaces;
+        desc.numVertsPerFace = g_vertsperface;
+        desc.vertIndicesPerFace  = g_vertIndices;
+
+        int channelUV = 0;
+        int channelColor = 1;
+
+        // Create a face-varying channel descriptor
+        Descriptor::FVarChannel channels[2];
+        channels[channelUV].numValues = g_nuvs;
+        channels[channelUV].valueIndices = g_uvIndices;
+        channels[channelColor].numValues = g_ncolors;
+        channels[channelColor].valueIndices = g_colorIndices;
+
+        // Add the channel topology to the main descriptor
+        desc.numFVarChannels = 2;
+        desc.fvarChannels = channels;
+
+        // Instantiate a FarTopologyRefiner from the descriptor
+        Far::TopologyRefiner * refiner =
+            Far::TopologyRefinerFactory&lt;Descriptor&gt;::Create(desc,
+                Far::TopologyRefinerFactory&lt;Descriptor&gt;::Options(type, options));
+
+        // Uniformly refine the topolgy up to 'maxlevel'
+        // note: fullTopologyInLastLevel must be true to work with face-varying data
+        {
+            Far::TopologyRefiner::UniformOptions refineOptions(maxlevel);
+            refineOptions.fullTopologyInLastLevel = true;
+            refiner-&gt;RefineUniform(refineOptions);
+        }
+
+        // Allocate and initialize the 'vertex' primvar data (see tutorial 2 for
+        // more details).
+        std::vector&lt;Vertex&gt; vbuffer(refiner-&gt;GetNumVerticesTotal());
+        Vertex * verts = &amp;vbuffer[0];
+
+        for (int i=0; i&lt;g_nverts; ++i) {
+            verts[i].SetPosition(g_verts[i][0], g_verts[i][1], g_verts[i][2]);
+        }
+
+        // Allocate and initialize the first channel of 'face-varying' primvar data (UVs)
+        std::vector&lt;FVarVertexUV&gt; fvBufferUV(refiner-&gt;GetNumFVarValuesTotal(channelUV));
+        FVarVertexUV * fvVertsUV = &amp;fvBufferUV[0];
+        for (int i=0; i&lt;g_nuvs; ++i) {
+            fvVertsUV[i].u = g_uvs[i][0];
+            fvVertsUV[i].v = g_uvs[i][1];
+        }
+
+        // Allocate &amp; interpolate the 'face-varying' primvar data (colors)
+        std::vector&lt;FVarVertexColor&gt; fvBufferColor(refiner-&gt;GetNumFVarValuesTotal(channelColor));
+        FVarVertexColor * fvVertsColor = &amp;fvBufferColor[0];
+        for (int i=0; i&lt;g_ncolors; ++i) {
+            fvVertsColor[i].r = g_colors[i][0];
+            fvVertsColor[i].g = g_colors[i][1];
+            fvVertsColor[i].b = g_colors[i][2];
+            fvVertsColor[i].a = g_colors[i][3];
+        }
+
+        // Interpolate both vertex and face-varying primvar data
+        Far::PrimvarRefiner primvarRefiner(*refiner);
+
+        Vertex *     srcVert = verts;
+        FVarVertexUV * srcFVarUV = fvVertsUV;
+        FVarVertexColor * srcFVarColor = fvVertsColor;
+
+        for (int level = 1; level &lt;= maxlevel; ++level) {
+            Vertex *     dstVert = srcVert + refiner-&gt;GetLevel(level-1).GetNumVertices();
+            FVarVertexUV * dstFVarUV = srcFVarUV + refiner-&gt;GetLevel(level-1).GetNumFVarValues(channelUV);
+            FVarVertexColor * dstFVarColor = srcFVarColor + refiner-&gt;GetLevel(level-1).GetNumFVarValues(channelColor);
+
+            primvarRefiner.Interpolate(level, srcVert, dstVert);
+            primvarRefiner.InterpolateFaceVarying(level, srcFVarUV, dstFVarUV, channelUV);
+            primvarRefiner.InterpolateFaceVarying(level, srcFVarColor, dstFVarColor, channelColor);
+
+            srcVert = dstVert;
+            srcFVarUV = dstFVarUV;
+            srcFVarColor = dstFVarColor;
+        }
+
+
+        { // Output OBJ of the highest level refined -----------
+
+            Far::TopologyLevel const &amp; refLastLevel = refiner-&gt;GetLevel(maxlevel);
+
+            int nverts = refLastLevel.GetNumVertices();
+            int nuvs   = refLastLevel.GetNumFVarValues(channelUV);
+            int ncolors= refLastLevel.GetNumFVarValues(channelColor);
+            int nfaces = refLastLevel.GetNumFaces();
+
+            // Print vertex positions
+            int firstOfLastVerts = refiner-&gt;GetNumVerticesTotal() - nverts;
+
+            for (int vert = 0; vert &lt; nverts; ++vert) {
+                float const * pos = verts[firstOfLastVerts + vert].GetPosition();
+                printf(&quot;v %f %f %f\n&quot;, pos[0], pos[1], pos[2]);
+            }
+
+            // Print uvs
+            int firstOfLastUvs = refiner-&gt;GetNumFVarValuesTotal(channelUV) - nuvs;
+
+            for (int fvvert = 0; fvvert &lt; nuvs; ++fvvert) {
+                FVarVertexUV const &amp; uv = fvVertsUV[firstOfLastUvs + fvvert];
+                printf(&quot;vt %f %f\n&quot;, uv.u, uv.v);
+            }
+
+            // Print colors
+            int firstOfLastColors = refiner-&gt;GetNumFVarValuesTotal(channelColor) - ncolors;
+
+            for (int fvvert = 0; fvvert &lt; nuvs; ++fvvert) {
+                FVarVertexColor const &amp; c = fvVertsColor[firstOfLastColors + fvvert];
+                printf(&quot;c %f %f %f %f\n&quot;, c.r, c.g, c.b, c.a);
+            }
+
+            // Print faces
+            for (int face = 0; face &lt; nfaces; ++face) {
+
+                Far::ConstIndexArray fverts = refLastLevel.GetFaceVertices(face);
+                Far::ConstIndexArray fuvs   = refLastLevel.GetFaceFVarValues(face, channelUV);
+
+                // all refined Catmark faces should be quads
+                assert(fverts.size()==4 and fuvs.size()==4);
+
+                printf(&quot;f &quot;);
+                for (int vert=0; vert&lt;fverts.size(); ++vert) {
+                    // OBJ uses 1-based arrays...
+                    printf(&quot;%d/%d &quot;, fverts[vert]+1, fuvs[vert]+1);
+                }
+                printf(&quot;\n&quot;);
+            }
+        }
+    }
+    //------------------------------------------------------------------------------
+</pre>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

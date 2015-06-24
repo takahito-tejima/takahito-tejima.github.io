@@ -1,0 +1,416 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Vtr Overview</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="vtr-overview">
+<h1 class="title">Vtr Overview</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Vtr Overview</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#vectorized-topology-representation-vtr" id="id1">Vectorized Topology Representation (Vtr)</a></li>
+<li><a class="reference internal" href="#vtr-level" id="id2">Vtr::Level</a><ul>
+<li><a class="reference internal" href="#topological-relationships" id="id3">Topological Relationships</a></li>
+<li><a class="reference internal" href="#memory-efficiency" id="id4">Memory Efficiency</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vtr-refinement" id="id5">Vtr::Refinement</a><ul>
+<li><a class="reference internal" href="#parent-child-and-child-parent-relationships" id="id6">Parent-child and child-parent relationships</a></li>
+<li><a class="reference internal" href="#data-flexibility" id="id7">Data flexibility</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="vectorized-topology-representation-vtr">
+<h3>Vectorized Topology Representation (Vtr)</h3>
+<p><em>Vtr</em> consists of a suite of classes that collectively provide an intermediate
+representation of topology that supports efficient refinement.</p>
+<p><em>Vtr</em> is intended for internal use only and is currently accessed through the
+<em>Far</em> layer by the <a class="reference external" href="far_overview.html">Far::TopologyRefiner</a>, which assembles
+these <em>Vtr</em> classes to meet the topological and refinement needs of the <em>Far</em>
+layer.  What follows is therefore more intended to provide insite into the
+underlying architecture than to describe particular usage.  For documentation
+more relevant to direct usage, proceed to the <em>Far</em> section previously noted.</p>
+<p><em>Vtr</em> is vectorized in that its topological data is stored more as a collection of
+vectors of primitive elements rather than as the faces, vertices and edges that
+make up many other topological representations.  It is essentially a
+structure-of-arrays (SOA) approach to topology in contrast to the more common
+array-of-structures pattern found in many other topological representations.
+Vtr's use of vectors allows it to be fairly efficient in its use of memory and
+similarly efficient to refine, but the topology is fixed once defined.</p>
+<p><em>Vtr</em> classes are purely topological.  They are even more independent of the
+representation of vertices, faces, etc. than Hbr in that they are not even
+parameterized by an interface to such components.  So the same set of Vtr
+objects can eventually be used to serve more than one representation of these
+components.  The primary requirement is that a mesh be expressable as an
+indexable set (i.e. a vector or array) of vertices, edges and faces. The index
+of a component uniquely identifies it and properties are retrieved by referring
+to it by index.</p>
+<p>It's worth qualifying the term &quot;topological&quot; here and elsewhere -- we generally
+refer to &quot;topology&quot; as &quot;subdivision topology&quot; rather than &quot;mesh topology&quot;.  A
+subdivision hierarchy is impacted by the presence of semi-sharp creasing, as
+the subdivision rules change in response to that creasing.  So subdivision
+topology includes the sharpness values assigned to edges and vertices that
+affect the semi-sharp creasing.</p>
+<p>The two primary classes in <em>Vtr</em> consist of:</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="#vtrlevel">Vtr::Level</a> - a class representing complete vertex topology
+for a level</li>
+<li><a class="reference external" href="#vtrrefinement">Vtr::Refinement</a> - a class mapping a parent <em>Vtr::Level</em>
+to a child level</li>
+</ul>
+</blockquote>
+<p>Others exist to represent the following:</p>
+<blockquote>
+<ul class="simple">
+<li>selection and appropriate tagging of components for sparse refinement</li>
+<li>divergence of face-varying topology from the vertex topology</li>
+<li>mapping between face-varying topology at successive levels</li>
+<li>common low-level utilities, e.g. simple array classes</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="vtr-level">
+<h3>Vtr::Level</h3>
+<p><em>Vtr::Level</em> is a complete topological description of a subdivision level, with the
+topological relations, sharpness values and component tags all stored in
+vectors (literally std::vectors, but easily changed via typedefs). There are no
+classes or objects for the mesh component types (i.e. faces, edges and
+vertices) but simply an integer index to identify each.  It can be viewed as a
+structure-of-arrays representation of the topology: any property related to a
+particular component is stored in an array and accessible using the index
+identifying that component. So with no classes the for the components, its
+difficult to say what constitutes a &quot;vertex&quot; or a &quot;face&quot;: they are each the sum
+of all the fields scattered amongst the many vectors included.</p>
+<p><em>Level</em> represents a single level of a potential hierarchy and is capable of
+representing the complete base mesh.  There are no members that relate data in
+one level to any other, either below or above.  As such, any <em>Level</em> can be
+used as the base level for a new subdivision hierarchy (potentially more than
+one). All relationships between separate levels are maintained in the
+<a class="reference external" href="#vtrrefinement">Vtr::Refinement</a> class.</p>
+<div class="section" id="topological-relationships">
+<h4>Topological Relationships</h4>
+<p><em>Level</em> requires the definition of and associations between a fixed set of
+indexable components for all three component types, i.e. an explicit edge list
+in addition to the expected set of vertices and faces. There are no explicit
+component objects in the representation, only an integer index (<em>Vtr::Index</em>)
+identifying each component within the set and data associated with that
+component in the various vectors.</p>
+<p>The topology is stored as six sets of incident relations between the components:
+two each for the two other component types incident each component type, i.e.:</p>
+<blockquote>
+<ul class="simple">
+<li>for each face, its incident vertices and incident edges</li>
+<li>for each edge, its incident vertices and incident faces</li>
+<li>for each vertex, its incident edges and incident faces</li>
+</ul>
+</blockquote>
+<p>The collection of incidence relations is a vectorized variation of AIF (the
+&quot;Adjacency and Incidence Framework&quot;). The set of these six incidence relations
+is not minimal (only four are required, but that set excludes the most desired
+face-vertex relation) but all six are kept and maintained to facilitate faster
+refinement. While the sizes of several vectors are directly proportional to the
+number of vertices, edges or faces to which the data is associated, the sizes
+of some of the vectors for these relations is more cumulative and so additional
+vectors of offsets is required (typical of the face-vertex list commonly used
+as the minimal definition of mesh topology).</p>
+<p>Vectors for the sharpness values associated with crease edges and corner
+vertices are included (and so sized according to the number of edges and
+vertices), along with additional tags for the components that may be helpful to
+refinement (i.e. the type of subdivision Rule associated with each vertex).</p>
+<p>A <em>Level</em> is really just a container for data in a subdivision level, and so
+its public methods are primarily to access that data. Modification of the data
+is protected and only made available to classes that are intended to construct
+<em>Levels</em>: currently the <em>Far</em> factory class that is responsible for building the
+base level, and the <a class="reference external" href="#vtrrefinement">Vtr::Refinement</a> class that constructs
+subsequent levels during refinement.</p>
+</div>
+<div class="section" id="memory-efficiency">
+<h4>Memory Efficiency</h4>
+<p>One of the advantages in storing data in what is essentially a
+structure-of-arrays, rather than the array-of-structures more typical of
+topological representations, is that we can be more selective about memory
+usage in some cases. Particularly in the case of uniform refinement, when the
+data in subsequent levels is typically 4x its predecessor, we can minimize what
+we either generate or keep around at each level. For instance, if only a
+face-list is required at the finest level, we only need to generate one of the
+six topological relations: the vertices incident each face. When we do keep
+<em>Levels</em> around in memory (as is the case with the <a class="reference external" href="far_overview.html">Far::TopologyRefiner</a>) we do have do have the opportunity to prune what is not
+strictly necessary after the refinement. Just as with construction, whatever
+classes are privileged to construct a <em>Level</em> are likely those that will be
+privileged to prune its contents when needed.</p>
+<p>The current implementation of Level is far from optimal though -- there are
+opportunities for improvement.  After one level of subdivision, the
+faces in a Level will be either all quads or tris.  Having specializations
+for these cases and using the more general case in support of N-sided faces
+for the base level only is one possibility.  Levels also allocate dozens of
+vectors in which to store all data.  Since these vectors are of fixed size
+once created, they could be aggregated by partitioning one or a smaller
+number of larger block of memory into the desired pieces.  The desire to
+make some of these improvements is part of why Vtr is not directly exposed
+for public use and instead exposed via Far.</p>
+</div>
+</div>
+<div class="section" id="vtr-refinement">
+<h3>Vtr::Refinement</h3>
+<p>While <a class="reference external" href="#vtrlevel">Vtr::Level</a> contains the topology for each subdivision level,
+<em>Vtr::Refinement</em>  is responsible for creating a new level via refinement of an
+existing one, and for maintaining the relationships between the components in
+the parent and child levels. So a simplified view of a subdivision hierarchy
+with <em>Vtr</em> is a set of <em>Levels</em> with a <em>Refinement</em>  between each
+successive pair.</p>
+<a class="reference external image-reference" href="images/vtr_refinement.1.png"><img alt="images/vtr_refinement.1.png" class="align-center" src="images/vtr_refinement.1.png" /></a>
+<p><em>Refinement</em>  is a friend of <em>Level</em> and will populate a child level from
+a parent given a set of refinement parameters. Aside from parameters related
+to data or depth, there are two kinds of refinement supported:  uniform and
+sparse.  The latter sparse refinement requires selection of an arbitrary set of
+components -- any dependent or <em>&quot;neighboring&quot;</em> components that are required for
+the limit will be automatically included. So feature-adaptive refinement is
+just one form of this selective sparse refinement, the criteria being the
+topological features of interest (creases and extra-ordinary vertices). The
+intent is to eventually provide more flexibility to facilitate the refinement
+of particular regions of interest or more dynamic/adaptive needs.</p>
+<p><em>Refinement</em> has also been subclassed according to the type of topological
+split being performed, i.e. splitting all faces into quads or tris via the
+<em>QuadRefinement</em> and <em>TriRefinement</em> subclasses.  As noted with <em>Vtr::Level</em>,
+there is further room for improvement in memory and/or performance here by
+combining more optimal specializations for both <em>Refinement</em> and <em>Level</em> --
+with consideration of separating the uniform and sparse cases.</p>
+<div class="section" id="parent-child-and-child-parent-relationships">
+<h4>Parent-child and child-parent relationships</h4>
+<p>While <em>Refinement</em> populates a new child <em>Level</em> as part of its refinement
+operation, it also accumulates the relationships between the parent and child
+level (and as with <em>Level</em>, this data is stored in vectors indexable by the
+components).</p>
+<p>The associations between components in the two levels was initially only
+uni-directional:  child components were associated with incident components
+of a parent component based on the parent components topology, so we had a
+parent-to-child mapping (one to many).  Storing the reverse child-to-parent
+mapping was avoided to reduce memory (particularly in the case of uniform
+refinement) as it often was not necessary, but a growing need for it,
+particularly in the case of sparse feature-adaptive refinement, lead to it
+being included.</p>
+</div>
+<div class="section" id="data-flexibility">
+<h4>Data flexibility</h4>
+<p>One of the advantages of the structure-of-arrays representation in both
+<em>Level</em> and <em>Refinement</em> is that we can make more dynamic choices about what
+type of data we choose to allocate and use based on needs. For instance, we can
+choose between maintaining the parent-child or child-parent mapping in
+<em>Refinement</em>, or both if needed, and we can remove one if no longer
+necessary. An active example of this is uniform refinement: if we only require
+the face-vertex list at the finest subdivision level, there is no need to
+generate a complete topological description of that level (as would be required
+of more traditional representations), and given that level is 4x the magnitude
+of its parent, the savings are considerable.</p>
+<p>Currently there is nothing specific to a subdivision scheme in the refinement
+other than the type of topological splitting to apply. The refinement does
+subdivide sharpness values for creasing, but that too is independent of scheme.
+Tags were added to the base level that are propagated through the refinement
+and these too are dependent on the scheme, but are applied externally.</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

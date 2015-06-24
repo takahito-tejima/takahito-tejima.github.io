@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Introduction</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="introduction">
+<h1 class="title">Introduction</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Introduction</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<img alt="images/geri.jpg" class="align-center" src="images/geri.jpg" style="width: 100%;" />
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#id1" id="id7">はじめに</a></li>
+<li><a class="reference internal" href="#id2" id="id8">なぜ高速なサブディビジョンが必要なのか</a></li>
+<li><a class="reference internal" href="#id3" id="id9">理論研究</a></li>
+<li><a class="reference internal" href="#id4" id="id10">歴史</a></li>
+<li><a class="reference internal" href="#id5" id="id11">ライセンス</a></li>
+<li><a class="reference internal" href="#id6" id="id12">開発への参加</a></li>
+<li><a class="reference internal" href="#external-resources" id="id13">External Resources</a></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="id1">
+<h3>はじめに</h3>
+<p>サーフェス計算を行うオープンソースのライブラリです。静的なトポロジ上で変形する
+サーフェスをインタラクティブなフレームレートで描画できるように最適化されています。
+得られる極限サーフェスはピクサーの RenderMan 仕様と数値計算精度の範囲内で一致します。</p>
+<p>OpenSubdiv はサードパーティのDCCツールに組み込まれることを想定した API ですが、
+これ自体で直接アセットを作るためのアプリケーションやツールではありません。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h3>なぜ高速なサブディビジョンが必要なのか</h3>
+<p>サブディビジョンサーフェスは滑らかで制御しやすい極限サーフェスを持ったキャラクター形状
+の最終レンダリングのために一般的に用いられています。ただし、インタラクティブな
+アプリケーション内ではパフォーマンスの事情によりポリゴンでのコントロールメッシュとして
+近似的に描画されるのが一般的でした。インタラクティブアプリケーションで近似形状を
+操作するため、例えば頬を触る手やボトルをつかむ指などの精密な接触を見るのが難しいという
+問題があります。また、肌と衣服がどちらも近似だとクロスシミュレーションの突き抜けをチェック
+するのも難しくなります。特に、接触する片方のフェイスのサイズが相手より著しく大きい場合
+などでは近似誤差が大きくなり、顕著な問題となって現れます。</p>
+<p>Maya、およびピクサーのインハウスツール Presto アニメーションシステムでは 3万ポリゴンの
+キャラクターを２レベルサブディビジョンして50万ポリゴンにするのに100ミリ秒かかります。
+もしこれを3ミリ秒以下にすることができれば、ユーザが滑らかで正確な極限サーフェスを常に
+操作することができるようになります。</p>
+<a class="reference external image-reference" href="images/osd_splash.png"><img alt="images/osd_splash.png" class="align-center" src="images/osd_splash.png" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="id3">
+<h3>理論研究</h3>
+<p>OpenSubdiv を支える新しい GPU 技術はピクサーとマイクロソフトの共同研究の成果として得られました。</p>
+<blockquote>
+<div class="line-block">
+<div class="line"><em>Feature Adaptive GPU Rendering of Catmull-Clark Subdivision Surfaces</em></div>
+<div class="line">Matthias Niessner, Charles Loop, Mark Meyer, and Tony DeRose</div>
+<div class="line">ACM Transactions on Graphics, Vol. 31 No. 1 Article 6 January 2012</div>
+<div class="line"><a class="reference external" href="http://research.microsoft.com/en-us/um/people/cloop/tog2012.pdf">http://research.microsoft.com/en-us/um/people/cloop/tog2012.pdf</a></div>
+<div class="line"><br /></div>
+<div class="line"><em>Efficient Evaluation of Semi-Smooth Creases in Catmull-Clark Subdivision Surfaces</em></div>
+<div class="line">Matthias Niessner, Charles Loop, and Guenter Greiner.</div>
+<div class="line">Eurographics Proceedings, Cagliari, 2012</div>
+<div class="line"><a class="reference external" href="http://research.microsoft.com/en-us/um/people/cloop/EG2012.pdf">http://research.microsoft.com/en-us/um/people/cloop/EG2012.pdf</a></div>
+<div class="line"><br /></div>
+<div class="line"><em>Analytic Displacement Mapping using Hardware Tessellation</em></div>
+<div class="line">Matthias Niessner, Charles Loop</div>
+<div class="line">ACM Transactions on Graphics, To appear 2013</div>
+<div class="line"><a class="reference external" href="http://research.microsoft.com/en-us/um/people/cloop/TOG2013.pdf">http://research.microsoft.com/en-us/um/people/cloop/TOG2013.pdf</a></div>
+</div>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="id4">
+<h3>歴史</h3>
+<p>これはピクサーのインハウスアニメーションシステムでは５世代目のサブディビジョンサーフェス
+ライブラリですが、そのオリジナルは 1996 年、ゲーリーじいさんのチェスの制作に際して Tony DeRose,
+Tien Truong らによって初めて書かれたものです。ピクサーのアニメーション制作の経験を
+活かしながら、世代を重ねる度に毎回完全に書きなおされて来ました。このコードは今現在で
+実際に使われているものであり、今および未来の映画のためにピクサーが OpenSubdiv に対して
+行う変更は、ピクサーのアニメーション制作に投入されるのと同時にオープンソースとして
+リリースしていきます。</p>
+<blockquote>
+<div class="line-block">
+<div class="line"><em>Subdivision for Modeling and Animation</em></div>
+<div class="line">Denis Zorin, Peter Schroder</div>
+<div class="line">Course Notes of SIGGRAPH 1999</div>
+<div class="line"><a class="reference external" href="http://www.multires.caltech.edu/pubs/sig99notes.pdf">http://www.multires.caltech.edu/pubs/sig99notes.pdf</a></div>
+<div class="line"><br /></div>
+<div class="line"><em>Subdivision Surfaces in Character Animation</em></div>
+<div class="line">Tony DeRose, Michael Kass, Tien Truong</div>
+<div class="line">Proceedings of SIGGRAPH 1998</div>
+<div class="line"><a class="reference external" href="http://graphics.pixar.com/library/Geri/paper.pdf">http://graphics.pixar.com/library/Geri/paper.pdf</a></div>
+<div class="line"><br /></div>
+<div class="line"><em>Recursively generated B-spline surfaces on arbitrary topological meshes</em></div>
+<div class="line">Catmull, E.; Clark, J. Computer-Aided Design 10 (6) (1978)</div>
+</div>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="id5">
+<h3>ライセンス</h3>
+<p>OpenSubdiv は Apache License で提供されており、商用・非商用ともに無料で使用可能です。
+これはピクサーが社内で使っているアニメーション映画制作用のソフトウェアと同一のコードです。
+私達のねらいは統一されたアルゴリズムで同一の極限サーフェスを得られ、かつ様々なプラットフォームで
+高パフォーマンスが得られるライブラリを提供することにより、サブディビジョンサーフェスを
+形状表現のスタンダードとしてすすめていくことです。</p>
+<p>Apache ライセンスの理由：私達は商用に適用しやすく、かつ関連特許も扱えるライセンスを
+選び、Microsoft Public License と Apache ライセンスが候補になりました。当初は知的所有権
+の取り扱いが良かった MSPL を採用していましたが、その後様々な要望を頂いた上で Apache
+ライセンスを再検討し、商標に関するわずかな変更を加えて Apache ライセンスとすることに
+しました。例えば、OpenSubdiv を製品に使うことはできますが、Luxo やピクサーのキャラクターを
+その製品のマーケティングのためなどに用いることはできません。</p>
+<p><a class="reference external" href="license.html">License Header</a></p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id6">
+<h3>開発への参加</h3>
+<p>詳細は <a class="reference external" href="contributing.html">Contributing</a> のページを御覧ください。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="external-resources">
+<h3>External Resources</h3>
+<dl class="docutils">
+<dt>Microsoft Research:</dt>
+<dd><a class="reference external" href="http://research.microsoft.com/en-us/um/people/cloop/">Charles Loop</a>
+<a class="reference external" href="http://lgdv.cs.fau.de/people/card/matthias/niessner/">Matthias Niessner</a></dd>
+<dt>Pixar Research:</dt>
+<dd><a class="reference external" href="http://graphics.pixar.com/research/">Pixar R&amp;D Portal</a></dd>
+</dl>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

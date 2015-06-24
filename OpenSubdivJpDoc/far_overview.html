@@ -1,0 +1,832 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>FAR Overview</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="far-overview">
+<h1 class="title">FAR Overview</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">FAR Overview</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#feature-adaptive-representation-far" id="id1">Feature Adaptive Representation (Far)</a><ul>
+<li><a class="reference internal" href="#topology-refinement" id="id2">Topology Refinement</a></li>
+<li><a class="reference internal" href="#primvar-refinement" id="id3">Primvar Refinement</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#far-topologyrefiner" id="id4">Far::TopologyRefiner</a></li>
+<li><a class="reference internal" href="#far-topologyrefinerfactory" id="id5">Far::TopologyRefinerFactory</a></li>
+<li><a class="reference internal" href="#far-primvarrefiner" id="id6">Far::PrimvarRefiner</a></li>
+<li><a class="reference internal" href="#far-patchtable" id="id7">Far::PatchTable</a><ul>
+<li><a class="reference internal" href="#patch-arrays" id="id8">Patch Arrays</a></li>
+<li><a class="reference internal" href="#patch-types" id="id9">Patch Types</a></li>
+<li><a class="reference internal" href="#patch-parameterization" id="id10">Patch Parameterization</a></li>
+<li><a class="reference internal" href="#single-crease-patches" id="id11">Single-Crease Patches</a></li>
+<li><a class="reference internal" href="#local-points" id="id12">Local Points</a></li>
+<li><a class="reference internal" href="#legacy-gregory-patches" id="id13">Legacy Gregory Patches</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#far-stenciltable" id="id14">Far::StencilTable</a><ul>
+<li><a class="reference internal" href="#advantages" id="id15">Advantages</a></li>
+<li><a class="reference internal" href="#principles" id="id16">Principles</a></li>
+<li><a class="reference internal" href="#cascading-stencils" id="id17">Cascading Stencils</a></li>
+<li><a class="reference internal" href="#limit-stencils" id="id18">Limit Stencils</a></li>
+<li><a class="reference internal" href="#sample-location-on-extraordinary-faces" id="id19">Sample Location On Extraordinary Faces</a></li>
+<li><a class="reference internal" href="#code-example" id="id20">Code example</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="feature-adaptive-representation-far">
+<h3>Feature Adaptive Representation (Far)</h3>
+<p><em>Far</em> is the primary API layer for processing client-supplied mesh data
+into subdivided surfaces.</p>
+<p>The <em>Far</em> interface may be used directly and also may be used to prepare
+mesh data for further processing by <a class="reference external" href="osd_overview.html#Osd">Osd</a>.</p>
+<p>The two main aspects of the subdivision process are <em>Topology Refinement</em>
+and <em>Primvar Refinement</em>.</p>
+<div class="section" id="topology-refinement">
+<h4>Topology Refinement</h4>
+<p>Topology refinement is the process of splitting the mesh topology
+according to the specified subdivison rules to generate new topological
+vertices, edges, and faces. This process is purely topological and does
+not depend on the speciific values of any primvar data (point positions, etc).</p>
+<p>Topology refinement can be either uniform or adaptive, where extraordinary
+features are automatically isolated (see <a class="reference external" href="subdivision_surfaces.html#feature-adaptive-subdivision">feature adaptive subdivision</a>).</p>
+<p>The <em>Far</em> topology classes present a public interface for the refinement
+functionality provided in <a class="reference external" href="vtr_overview.html#Vtr">Vtr</a>,</p>
+<p>The main classes in <em>Far</em> related to topology refinement are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>TopologyRefiner</td>
+<td>A class encapsulating mesh refinement.</td>
+</tr>
+<tr><td>TopologyLevel</td>
+<td>A class representing one level of
+refinement within a TopologyRefiner.</td>
+</tr>
+<tr><td>TopologyRefinerFactory&lt;MESH&gt;</td>
+<td>A factory class template specialized in
+terms of the application's mesh
+representation used to construct
+TopologyRefiner instances.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="primvar-refinement">
+<h4>Primvar Refinement</h4>
+<p>Primvar refinement is the process of computing values for primvar data (points,
+colors, normals, texture coordinates, etc) by applying weights determined by
+the specified subdivision rules.  There are many advantages gained by
+distinguishing between topology refinement and primvar interpolation
+including the ability to apply a single static topological refinement to
+multiple primvar instances or to different animated primvar time samples.</p>
+<p><em>Far</em> supports methods to refine primvar data at the locations of topological
+vertices and at arbitrary locations on the subdivision limit surface.</p>
+<p>The main classes in <em>Far</em> related to primvar refinement are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>PrimvarRefiner</td>
+<td>A class implementing refinement of primvar data
+at the locations of topological vertices.</td>
+</tr>
+<tr><td>PatchTable</td>
+<td>A representation of the refined surface topology
+that can be used for efficient evaluation of
+primvar data at arbitrary locations.</td>
+</tr>
+<tr><td>StencilTable</td>
+<td>A representation of refinement weights suitable
+for efficient parallel processing of primvar
+refinement.</td>
+</tr>
+<tr><td>LimitStencilTable</td>
+<td>A representation of refinement weights suitable
+for efficient parallel processing of primvar
+refinement at arbitrary limit surface locations.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="far-topologyrefiner">
+<h3>Far::TopologyRefiner</h3>
+<p>TopologyRefiner is the building block for many other useful classes in
+<em>Far</em>. It performs refinement of an arbitrary mesh and provides access to
+the refined mesh topology. It can be used for primvar refinement directly
+using PrimvarRefiner or indirectly by being used to create
+a <a class="reference external" href="#patch-table">stencil table</a>, or a <a class="reference external" href="#patch-table">patch table</a>,
+etc.</p>
+<p>TopologyRefiner provides the public refinement methods
+<em>RefineUniform()</em> and <em>RefineAdapative()</em> which perform refinement
+operations using Vtr. TopologyRefiner provides access to the refined
+topology via TopologyLevel instances.</p>
+<img alt="images/topology_refiner.png" class="align-center" src="images/topology_refiner.png" />
+</div>
+<div class="section" id="far-topologyrefinerfactory">
+<h3>Far::TopologyRefinerFactory</h3>
+<p>Consistent with other classes in Far, instances of TopologyRefiner are created
+by a factory class -- in this case Far::TopologyRefinerFactory.</p>
+<p>Here we outline several approaches for converting mesh topology into the
+required Far::TopologyRefiner.  Additional documentation is provided with
+the Far::TopologyRefinerFactory&lt;MESH&gt; class template used by all, and each
+has a concrete example provided in one of the tutorials or in the Far code
+itself.</p>
+<p>There are three ways to create TopologyRefiners</p>
+<blockquote>
+<ul class="simple">
+<li>use the existing TopologyRefinerFactory&lt;TopologyDescriptor&gt; with a
+populated instance of TopologyDescriptor</li>
+<li>specialize TopologyRefinerFactory&lt;class MESH&gt; for more efficient
+conversion, using only face-vertex information</li>
+<li>fully specialize TopologyRefinerFactor&lt;class MESH&gt; for most control over
+conversion</li>
+</ul>
+</blockquote>
+<p><strong>Use the Far::TopologyDescriptor</strong></p>
+<p>Far::TopologyDescriptor is a simple struct that can be initialized to refer
+to raw mesh topology information -- primarily a face-vertex list -- and then
+passed to a provided factory class to create a TopologyRefiner from each.
+Topologically, the minimal requirement consists of:</p>
+<blockquote>
+<ul class="simple">
+<li>the number of vertices and faces of the mesh</li>
+<li>an array containing the number of vertices per face</li>
+<li>an array containing the vertices assigned to each face</li>
+</ul>
+</blockquote>
+<p>These last two define one of the six topological relations that are needed
+internally by Vtr, but this one relation is sufficient to construct the rest.
+Additional members are available to assign sharpness values per edge and/or
+vertex, hole tags to faces, or to define multiple sets (channels) of
+face-varying data.</p>
+<p>Almost all of the Far tutorials (i.e. tutorials/far/tutorial_*) illustrate
+use of the TopologyDescriptor and its factory for creating TopologyRefiners,
+i.e. TopologyRefinerFactory&lt;TopologyDescriptor&gt;.</p>
+<p>For situations when users have raw mesh data and have not yet constructed a
+boundary representation of their own, it is hoped that this will suffice.
+Options have even been provided to indicate that raw topology information
+has been defined in a left-hand winding order and the factory will handle
+the conversion to right-hand (counter-clockwise) winding on-the-fly to avoid
+unnecessary data duplication.</p>
+<p><strong>Custom Factory for Face Vertices</strong></p>
+<p>If the nature of the TopologyDescriptor's data expectations is not helpful,
+and so conversion to large temporary arrays would be necessary to properly
+make use of it, it may be worth writing a custom factory.</p>
+<p>Specialization of TopologyRefinerFactory&lt;class MESH&gt; should be done with care
+as the goal here is to maximize the performance of the conversion and so
+minimize overhead due to runtime validation.  The template provides the
+high-level construction of the required topology vectors of the underlying
+Vtr.</p>
+<p>There are two ways to write such a factory:  provide only the face-vertex
+information for topology and let the factory infer all edges and other
+relationships, or provide the complete edge list and all other topological
+relationships directly.  The latter is considerably more involved and
+described in a following section.</p>
+<p>The definition of TopologyRefinerFactory&lt;TopologyDescriptor&gt; provides a clear
+and complete example of constructing a TopologyRefiner with minimal topology
+information, i.e. the face-vertex list.  The class template
+TopologyRefinerFactory&lt;MESH&gt; documents the needs here and the
+TopologyDescriptor instantiation and specialization should illustrate that.</p>
+<p><strong>Custom Factory for Direct Conversion</strong></p>
+<p>Fully specializing a factory for direct conversion is needed only for
+those requiring ultimate control and is not generally recommended.
+It is recommended that one of the previous two methods initially be used to
+convert your mesh topology into a TopologyRefiner.  If the conversion
+performance is critical, or significant enough to warrant improvement, then
+it is worth writing a factory for full topological conversion.</p>
+<p>Writing a custom factory requires the specification/specialization of two
+methods with the following purpose:</p>
+<blockquote>
+<ul class="simple">
+<li>specify the sizes of topological data so that vectors can be pre-allocated</li>
+<li>assign the topological data to the newly allocated vectors</li>
+</ul>
+</blockquote>
+<p>As noted above, the assumption here is that the client's boundary-rep knows
+best how to retrieve the data that we require most efficiently. After the
+factory class gathers sizing information and allocates appropriate memory, the
+factory provides the client with locations of the appropriate tables to be
+populated (using the same <a class="reference external" href="vtr_overview.html#arry-type">Array</a> classes and
+interface used to access the tables).  The client is expected to load a
+complete topological description along with additional optional data, i.e.:</p>
+<blockquote>
+<ul class="simple">
+<li>the six topological relations required by Vtr, oriented when manifold</li>
+<li>sharpness values for edges and/or vertices (optional)</li>
+<li>additional tags related to the components, e.g. holes (optional)</li>
+<li>values-per-face for face-varying channels (optional)</li>
+</ul>
+</blockquote>
+<p>This approach requires dealing directly with edges, unlike the other two.  In
+order to convert edges into a TopologyRefiner's representation, the edges need
+to be expressed as a collection of known size N -- each of which is referred to
+directly by indices [0,N-1].  This can be awkward for representations such as
+half-edge or quad-edge that do not treat the instance of an edge uniquely.</p>
+<p>Particular care is also necessary when representing non-manifold features.  The
+previous two approaches will construct non-manifold features as required from
+the face-vertex list -- dealing with degenerate edges and other non-manifold
+features as encountered.  When directly translating full topology it is
+necessary to tag non-manifold features, and also to ensure that certain
+edge relationships are satisfied in their presence.  More details are
+available with the assembly methods of the factory class template.</p>
+<p>While there is plenty of opportunity for user error here, that is no different
+from any other conversion process.  Given that Far controls the construction
+process through the Factory class, we do have ample opportunity to insert
+runtime validation, and to vary that level of validation at any time on an
+instance of the Factory.  The factory does provide run-time validation on the
+topology constructed that can be used for debugging purposes.</p>
+<p>A common base class has been created for the factory class, i.e.:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/far_overview.rst</tt>, line 247)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    template &lt;class MESH&gt;
+    class TopologyRefinerFactory : public TopologyRefinerFactoryBase
+
+</pre>
+</div>
+<p>both to provide common code independent of &lt;MESH&gt; and also potentially to
+protect core code from unwanted specialization.</p>
+</div>
+<div class="section" id="far-primvarrefiner">
+<h3>Far::PrimvarRefiner</h3>
+<p>PrimvarRefiner supports refinement of arbitrary primvar data at the locations
+of topological vertices. A PrimvarRefiner accesses topology data directly
+from a TopologyRefiner.</p>
+<p>Different methods are provided to support three different classes of primvar
+interpolation. These methods may be used to refine primvar data to a specified
+refinement level.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="58%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Interpolate(...)</td>
+<td>Interpolate using vertex weights</td>
+</tr>
+<tr><td>InterpolateVarying(...)</td>
+<td>Interpolate using linear weights</td>
+</tr>
+<tr><td>InterpolateFaceVarying(...)</td>
+<td>Interpolate using face-varying weights</td>
+</tr>
+</tbody>
+</table>
+<p>Additional methods allow primvar data to be interpolated to the final limit
+surface including the calculation of first derivative tangents.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="58%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Limit(dst)</td>
+<td>Interpolate to the limit surface using
+vertex weights</td>
+</tr>
+<tr><td>Limit(dst, dstTan1, dstTan2)</td>
+<td>Interpolate including first derivatives
+to the limit surface using vertex weights</td>
+</tr>
+<tr><td>LimitFaceVarying(...)</td>
+<td>Interpolate to the limit surface using
+face-varying weights</td>
+</tr>
+</tbody>
+</table>
+<p>PrimarRefiner provides a straightforward interface for refining primvar data,
+but depending on the application use case, it can be more efficient to create
+and use a <a class="reference external" href="#patch-table">StencilTable</a>, or <a class="reference external" href="#patch-table">PatchTable</a>,
+to refine primvar data.</p>
+</div>
+<div class="section" id="far-patchtable">
+<h3>Far::PatchTable</h3>
+<p>The patch table is a serialized topology representation. This container is
+generated using <em>Far::PatchTableFactory</em> from an instance
+<em>Far::TopologyRefiner</em> after a refinement has been applied. The
+FarPatchTableFactory traverses the data-structures of the TopologyRefiner and
+serializes the sub-faces into collections of bi-linear and bi-cubic patches as
+dictated by the refinement mode (uniform or adaptive). The patches are then
+sorted into arrays based on their types.</p>
+<div class="notebox container">
+<p><strong>Release Notes (3.0.0)</strong></p>
+<blockquote>
+The organization and API of Far::PatchTable is likely to change
+in the 3.1 release to accommodate additional functionality including:
+smooth face-varying interpolation on patches, and dynamic feature
+adaptive isolation (DFAS), and patch evaluation of Loop subdivision
+surfaces.</blockquote>
+</div>
+<div class="section" id="patch-arrays">
+<h4>Patch Arrays</h4>
+<p>The patch table is a collection of control vertex indices. Meshes are decomposed
+into a collection of patches, which can be of different types. Each type
+has different requirements for the internal organization of its
+control-vertices. A PatchArray contains a sequence of multiple patches that
+share a common set of attributes.</p>
+<p>While all patches in a PatchArray will have the same type, each patch in the
+array is associated with a distinct <em>PatchParam</em> which specifies additional
+information about the individual patch.</p>
+<p>Each PatchArray contains a patch <em>Descriptor</em> that provides the fundamental
+description of the patches in the array.</p>
+<p>The PatchArray <em>ArrayRange</em> provides the indices necessary to track the records
+of individual patches in the table.</p>
+<a class="reference external image-reference" href="images/far_patchtables.png"><img alt="images/far_patchtables.png" class="align-center" src="images/far_patchtables.png" /></a>
+</div>
+<div class="section" id="patch-types">
+<h4>Patch Types</h4>
+<p>The following are the different patch types that can be represented in the
+PatchTable:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="8%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Patch Type</th>
+<th class="head">#CVs</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>NON_PATCH</td>
+<td>n/a</td>
+<td><em>&quot;Undefined&quot;</em> patch type</td>
+</tr>
+<tr><td>POINTS</td>
+<td>1</td>
+<td>Points : useful for cage drawing</td>
+</tr>
+<tr><td>LINES</td>
+<td>2</td>
+<td>Lines : useful for cage drawing</td>
+</tr>
+<tr><td>QUADS</td>
+<td>4</td>
+<td>Bi-linear quads-only patches</td>
+</tr>
+<tr><td>TRIANGLES</td>
+<td>3</td>
+<td>Bi-linear triangles-only mesh</td>
+</tr>
+<tr><td>LOOP</td>
+<td>n/a</td>
+<td>Loop patch (currently unsupported)</td>
+</tr>
+<tr><td>REGULAR</td>
+<td>16</td>
+<td>B-spline Basis patches</td>
+</tr>
+<tr><td>GREGORY</td>
+<td>4</td>
+<td>Legacy Gregory patches</td>
+</tr>
+<tr><td>GREGORY_BOUNDARY</td>
+<td>4</td>
+<td>Legacy Gregory Boundary patches</td>
+</tr>
+<tr><td>GREGORY_BASIS</td>
+<td>20</td>
+<td>Gregory Basis patches</td>
+</tr>
+</tbody>
+</table>
+<p>The type of a patch dictates the number of control vertices expected in the
+table as well as the method used to evaluate values.</p>
+</div>
+<div class="section" id="patch-parameterization">
+<h4>Patch Parameterization</h4>
+<p>Each patch represents a specific portion of the parametric space of the
+coarse topological face identified by the PatchParam FaceId. As topological
+refinement progresses through successive levels, each resulting patch
+corresponds to a smaller and smaller subdomain of the face.
+The PatchParam UV origin describes the mapping from the uv domain of the
+patch to the uv subdomain of the topological face. We encode this uv
+origin using log2 integer values for compactness and efficiency.</p>
+<p>It is important to note that this uv parameterization is the intrinsic
+parameterization within a given patch or coarse face and is distinct
+from any client specified face-varying channel data.</p>
+<p>Patches which result from irregular coarse faces (non-quad faces in the
+Catmark scheme, or non-trianglular faces in the Loop scheme) are offset
+by the one additional level needed to &quot;quadrangulate&quot; or &quot;triangulate&quot;
+the irregular face.</p>
+<a class="reference external image-reference" href="images/far_patchUV.png"><img alt="images/far_patchUV.png" class="align-center" src="images/far_patchUV.png" /></a>
+<p>A patch along an interpolated boundary edge is supported by an incomplete
+sets of control vertices. For consistency, patches in the PatchTable always
+have a full set of control vertex indices and the PatchParam Boundary bitmask
+identifies which control vertices are incomplete (the incomplete control
+vertex indices are assigned values which duplicate the first valid index).
+Each bit in the boundary bitmask corresponds to one edge of the patch
+starting from the edge from the first vertex and continuing around the
+patch.  With feature adaptive refinement, regular B-spline basis patches
+along interpolated boundaries will fall into one of the eight cases
+(four boundary and four corner) illustrated below:</p>
+<a class="reference external image-reference" href="images/far_patchBoundary.png"><img alt="images/far_patchBoundary.png" class="align-center" src="images/far_patchBoundary.png" /></a>
+<p>Transition edges occur during feature adaptive refinement where a patch
+at one level of refinement is adjacent to pairs of patches at the next
+level of refinement. These T-junctions do not pose a problem when evaluating
+primvar data on patches, but they must be taken into consideration when
+tessellating patches (e.g. while drawing) in order to avoid cracks.
+The PatchParam Transition bitmask identifies the transition edges of
+a patch.  Each bit in the bitmask corresponds to one edge of the patch
+just like the encoding of boundary edges.</p>
+<p>After refining an arbitrary mesh, any of the 16 possible transition edge
+configurations might occur. The method of handling transition edges is
+delegated to patch drawing code.</p>
+<a class="reference external image-reference" href="images/far_patchTransition.png"><img alt="images/far_patchTransition.png" class="align-center" src="images/far_patchTransition.png" /></a>
+</div>
+<div class="section" id="single-crease-patches">
+<h4>Single-Crease Patches</h4>
+<p>Using single-crease patches allows a mesh with creases to be represented
+with many fewer patches than would be needed otherwise. A single-crease
+patch is a variation of a regular BSpline patch with one additional crease
+sharpness parameter.</p>
+<div class="notebox container">
+<p><strong>Release Notes (3.0.0)</strong></p>
+<blockquote>
+Currently, the crease sharpness parameter is encoded as a separate
+PatchArray within the PatchTable. This parameter may be combined
+with the other PatchParam values in future releases.  Also, evaluation
+of single-crease patches is currently only implemented for OSD patch
+drawing, but we expect to implement support in all of the evaluation
+code paths for future releases.</blockquote>
+</div>
+</div>
+<div class="section" id="local-points">
+<h4>Local Points</h4>
+<p>The control vertices represented by a PatchTable are primarily refined points,
+i.e. points which result from applying the subdivision scheme uniformly or
+adaptively to the points of the coarse mesh. However, the final patches
+generated from irregular faces, e.g. patches incident on an extraordinary
+vertex might have a representation which requires additional local points.</p>
+<div class="notebox container">
+<p><strong>Release Notes (3.0.0)</strong></p>
+<blockquote>
+Currently, representations which require local points also require
+the use of a StencilTable to compute the values of local points.
+This requirement, as well as the rest of the API related to local
+points may change in future releases.</blockquote>
+</div>
+</div>
+<div class="section" id="legacy-gregory-patches">
+<h4>Legacy Gregory Patches</h4>
+<p>Using Gregory patches to approximate the surface at the final patches
+generated from irregular faces is an alternative representation which does
+not require any additional local points to be computed. Instead, when
+Legacy Gregory patches are used, the PatchTable must also have an alternative
+representation of the mesh topology encoded as a vertex valence table
+and a quad offsets table.</p>
+<div class="notebox container">
+<p><strong>Release Notes (3.0.0)</strong></p>
+<blockquote>
+The encoding and support for Legacy Gregory patches may change
+in future releases. The current encoding of the vertex valence
+and quad offsets tables may be prohibitively expensive for some
+use cases.</blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="far-stenciltable">
+<h3>Far::StencilTable</h3>
+<p>The base container for stencil data is the StencilTable class. As with most
+other Far entities, it has an associated StencilTableFactory that requires a
+TopologyRefiner:</p>
+<div class="section" id="advantages">
+<h4>Advantages</h4>
+<p>Stencils are used to factorize the interpolation calculations that subdivision
+schema apply to vertices of smooth surfaces. If the topology being subdivided
+remains constant, factorizing the subdivision weights into stencils during a
+pre-compute pass yields substantial amortizations at run-time when re-posing
+the control cage.</p>
+<p>Factorizing the subdivision weights also allows to express each subdivided
+vertex as a weighted sum of vertices from the control cage. This step effectively
+removes any data inter-dependency between subdivided vertices : the computations
+of subdivision interpolation can be applied to each vertex in parallel without
+any barriers or constraint. The <a class="reference external" href="osd_overview.html#Osd">Osd</a> classes leverage
+these properties by exploiting CPU and GPU parallelism.</p>
+<img alt="images/far_stencil5.png" class="align-center" src="images/far_stencil5.png" />
+</div>
+<div class="section" id="principles">
+<h4>Principles</h4>
+<p>Iterative subdivision algorithms converge towards the limit surface by
+successively refining the vertices of the coarse control cage. Each successive
+iteration interpolates the new vertices by applying polynomial weights to a
+<em>basis of supporting vertices</em>.</p>
+<p>The interpolation calculations for any given vertex can be broken down into
+sequences of multiply-add operations applied to the supporting vertices.
+Stencil table encodes a factorization of these weighted sums : each stencils is
+created by combining the list of control vertices from the 1-ring.</p>
+<p>With iterative subdivision, each refinement step is dependent upon the previous
+subdivision step being completed, and a substantial number of steps may be
+required in order approximate the limit : each subdivision step incurs an
+O(4<sup>n</sup>) growing amount of computations.</p>
+<p>Instead, once the weights of the contributing coarse control vertices for a
+given refined vertex have been factorized, it is possible to apply the stencil
+and directly obtain the interpolated vertex data without having to process the
+data for the intermediate refinement levels.</p>
+<img alt="images/far_stencil7.png" class="align-center" src="images/far_stencil7.png" />
+</div>
+<div class="section" id="cascading-stencils">
+<h4>Cascading Stencils</h4>
+<p>Client-code can control the amount of factorization of the stencils : the tables can be
+generated with contributions all the way from a basis of coarse vertices, or
+reduced only to contributions from vertices from the previous level of
+refinement.</p>
+<p>The latter mode allows client-code to access and insert modifications to the
+vertex data at set refinement levels (see <a class="reference external" href="subdivision_surfaces.html#hierarchical-edits">hierarchical vertex edits</a>). Once the edits have been
+applied by the client-code, another set of stencils can be used to smoothe the
+vertex data to a higher level of refinement.</p>
+<img alt="images/far_stencil8.png" class="align-center" src="images/far_stencil8.png" />
+<p>See implementation details, see the Far cascading stencil <a class="reference external" href="tutorials.html">tutorial</a></p>
+</div>
+<div class="section" id="limit-stencils">
+<h4>Limit Stencils</h4>
+<p>Stencil tables can be trivially extended from discrete subdivided vertices to
+arbitrary locations on the limit surface. Aside from extraordinary points, every
+location on the limit surface can be expressed as a closed-form weighted
+average of a set of coarse control vertices from the 1-ring surrounding the
+face.</p>
+<p>The weight accumulation process is similar : the control cage is adaptively
+subdivided around extraordinary locations. A stencil is then generated for each
+limit location simply by factorizing the bi-cubic Bspline patch weights over
+those of the contributing basis of control-vertices.</p>
+<p>The use of bi-cubic patches also allows the accumulation of analytical
+derivatives, so limit stencils carry a set of weights for tangent vectors.</p>
+<img alt="images/far_stencil0.png" class="align-center" src="images/far_stencil0.png" />
+<p>Once the stencil table has been generated, limit stencils are the most direct
+and efficient method of evaluation of specific locations on the limit of a
+subdivision surface, starting from the coarse vertices of the control cage.</p>
+<p>Also: just as discrete stencils, limit stencils that are factorized from coarse
+control vertices do not have inter-dependencies and can be evaluated in
+parallel.</p>
+<p>For implementation details, see the <a class="reference external" href="glStencilViewer.html">glStencilViewer</a>
+code example.</p>
+</div>
+<div class="section" id="sample-location-on-extraordinary-faces">
+<h4>Sample Location On Extraordinary Faces</h4>
+<p>Each stencil is associated with a singular parametric location on the coarse
+mesh. The parametric location is defined as face location and local [0.0 - 1.0]
+(u,v) triplet:</p>
+<p>In the case of face that are not quads, a parametric sub-face quadrant needs to
+be identified. This can be done either explicitly or implicitly by using the
+unique ptex face indices for instance.</p>
+<img alt="images/far_stencil6.png" class="align-center" src="images/far_stencil6.png" />
+</div>
+<div class="section" id="code-example">
+<h4>Code example</h4>
+<p>When the control vertices (controlPoints) move in space, the limit locations can
+be very efficiently recomputed simply by applying the blending weights to the
+series of coarse control vertices:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/far_overview.rst</tt>, line 607)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    class StencilType {
+    public:
+
+        void Clear() {
+            memset( &amp;x, 0, sizeof(StencilType));
+        }
+
+        void AddWithWeight( StencilType const &amp; cv, float weight  ) {
+            x += cv.x * weight;
+            y += cv.y * weight;
+            z += cv.z * weight;
+        }
+
+        float x,y,z;
+    };
+
+    std::vector&lt;StencilType&gt; controlPoints,
+                             points,
+                             utan,
+                             vtan;
+
+    // Update points by applying stencils
+    controlStencils.UpdateValues&lt;StencilType&gt;( &amp;controlPoints[0], &amp;points[0] );
+
+    // Update tangents by applying derivative stencils
+    controlStencils.UpdateDerivs&lt;StencilType&gt;( &amp;controlPoints[0], &amp;utan[0], &amp;vtan[0] );
+
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

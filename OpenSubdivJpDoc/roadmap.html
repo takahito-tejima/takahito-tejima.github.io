@@ -1,0 +1,366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Roadmap</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="roadmap">
+<h1 class="title">Roadmap</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Roadmap</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#x-release-cycle" id="id1">3.x Release Cycle</a></li>
+<li><a class="reference internal" href="#near-term" id="id2">Near Term</a><ul>
+<li><a class="reference internal" href="#feature-parity-for-loop-subdivision" id="id3">Feature parity for Loop subdivision</a></li>
+<li><a class="reference internal" href="#improved-support-for-infinitely-sharp-features" id="id4">Improved support for infinitely sharp features</a></li>
+<li><a class="reference internal" href="#dynamic-feature-adaptive-isolation-dfas" id="id5">Dynamic feature adaptive isolation (DFAS)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#longer-term" id="id6">Longer Term</a><ul>
+<li><a class="reference internal" href="#implement-a-high-level-api-layer" id="id7">Implement a &quot;high-level&quot; API layer</a></li>
+<li><a class="reference internal" href="#next-gen-back-ends" id="id8">&quot;Next-gen&quot; back-ends</a></li>
+<li><a class="reference internal" href="#a-means-to-control-edge-curvature" id="id9">A means to control edge curvature</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#always-in-need-of-improvement" id="id10">Always in Need of Improvement</a><ul>
+<li><a class="reference internal" href="#regression-testing" id="id11">Regression testing</a></li>
+<li><a class="reference internal" href="#documentation" id="id12">Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="x-release-cycle">
+<h3>3.x Release Cycle</h3>
+<p>For more details, please see the <a class="reference external" href="release_notes.html">Release Notes</a>.</p>
+<p>3.0 Master Release (Q2 2015)</p>
+<blockquote>
+<ul class="simple">
+<li>freeze subdivision 'specification' (enforce backward compatibility)</li>
+</ul>
+</blockquote>
+<p>3.1 Supplemental Release (Q3/Q4 2015)</p>
+<blockquote>
+<ul class="simple">
+<li>include any noteworthy omissions arising from 3.0</li>
+<li>add support for bi-cubic face-varying limit patches</li>
+<li>add support for higher order differentiation of limit patches</li>
+</ul>
+</blockquote>
+<p>3.2 Future Release (2016)</p>
+<blockquote>
+<ul class="simple">
+<li>TBD</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="near-term">
+<h3>Near Term</h3>
+<p>The following is a short list of topics already expressed as priorities and
+receiving ongoing attention -- some being actively prototyped to varying
+degrees.</p>
+<div class="section" id="feature-parity-for-loop-subdivision">
+<h4>Feature parity for Loop subdivision</h4>
+<blockquote>
+The more popular Catmark scheme has long received more attention and effort
+than the Loop scheme.  Given OpenSubdiv claims to support both, additional
+effort is required to bring Loop to the same level of functionality as
+Catmark.  With the feature-adaptive analysis now scheme-independent, the
+addition of triangular patches to the PatchTables will go a long way towards
+that goal.  Prototype patch gathering and evaluation methods have already
+been tested within the existing code base and discussions on extending the
+internal patch infra-structure are underway.</blockquote>
+</div>
+<div class="section" id="improved-support-for-infinitely-sharp-features">
+<h4>Improved support for infinitely sharp features</h4>
+<blockquote>
+The current implementation of adaptive feature isolation requires infinitely
+sharp creases to be pushed to the highest level of isolation -- eventually
+representing the result with a regular patch. The surface is therefore both
+inefficient and incorrect. Patches with a single infinitely sharp edge can be
+represented exactly with regular boundary patches and could be isolated at a
+much higher level.  Continuity with dart patches is necessary in such cases,
+and approximating more sharp irregular regions with alternate patch types
+(e.g. Gregory or Bezier) will help this goal and others.</blockquote>
+</div>
+<div class="section" id="dynamic-feature-adaptive-isolation-dfas">
+<h4>Dynamic feature adaptive isolation (DFAS)</h4>
+<blockquote>
+Adaptive feature isolation can produce a large number of patches, especially
+when the model contains a lot of semi-sharp creases. We need a LOD solution
+that can dynamically isolate features based on distance to view-point.  (Note:
+paper from Matthias Niessner &amp; Henry Schafer)</blockquote>
+</div>
+</div>
+<div class="section" id="longer-term">
+<h3>Longer Term</h3>
+<p>The following is a list of pending projects and future directions for
+OpenSubdiv.</p>
+<div class="section" id="implement-a-high-level-api-layer">
+<h4>Implement a &quot;high-level&quot; API layer</h4>
+<blockquote>
+<p>One of the original goals of the OpenSubdiv project is to provide a robust
+and simple API to display subdivision surfaces interactively. Now that the
+algorithms and code-base have matured, we would like to foster a consistent
+implementation of subdivision surfaces suitable for adoption in the lower
+layers of the graphics stack, such as GPU drivers. We have been working on
+the draft of a &quot;specification document&quot; detailing the workings of a high-
+level interface for subdivision surface data and functionality. We need an
+implementation of this high-level API.</p>
+<p>Note: this document drafting has been started at Pixar with partners.</p>
+</blockquote>
+</div>
+<div class="section" id="next-gen-back-ends">
+<h4>&quot;Next-gen&quot; back-ends</h4>
+<blockquote>
+Implement Osd Evaluator and Patch Drawing for next-gen GPU APIs such as
+Mantle, Metal, DX12, Vulkan.</blockquote>
+</div>
+<div class="section" id="a-means-to-control-edge-curvature">
+<h4>A means to control edge curvature</h4>
+<blockquote>
+Edge sharpness provides insufficient control over the overall contour of the
+surfaces. Artists often duplicate edge-loops around semi-sharp edges in
+order to control the local surface curvature. Ideally, they would like to be
+able to specify a radius of curvature that produces circular rounded edges.
+This will likely require the introduction of non-uniform rational splines
+(NURCCS ?) in OpenSubdiv.</blockquote>
+</div>
+</div>
+<div class="section" id="always-in-need-of-improvement">
+<h3>Always in Need of Improvement</h3>
+<p>And finally, a few topics that always benefit from continual improvement.
+Any and all contributions in this area are greatly appreciated.</p>
+<div class="section" id="regression-testing">
+<h4>Regression testing</h4>
+<blockquote>
+<p>OpenSubdiv currently ships with some regression testing code which can be
+run using CTest.  It's always great to have more regression testing that
+covers more of the code base.</p>
+<blockquote>
+<ul class="simple">
+<li>Implement a robust regression harness for numerical correctness</li>
+<li>Implement a cross-platform regression harness for GPU drawing correctness</li>
+<li>Implement a cross-platform regression harness for performance (speed &amp; memory)</li>
+<li>Implement code coverage analysis</li>
+</ul>
+</blockquote>
+</blockquote>
+</div>
+<div class="section" id="documentation">
+<h4>Documentation</h4>
+<blockquote>
+<p>In order to facilitate adoption of OpenSubdiv, we need to provide clear,
+concise and comprehensive documentation of all APIs. In particular:</p>
+<blockquote>
+<ul class="simple">
+<li>Update and flesh out high-level ReST documentation</li>
+<li>Clean up the Doxygen documentation</li>
+<li>Expand code tutorials</li>
+</ul>
+</blockquote>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

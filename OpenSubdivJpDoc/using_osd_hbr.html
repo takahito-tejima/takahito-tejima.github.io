@@ -1,0 +1,932 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Using Hbr</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="using-hbr">
+<h1 class="title">Using Hbr</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Using Hbr</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#vertex-template-api" id="id1">Vertex Template API</a></li>
+<li><a class="reference internal" href="#creating-a-mesh" id="id2">Creating a Mesh</a><ul>
+<li><a class="reference internal" href="#instantiating-an-hbrmesh" id="id3">Instantiating an HbrMesh</a></li>
+<li><a class="reference internal" href="#creating-vertices" id="id4">Creating Vertices</a></li>
+<li><a class="reference internal" href="#creating-faces" id="id5">Creating Faces</a></li>
+<li><a class="reference internal" href="#wrapping-things-up" id="id6">Wrapping Things Up</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#boundary-interpolation-rules" id="id7">Boundary Interpolation Rules</a></li>
+<li><a class="reference internal" href="#adding-creases" id="id8">Adding Creases</a><ul>
+<li><a class="reference internal" href="#vertex-creases" id="id9">Vertex Creases</a></li>
+<li><a class="reference internal" href="#edge-creases" id="id10">Edge Creases</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#holes" id="id11">Holes</a></li>
+<li><a class="reference internal" href="#hierarchical-edits" id="id12">Hierarchical Edits</a></li>
+<li><a class="reference internal" href="#face-varying-data" id="id13">Face-varying Data</a><ul>
+<li><a class="reference internal" href="#instantiating-the-hbrmesh" id="id14">Instantiating the <em>HbrMesh</em></a></li>
+<li><a class="reference internal" href="#setting-the-face-varying-data" id="id15">Setting the Face-Varying Data</a></li>
+<li><a class="reference internal" href="#retrieving-the-face-varying-data" id="id16">Retrieving the Face-Varying Data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#valence-operators" id="id17">Valence Operators</a></li>
+<li><a class="reference internal" href="#managing-singular-vertices" id="id18">Managing Singular Vertices</a></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="notebox container">
+<p><strong>Note</strong></p>
+<blockquote>
+As of OpenSubdiv 3.0, all <strong>Hbr</strong> dependencies have been removed from the
+core APIs (<strong>Sdc</strong>, <strong>Vtr</strong>, <strong>Far</strong>, <strong>Osd</strong>). The legacy source code of
+<strong>Hbr</strong> is provided purely for regression and legacy purposes. If your code
+is currently depending on Hbr functionality, we recommend migrating to the
+newer APIs as we cannot guarantee that this code will be maintained in
+future releases.
+For more information see the <a class="reference external" href="release_notes.html">3.0 release notes</a></blockquote>
+</div>
+<div class="section" id="vertex-template-api">
+<h3>Vertex Template API</h3>
+<p>The <strong>Hbr</strong> API abstracts the vertex class through templating. Client-code is
+expected to provide a vertex class that implements the requisite interpolation
+functionality.</p>
+<p>Here is an example of a simple vertex class that accounts for 3D position, but
+does not support arbitrary variables or varying interpolation.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 58)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    struct Vertex {
+
+        Vertex() { }
+
+        Vertex( int /*i*/ ) { }
+
+        Vertex( const Vertex &amp; src ) { _pos[0]=src._pos[0]; _pos[1]=src._pos[1]; _pos[2]=src._pos[2]; }
+
+       ~Vertex( ) { }
+
+        void AddWithWeight(const Vertex&amp; src, float weight, void * =0 ) {
+            _pos[0]+=weight*src._pos[0];
+            _pos[1]+=weight*src._pos[1];
+            _pos[2]+=weight*src._pos[2];
+        }
+
+        void AddVaryingWithWeight(const Vertex&amp; , float, void * =0 ) { }
+
+        void Clear( void * =0 ) { _pos[0]=_pos[1]=_pos[2]=0.0f; }
+
+        void SetPosition(float x, float y, float z) { _pos[0]=x; _pos[1]=y; _pos[2]=z; }
+
+        void ApplyVertexEdit(const OpenSubdiv::HbrVertexEdit&lt;Vertex&gt; &amp; edit) {
+            const float *src = edit.GetEdit();
+            switch(edit.GetOperation()) {
+              case OpenSubdiv::HbrHierarchicalEdit&lt;Vertex&gt;::Set:
+                _pos[0] = src[0];
+                _pos[1] = src[1];
+                _pos[2] = src[2];
+                break;
+              case OpenSubdiv::HbrHierarchicalEdit&lt;Vertex&gt;::Add:
+                _pos[0] += src[0];
+                _pos[1] += src[1];
+                _pos[2] += src[2];
+                break;
+              case OpenSubdiv::HbrHierarchicalEdit&lt;Vertex&gt;::Subtract:
+                _pos[0] -= src[0];
+                _pos[1] -= src[1];
+                _pos[2] -= src[2];
+                break;
+            }
+        }
+
+        void ApplyMovingVertexEdit(const OpenSubdiv::HbrMovingVertexEdit&lt;Vertex&gt; &amp;) { }
+
+        // custom functions &amp; data not required by Hbr -------------------------
+
+        Vertex( float x, float y, float z ) { _pos[0]=x; _pos[1]=y; _pos[2]=z; }
+
+        const float * GetPos() const { return _pos; }
+
+        float _pos[3];
+    };
+
+</pre>
+</div>
+<p>In some cases, if only topological analysis is required, the class can be left un-implemented.
+Far and Osd for instance store vertex data in serialized interleaved vectors. Here
+is the Osd::Vertex class for reference:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 118)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    class Vertex {
+    public:
+        Vertex() {}
+
+        Vertex(int /* index */) {}
+
+        Vertex(Vertex const &amp; /* src */) {}
+
+        void AddWithWeight(Vertex const &amp; /* i */, float /* weight */, void * = 0) {}
+
+        void AddVaryingWithWeight(const Vertex &amp; /* i */, float /* weight */, void * = 0) {}
+
+        void Clear(void * = 0) {}
+
+        void ApplyVertexEdit(FarVertexEdit const &amp;) { }
+    };
+
+
+
+</pre>
+</div>
+</div>
+<div class="section" id="creating-a-mesh">
+<h3>Creating a Mesh</h3>
+<p>The following tutorial walks through the steps of instantiating a simple <strong>Hbr</strong>
+mesh.</p>
+<p>The code found in regression/common/shape_utils.h can also be used as an example.
+While this implementation covers many of <strong>Hbr</strong>'s features, it does not provide
+coverage for the complete Renderman specification though.</p>
+<hr class="docutils" />
+<div class="section" id="instantiating-an-hbrmesh">
+<h4>Instantiating an HbrMesh</h4>
+<p>First we need to instantiate a mesh object.</p>
+<dl class="docutils">
+<dt><strong>Hbr</strong> supports 3 subdivision schemes:</dt>
+<dd><ul class="first last simple">
+<li>Catmull-Clark (catmark)</li>
+<li>Loop</li>
+<li>Bilinear</li>
+</ul>
+</dd>
+</dl>
+<p>The scheme is selected by passing an specialized instance of <em>HbrSubdivision&lt;T&gt;</em>,
+<em>HbrCatmarkSubdivision&lt;T&gt;</em> in this case. The scheme can be shared across multiple
+mesh objects, so we only need a single instance.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 165)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    static OpenSubdiv::HbrCatmarkSubdivision&lt;Vertex&gt; _scheme;
+
+    OpenSubdiv::HbrMesh&lt;Vertex&gt; * mesh = new OpenSubdiv::HbrMesh&lt;Vertex&gt;( _scheme );
+
+</pre>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="creating-vertices">
+<h4>Creating Vertices</h4>
+<p>Adding vertices to the mesh is accomplished using the <em>HbrMesh::NewVertex()</em> method.</p>
+<p>Because <strong>Hbr</strong> uses a dedicated vertex allocator to help alleviate the performance
+impact of intensive fragmented memory allocations. This optimization results in
+the following design pattern:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 182)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    Vertex vtx;
+    for(int i=0;i&lt;numVerts; i++ ) {
+        Vertex * v = mesh-&gt;NewVertex( i, vtx);
+
+        // v-&gt;SetPosition();
+    }
+
+</pre>
+</div>
+<p>We instantiate a single &quot;default&quot; vertex object named 'vtx' on the stack. We then
+recover the pointer to the actual vertex created in the mesh from the NewVertex()
+method. Once we have recovered that pointer, we can set the data for our vertex
+by using any of the custom accessors.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="creating-faces">
+<h4>Creating Faces</h4>
+<p>Once all the vertices have been registered in the mesh, we can start adding the
+faces with <em>HbrMesh::NewFace()</em>. Assuming we had an <em>obj</em> style reader, we need
+to know the number of vertices in the face and the indices of these vertices.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 205)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    for (int f=0; f&lt;numFaces; ++f) {
+
+        int nverts = obj-&gt;GetNumVertices(f);
+
+        const int * faceverts = obj-&gt;GetFaceVerts(f);
+
+        mesh-&gt;NewFace(nv, fv, 0);
+    }
+
+</pre>
+</div>
+<p>However, currently <strong>Hbr</strong> is not able to handle <a class="reference external" href="subdivision_surfaces.html#manifold-geometry">non-manifold</a>
+geometry. In order to avoid tripping asserts or causing memory violations, let's
+rewrite the previous loop with some some prototype code to check the validity of
+the topology.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 221)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    for (int f=0; f&lt;numFaces; ++f) {
+
+        int nv = obj-&gt;GetNumVertices(f);
+
+        const int * fv = obj-&gt;GetFaceVerts(f);
+
+        // triangles only for Loop subdivision !
+        if ((scheme==kLoop) and (nv!=3)) {
+            printf(&quot;Trying to create a Loop subd with non-triangle face\n&quot;);
+            continue;
+        }
+
+        // now check the half-edges connectivity
+        for(int j=0;j&lt;nv;j++) {
+            OpenSubdiv::HbrVertex&lt;T&gt; * origin      = mesh-&gt;GetVertex( fv[j] );
+            OpenSubdiv::HbrVertex&lt;T&gt; * destination = mesh-&gt;GetVertex( fv[(j+1)%nv] );
+            OpenSubdiv::HbrHalfedge&lt;T&gt; * opposite  = destination-&gt;GetEdge(origin);
+
+            if(origin==NULL || destination==NULL) {
+                printf(&quot; An edge was specified that connected a nonexistent vertex\n&quot;);
+                continue;
+            }
+
+            if(origin == destination) {
+                printf(&quot; An edge was specified that connected a vertex to itself\n&quot;);
+                continue;
+            }
+
+            if(opposite &amp;&amp; opposite-&gt;GetOpposite() ) {
+                printf(&quot; A non-manifold edge incident to more than 2 faces was found\n&quot;);
+                continue;
+            }
+
+            if(origin-&gt;GetEdge(destination)) {
+                printf(&quot; An edge connecting two vertices was specified more than once.&quot;
+                       &quot; It's likely that an incident face was flipped\n&quot;);
+                continue;
+            }
+        }
+
+        mesh-&gt;NewFace(nv, fv, 0);
+    }
+
+</pre>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="wrapping-things-up">
+<h4>Wrapping Things Up</h4>
+<p>Once we have vertices and faces set in our mesh, we still need to wrap things up
+by calling <em>HbrMesh::Finish()</em>:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 274)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    mesh-&gt;Finish()
+
+</pre>
+</div>
+<p><em>Finish</em> iterates over the mesh to apply the boundary interpolation rules and
+checks for singular vertices. At this point, there is one final topology check
+remaining to validate the mesh:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 282)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    mesh-&gt;Finish()
+
+    if (mesh-&gt;GetNumDisconnectedVertices()) {
+        printf(&quot;The specified subdivmesh contains disconnected surface components.\n&quot;);
+
+        // abort or iterate over the mesh to remove the offending vertices
+    }
+
+
+
+</pre>
+</div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="boundary-interpolation-rules">
+<h3>Boundary Interpolation Rules</h3>
+<p>The rule-set can be selected using the following accessors:</p>
+<p><em>Vertex</em> and <em>varying</em> data:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 303)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    mesh-&gt;SetInterpolateBoundaryMethod( OpenSubdiv::HbrMesh&lt;Vertex&gt;::k_InterpolateBoundaryEdgeOnly );
+
+</pre>
+</div>
+<p><em>Face-varying</em> data:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 309)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    mesh-&gt;SetFVarInterpolateBoundaryMethod( OpenSubdiv::HbrMesh&lt;Vertex&gt;::k_InterpolateBoundaryEdgeOnly );
+
+
+</pre>
+</div>
+<p>Additional information on boundary interpolation rules can be found
+<a class="reference external" href="subdivision_surfaces.html#boundary-interpolation-rules">here</a> and
+<a class="reference external" href="hbr_overview.html#boundary-interpolation-rules">here</a></p>
+<div class="impnotip container">
+<p><strong>Warning</strong></p>
+<p>The boundary interpolation rules <strong>must</strong> be set before the call to
+<em>HbrMesh::Finish()</em>, which sets the sharpness values to boundary edges
+and vertices based on these rules.</p>
+</div>
+</div>
+<div class="section" id="adding-creases">
+<h3>Adding Creases</h3>
+<p><em>Hbr</em> supports a sharpness attribute on both edges and vertices.</p>
+<p>Sharpness is set using the <em>SetSharpness(float)</em> accessors.</p>
+<hr class="docutils" />
+<div class="section" id="vertex-creases">
+<h4>Vertex Creases</h4>
+<p>Given an index, vertices are very easy to access in the mesh.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 341)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    int idx;     // vertex index
+    float sharp; // the edge sharpness
+
+    OpenSubdiv::HbrVertex&lt;Vertex&gt; * v = mesh-&gt;GetVertex( idx );
+
+    if(v) {
+        v-&gt;SetSharpness( std::max(0.0f, sharp) );
+    } else
+       printf(&quot;cannot find vertex for corner tag (%d)\n&quot;, idx );
+
+</pre>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="edge-creases">
+<h4>Edge Creases</h4>
+<p>Usually, edge creases are described with a vertex indices pair. Here is some
+sample code to locate the matching half-edge and set a crease sharpness.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 361)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    int v0, v1;  // vertex indices
+    float sharp; // the edge sharpness
+
+    OpenSubdiv::HbrVertex&lt;Vertex&gt; * v = mesh-&gt;GetVertex( v0 ),
+                                  * w = mesh-&gt;GetVertex( v1 );
+
+    OpenSubdiv::HbrHalfedge&lt;Vertex&gt; * e = 0;
+
+    if( v &amp;&amp; w ) {
+
+        if((e = v-&gt;GetEdge(w)) == 0)
+            e = w-&gt;GetEdge(v);
+
+        if(e) {
+            e-&gt;SetSharpness( std::max(0.0f, sharp) );
+        } else
+           printf(&quot;cannot find edge for crease tag (%d,%d)\n&quot;, v0, v1 );
+    }
+
+
+</pre>
+</div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="holes">
+<h3>Holes</h3>
+<p><strong>Hbr</strong> faces support a &quot;hole&quot; tag.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 390)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    int idx; // the face index
+
+    OpenSubdiv::HbrFace&lt;Vertex&gt; * f = mesh-&gt;GetFace( idx );
+    if(f) {
+        f-&gt;SetHole();
+    } else
+       printf(&quot;cannot find face for hole tag (%d)\n&quot;, idx );
+
+
+
+</pre>
+</div>
+<div class="note container">
+<p><strong>Note</strong></p>
+<p>The hole tag is hierarchical : sub-faces can also be marked as holes.</p>
+<p>See: <a class="reference internal" href="#hierarchical-edits">Hierarchical Edits</a></p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="hierarchical-edits">
+<h3>Hierarchical Edits</h3>
+<p><strong>Hbr</strong> supports the following types of hierarchical edits:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Type</th>
+<th class="head">Function</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Corner edits</td>
+<td>Modify vertex sharpness</td>
+</tr>
+<tr><td>Crease edits</td>
+<td>Modify edge sharpness</td>
+</tr>
+<tr><td>FaceEdit</td>
+<td>Modify custom &quot;face data&quot;</td>
+</tr>
+<tr><td>FVarEdit</td>
+<td>Modify face-varying data</td>
+</tr>
+<tr><td>VertexEdit</td>
+<td>Modify vertex and varying data</td>
+</tr>
+<tr><td>HoleEdit</td>
+<td>Set &quot;hole&quot; tag</td>
+</tr>
+</tbody>
+</table>
+<p>Modifications are one of the following 3 operations:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Operation</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Set</td>
+</tr>
+<tr><td>Add</td>
+</tr>
+<tr><td>Subtract</td>
+</tr>
+</tbody>
+</table>
+<p>Here is a simple example that creates a hierarchical vertex edit that corresponds
+to <a class="reference external" href="subdivision_surfaces.html#hierarchical-edits-paths">this example</a>.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 448)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    // path = 655, 2, 3, 0
+    int faceid = 655,
+        nsubfaces = 2,
+        subfaces[2] = { 2, 3 },
+        vertexid = 0;
+
+    int offset = 0,       // offset to the vertex or varying data
+        numElems = 3;     // number of elements to apply the modifier to (x,y,z = 3)
+
+    bool isP = false;     // shortcut to identify modifications to the vertex position &quot;P&quot;
+
+    OpenSubdiv::HbrHierarchicalEdit&lt;Vertex&gt;::Operation op =
+         OpenSubdiv::HbrHierarchicalEdit&lt;T&gt;::Set;
+
+    float values[3] = { 1.0f, 0.5f, 0.0f }; // edit values
+
+    OpenSubdiv::HbrVertexEdit&lt;T&gt; * edit =
+         new OpenSubdiv::HbrVertexEdit&lt;T&gt;(faceid,
+                                          nsubfaces,
+                                          subfaces,
+                                          vertexid,
+                                          offset,
+                                          floatwidth,
+                                          isP,
+                                          op,
+                                          values);
+
+</pre>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="face-varying-data">
+<h3>Face-varying Data</h3>
+<p>Here is a walk-through of how to store face-varying data for a (u,v) pair.
+Unlike vertex and varying data which is accessed through the templated vertex
+API, face-varying data is directly aggregated as vectors of float data.</p>
+<div class="section" id="instantiating-the-hbrmesh">
+<h4>Instantiating the <em>HbrMesh</em></h4>
+<p>The <em>HbrMesh</em> needs to retain some knowledge about the face-varying data that it
+carries in order to refine it correctly.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 493)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    int fvarwidth = 2; // total width of the fvar data
+
+    static int indices[1] = { 0 }, // 1 offset set to 0
+               widths[1] = { 2 };  // 2 floats in a (u,v) pair
+
+    int const   fvarcount   = fvarwidth &gt; 0 ? 1 : 0,
+              * fvarindices = fvarwidth &gt; 0 ? indices : NULL,
+              * fvarwidths  = fvarwidth &gt; 0 ? widths : NULL;
+
+    mesh = new OpenSubdiv::HbrMesh&lt;T&gt;( &amp;_scheme,
+                                       fvarcount,
+                                       fvarindices,
+                                       fvarwidths,
+                                       fvarwidth );
+
+</pre>
+</div>
+</div>
+<div class="section" id="setting-the-face-varying-data">
+<h4>Setting the Face-Varying Data</h4>
+<p>After the topology has been created, <strong>Hbr</strong> is ready to accept face-varying data.
+Here is some sample code:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 516)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    for (int i=0, idx=0; i&lt;numFaces; ++i ) {
+
+        OpenSubdiv::HbrFace&lt;Vertex&gt; * f = mesh-&gt;GetFace(i);
+
+        int nv = f-&gt;GetNumVertices(); // note: this is not the fastest way
+
+        OpenSubdiv::HbrHalfedge&lt;Vertex&gt; * e = f-&gt;GetFirstEdge();
+
+        for (int j=0; j&lt;nv; ++j, e=e-&gt;GetNext()) {
+
+            OpenSubdiv::HbrFVarData&lt;Vertex&gt; &amp; fvt = e-&gt;GetOrgVertex()-&gt;GetFVarData(f);
+
+            float const * fvdata = GetFaceVaryingData( i, j );
+
+            if (not fvt.IsInitialized()) {
+
+                // if no fvar daa exists yet on the vertex
+                fvt.SetAllData(2, fvdata);
+
+            } else if (not fvt.CompareAll(2, fvdata)) {
+
+                // if there already is fvar data and there is a boundary add the new data
+                OpenSubdiv::HbrFVarData&lt;T&gt; &amp; nfvt = e-&gt;GetOrgVertex()-&gt;NewFVarData(f);
+                nfvt.SetAllData(2, fvdata);
+
+            }
+        }
+    }
+
+
+</pre>
+</div>
+</div>
+<div class="section" id="retrieving-the-face-varying-data">
+<h4>Retrieving the Face-Varying Data</h4>
+<p>The HbrFVarData structures are expanded during the refinement process, with every
+sub-face being assigned a set of interpolated face-varying data. This data can be
+accessed in 2 ways :</p>
+<p>From a face, passing a vertex index:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 557)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    // OpenSubdiv::HbrFace&lt;Vertex&gt; * f
+
+    OpenSubdiv::HbrFVarData const &amp;fv = f.GetFVarData(vindex);
+
+    const float * data = fv.GetData()
+
+
+</pre>
+</div>
+<p>From a vertex, passing a pointer to an incident face:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 568)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    // OpenSubdiv::HbrFace&lt;Vertex&gt; * f
+
+    OpenSubdiv::HbrFVarData const &amp;fv = myVertex.GetFVarData(f);
+
+    const float * data = fv.GetData()
+
+
+</pre>
+</div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="valence-operators">
+<h3>Valence Operators</h3>
+<p>When manipulating meshes, it is often necessary to iterate over neighboring faces
+or vertices. Rather than gather lists of pointers and return them, Hbr exposes
+an operator pattern that guarantees consistent mesh traversals.</p>
+<p>The following example shows how to use an operator to count the number of neighboring
+vertices (use HbrVertex::GetValence() for proper valence counts)</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 589)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    //OpenSubdiv::HbrVertex&lt;Vertex&gt; * v;
+
+    class MyOperator : public OpenSubdiv::HbrVertexOperator&lt;Vertex&gt; {
+
+    public:
+        int count;
+
+        MyOperator() : count(0) { }
+
+        virtual void operator() (OpenSubdiv::HbrVertex&lt;Vertex&gt; &amp;v) {
+            ++count;
+        }
+    };
+
+    MyOperator op;
+
+    v-&gt;ApplyOperatorSurroundingVertices( op );
+
+</pre>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="managing-singular-vertices">
+<h3>Managing Singular Vertices</h3>
+<p>Certain topological configurations would force vertices to share multiple
+half-edge cycles. Because Hbr is a half-edge representation, these &quot;singular&quot;
+vertices have to be duplicated as part of the HbrMesh::Finish() phase of the
+instantiation.</p>
+<p>These duplicated vertices can cause problems for client-code that tries to
+populate buffers of vertex or varying data. The following sample code shows
+how to match the vertex data to singular vertex splits:</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 623)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    // Populating an OsdCpuVertexBuffer with vertex data (positions,...)
+    float const * vtxData = inMeshFn.getRawPoints(&amp;returnStatus);
+
+    OpenSubdiv::OsdCpuVertexBuffer *vertexBuffer =
+        OpenSubdiv::OsdCpuVertexBuffer::Create(numVertexElements, numFarVerts);
+
+    vertexBuffer-&gt;UpdateData(vtxData, 0, numVertices );
+
+    // Duplicate the vertex data into the split singular vertices
+    std::vector&lt;std::pair&lt;int, int&gt; &gt; const splits = hbrMesh-&gt;GetSplitVertices();
+    for (int i=0; i&lt;(int)splits.size(); ++i) {
+        vertexBuffer-&gt;UpdateData(vtxData+splits[i].second*numVertexElements, splits[i].first, 1);
+    }
+</pre>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

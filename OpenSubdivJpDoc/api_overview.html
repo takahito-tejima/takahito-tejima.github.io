@@ -1,0 +1,532 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>API Overview</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="api-overview">
+<h1 class="title">API Overview</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">API Overview</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#api-layers" id="id3">API Layers</a></li>
+<li><a class="reference internal" href="#using-the-right-tools" id="id4">Using the Right Tools</a></li>
+<li><a class="reference internal" href="#use-case-1-simple-refinement" id="id5">Use case 1: Simple refinement</a></li>
+<li><a class="reference internal" href="#use-case-2-gl-adaptive-tessellation-drawing-of-animating-mesh" id="id6">Use case 2: GL adaptive tessellation drawing of animating mesh</a></li>
+<li><a class="reference internal" href="#tutorials-and-examples" id="id7">Tutorials and Examples</a></li>
+</ul>
+</div>
+<a class="reference external image-reference" href="images/osd_splash.png"><img alt="images/osd_splash.png" class="align-center" src="images/osd_splash.png" /></a>
+<div class="section" id="api-layers">
+<h3>API Layers</h3>
+<p>OpenSubdiv is structured as a set of layered libraries.  This structure facilitates
+operation on a variety of computing resources, and allows developers to only opt-in
+to the layers and feature sets that they require.
+From a top-down point of view, OpenSubdiv is comprised of several layers,
+some public, and some private.</p>
+<p>Layers list:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><div class="first last line-block">
+<div class="line"><strong>Sdc</strong></div>
+<div class="line">Subdivision Core</div>
+<div class="line"><a class="reference external" href="sdc_overview.html">Sdc Overview</a></div>
+</div>
+</td>
+<td>The lowest level layer, implements the core subdivision details
+to facilitate the generation of consistent results. Most cases will only
+require the use of simple public types and constants from Sdc.</td>
+</tr>
+<tr><td><div class="first last line-block">
+<div class="line"><strong>Vtr</strong></div>
+<div class="line">Vectorized Topological Representation</div>
+<div class="line"><a class="reference external" href="vtr_overview.html">Vtr Overview</a></div>
+</div>
+</td>
+<td>A suite of classes to provide an intermediate
+representation of topology that supports efficient refinement.
+<em>Vtr</em> is intended for internal use only.</td>
+</tr>
+<tr><td><div class="first last line-block">
+<div class="line"><strong>Far</strong></div>
+<div class="line">Feature Adaptive Representation</div>
+<div class="line"><a class="reference external" href="far_overview.html">Far Overview</a></div>
+</div>
+</td>
+<td>The central interface that processes client-supplied
+geometry and turns it into a serialized data
+representation ready for parallel processing in <em>Osd</em>.
+<em>Far</em> also provides a fully-featured single-threaded
+implementation of subdivision interpolation algorithms.</td>
+</tr>
+<tr><td><div class="first last line-block">
+<div class="line"><strong>Osd</strong></div>
+<div class="line">OpenSubdiv cross platform</div>
+<div class="line"><a class="reference external" href="osd_overview.html">Osd Overview</a></div>
+</div>
+</td>
+<td>A suite of classes to provide parallel subdivision
+kernels and drawing utilities on a variety of platforms
+such as TBB, CUDA, OpenCL, GLSL and DirectX.</td>
+</tr>
+</tbody>
+</table>
+<p>Client mesh data enters the API through the Far layer. Typically, results will
+be collected from the Osd layer. However, it is possible to use
+functionality from Far without introducing any dependency on Osd.</p>
+<p>Although there are several entry-points to provide topology and primitive variable
+data to OpenSubdiv, eventually everything must pass through the private Vtr and Sdc
+representations for topological analysis.</p>
+<img alt="images/api_layers_3_0.png" class="align-center" src="images/api_layers_3_0.png" />
+</div>
+<div class="section" id="using-the-right-tools">
+<h3>Using the Right Tools</h3>
+<p>OpenSubdiv's tiered interface offers a lot flexibility to make your application
+both fast and robust. Because navigating through the large collection of classes and
+features can be challenging, here are use cases that should help sketch
+the broad lines of going about using subdivisions in your application.</p>
+<p>General client application requirements:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Surface Limit</td>
+<td>For some applications, a polygonal approximation of
+the smooth surface is enough. Others require
+C <sup>2</sup> continuous differentiable bi-cubic patches
+(ex: deformable displacement mapping, smooth normals
+and semi-sharp creases...)</td>
+</tr>
+<tr><td>Deforming Surface</td>
+<td>Applications such as off-line image renderers often
+process a single frame at a time. Others, such as
+interactive games need to evaluate deforming
+character surface every frame. Because we can amortize
+many computations if the topology of the mesh does not
+change, OpenSubdiv provides 'stencil tables' in order
+to leverage subdivision refinement into a
+pre-computation step.</td>
+</tr>
+<tr><td>Multi-threading</td>
+<td>OpenSubdiv also provides dedicated interfaces to
+leverage parallelism on a wide variety of platforms
+and API standards, including both CPUs and GPUs.</td>
+</tr>
+<tr><td>GPU Draw</td>
+<td>If the application requires interactive drawing on
+screen, OpenSubdiv provides several back-end
+implementations, including D3D11 and OpenGL. These
+back-ends provide full support for programmable
+shading.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="use-case-1-simple-refinement">
+<h3>Use case 1: Simple refinement</h3>
+<p>The following example shows the most simple case to get your mesh refined uniformly.</p>
+<img alt="images/usecase1_image.png" src="images/usecase1_image.png" />
+<img alt="images/usecase1.png" class="align-center" src="images/usecase1.png" />
+<ol class="arabic simple">
+<li>Define a class for the primvar you want to refine.
+It's required to have Clear() and AddWithWeight() functions.</li>
+</ol>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 133)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    struct Vertex {
+        void Clear() { x = y = z = 0; }
+        void AddWithWeight(Vertex const &amp;src, float weight) {
+            x += weight * src.x;
+            y += weight * src.y;
+            z += weight * src.z;
+        }
+        float x, y, z;
+    };
+
+</pre>
+</div>
+<p>2. Instantiate a <a class="reference external" href="far_overview.html#far-topologyrefiner">Far::TopologyRefiner</a>
+from the <a class="reference external" href="far_overview.html#far-topologyrefinerfactory">Far::TopologyDescriptor</a>.</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 149)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    Far::TopologyDescriptor desc;
+    desc.numVertices         = &lt;the number of vertices&gt;
+    desc.numFaces            = &lt;the number of faces&gt;
+    desc.numVertsPerFace     = &lt;array of the number of verts per face&gt;
+    desc.vertIndicesPerFace  = &lt;array of vert indices&gt;
+
+    Far::TopologyRefiner * refiner = Far::TopologyRefinerFactory&lt;Descriptor&gt;::Create(desc);
+
+</pre>
+</div>
+<ol class="arabic simple" start="3">
+<li>Call RefineUniform() to refine the topology up to 'maxlevel'.</li>
+</ol>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 161)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    refiner-&gt;RefineUniform(Far::TopologyRefiner::UniformOptions(maxlevel));
+
+</pre>
+</div>
+<p>4. Interpolate vertex primvar data at 'level' using
+<a class="reference external" href="far_overview.html#far-primvarrefiner">Far::PrimvarRefiner</a></p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 168)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    Far::PrimvarRefiner primvarRefiner(*refiner);
+
+    Vertex const *src = &lt;coarse vertices&gt;
+    Vertex *dst       = &lt;refined vertices&gt;
+
+    primvarRefiner.Interpolate(level, src, dst);
+
+</pre>
+</div>
+<ol class="arabic simple" start="5">
+<li>The topology at the refined level can be obtained from Far::TopologyLevel</li>
+</ol>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 179)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    Far::TopologyLevel const &amp; refLastLevel = refiner-&gt;GetLevel(maxlevel);
+
+    int nverts = refLastLevel.GetNumVertices();
+    int nfaces = refLastLevel.GetNumFaces();
+
+    for (int face = 0; face &lt; nfaces; ++face) {
+        Far::ConstIndexArray fverts = refLastLevel.GetFaceVertices(face);
+
+        // do something with dst and fverts
+    }
+
+</pre>
+</div>
+<ol class="arabic simple" start="6">
+<li>Done! See <a class="reference external" href="far_tutorial_0.html">far_tutorial_0</a> for the complete code example.</li>
+</ol>
+</div>
+<div class="section" id="use-case-2-gl-adaptive-tessellation-drawing-of-animating-mesh">
+<h3>Use case 2: GL adaptive tessellation drawing of animating mesh</h3>
+<p>The next example is showing how to draw adaptive tessellated patches in GL using OpenSubdiv.
+The osd layer helps you to interact with GL and other device specific APIs. Also for an
+efficient refinement of animating mesh on a static topology, we create a stencil table to
+refine the positions changing over time.</p>
+<p>The following example code uses an Osd::GLMesh utility class which composites a stencil
+table, patch table, vertex buffer and evaluator in osd layer. You can also use those classes
+independently.</p>
+<img alt="images/usecase2.png" class="align-center" src="images/usecase2.png" />
+<p>1. Instantiate a <a class="reference external" href="far_overview.html#far-topologyrefiner">Far::TopologyRefiner</a> from the
+<a class="reference external" href="far_overview.html#far-topologyrefinerfactory">Far::TopologyDescriptor</a>, same as usecase 1.</p>
+<ol class="arabic simple" start="2">
+<li>Setup Osd::Mesh. In this example we use b-spline endcap.</li>
+</ol>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 214)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    int numVertexElements = 3; // x, y, z
+
+    Osd::MeshBitset bits;
+    bits.set(Osd::MeshAdaptive, true);           // set adaptive
+    bits.set(Osd::MeshEndCapBSplineBasis, true); // use b-spline basis patch for endcap.
+
+    Osd::GLMeshInterface *mesh = new Osd::Mesh&lt;Osd::CpuGLVertexBuffer, Far::StencilTable,
+                                               Osd::CpuEvaluator, Osd::GLPatchTable&gt;
+                                        (refiner, numVertexElements, 0, level, bits);
+
+</pre>
+</div>
+<p>3. Update coarse vertices and refine (Osd::Mesh::Refine() calls
+<a class="reference external" href="osd_overview.html#refinement">Osd::CpuEvaluator::EvalStencils()</a>)</p>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 229)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    mesh-&gt;UpdateVertexBuffer(&amp;vertex[0], 0, nverts);
+    mesh-&gt;Refine();
+
+</pre>
+</div>
+<ol class="arabic simple" start="4">
+<li>Bind index buffer, PatchParamBuffer and vertex buffer</li>
+</ol>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 236)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    // index buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh-&gt;GetPatchTable()-&gt;GetPatchIndexBuffer());
+
+    // vertex buffer
+    glBindBuffer(GL_ARRAY_BUFFER, mesh-&gt;BindVertexBuffer());
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, numVertexElements, GL_FLOAT, GL_FALSE,
+                          numVertexElements*sizeof(float), 0);
+
+    // patch param buffer
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_BUFFER, mesh-&gt;GetPatchTable()-&gt;GetPatchParamTextureBuffer());
+
+</pre>
+</div>
+<ol class="arabic simple" start="5">
+<li>Draw. Since we use b-spline endcaps in this example, there is only one PatchArray in the patch table. You may need to iterate patch arrays as you use other type of endcap. To configure GLSL program for each patch type, see <a class="reference external" href="osd_shader_interface.html">osd shader interface</a> for more details.</li>
+</ol>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 253)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">
+.. code:: c++
+
+    Osd::PatchArray const &amp; patch = mesh-&gt;GetPatchTable()-&gt;GetPatchArrays()[0];
+    Far::PatchDescriptor desc = patch.GetDescriptor();
+
+    int numVertsPerPatch = desc.GetNumControlVertices();  // 16 for B-spline patches
+    glUseProgram(BSplinePatchProgram);
+    glPatchParameteri(GL_PATCH_VERTICES, numVertsPerPatch);
+    glDrawElements(GL_PATCHES, patch.GetNumPatches() * numVertsPerPatch,
+                   GL_UNSIGNED_INT, 0);
+
+</pre>
+</div>
+<ol class="arabic simple" start="6">
+<li>As the mesh animates, repeat from step 3 to update positions, refine, and draw.
+See <a class="reference external" href="glviewer.html">glViewer</a> and other examples for more complete usage.</li>
+</ol>
+</div>
+<div class="section" id="tutorials-and-examples">
+<h3>Tutorials and Examples</h3>
+<p>For more use cases, please see <a class="reference external" href="tutorials.html">Tutorials</a> and <a class="reference external" href="code_examples.html">Examples</a></p>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

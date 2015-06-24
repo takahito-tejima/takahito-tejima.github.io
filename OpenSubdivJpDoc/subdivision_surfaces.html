@@ -1,0 +1,529 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Subdivision Surfaces</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="subdivision-surfaces">
+<h1 class="title">Subdivision Surfaces</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Subdivision Surfaces</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#id1" id="id13">はじめに</a></li>
+<li><a class="reference internal" href="#id2" id="id14">任意のトポロジ</a></li>
+<li><a class="reference internal" href="#id3" id="id15">ユニフォーム（均一）サブディビジョン</a></li>
+<li><a class="reference internal" href="#id4" id="id16">フィーチャーアダプティブ（特徴適応型）サブディビジョン</a></li>
+<li><a class="reference internal" href="#id5" id="id17">均一分割か、適応型分割か</a></li>
+<li><a class="reference internal" href="#id6" id="id18">境界補間ルール</a></li>
+<li><a class="reference internal" href="#face-varying" id="id19">面変化(Face Varying) 補間ルール</a></li>
+<li><a class="reference internal" href="#id7" id="id20">セミシャープクリース</a></li>
+<li><a class="reference internal" href="#id8" id="id21">チャイキン則</a></li>
+<li><a class="reference internal" href="#id9" id="id22">&quot;三角形サブディビジョン&quot;規則</a></li>
+<li><a class="reference internal" href="#id10" id="id23">多様体と非多様体ジオメトリ</a><ul>
+<li><a class="reference internal" href="#id11" id="id24">非多様体の羽根型形状</a></li>
+<li><a class="reference internal" href="#id12" id="id25">非多様体として扱われる独立頂点</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="id1">
+<h3>はじめに</h3>
+<p>滑らかなサーフェスをモデリングするもっとも一般的な方法は、BスプラインやNURBSなどの
+双３次曲面をつなぎ合わせることです。</p>
+<img alt="images/torus.png" class="align-center" src="images/torus.png" style="height: 200px;" />
+<p>これらはしっかりした滑らかな極限サーフェスを得られますが、双３次サーフェスは
+トポロジが２次元に限定されるため現実世界のシェイプのごく一部しか記述することができません。
+この根本的なパラメータ制約により、オーサリングツールは少なくとも次の機能を持つ必要があります。</p>
+<p>ただしトリミングもスティッチングもモデルの滑らかさを保つ必要があり、またそれがアニメーションする
+際にも滑らかであり続けなければなりません。これには複雑で負荷の高い計算が必要になってしまいます。</p>
+<p>一方サブディビジョンサーフェスはあらゆるトポロジを表現することが出来るため、上記のような
+難しさにとらわれることがありません。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h3>任意のトポロジ</h3>
+<p>サブディビジョンサーフェスはその他のパラメトリックサーフェスと同様に、コントロール
+メッシュのポイントで記述されます。サーフェスそれ自体は部分的にスムーズになるように
+近似したり補間したりできるのですが、ポリゴンサーフェスを滑らかにするには膨大な量の
+頂点が必要になるのに対し、サブディビジョンサーフェスは常に滑らか、つまりどのように
+動いてもどれだけ近づいてもポリゴンのアーティファクトは発生しません。</p>
+<p>通常の３次Bスプラインサーフェスは格子状のテンソル積パッチです。サブディビジョンサーフェスは
+これを任意の接続形状のコントロールグリッドに一般化したものになります。</p>
+<center>
+  <p align="center">
+    <IMG src="images/tetra.0.png" style="width: 20%;">
+    <IMG src="images/tetra.1.png" style="width: 20%;">
+    <IMG src="images/tetra.2.png" style="width: 20%;">
+    <IMG src="images/tetra.3.png" style="width: 20%;">
+  </p>
+</center></div>
+<hr class="docutils" />
+<div class="section" id="id3">
+<h3>ユニフォーム（均一）サブディビジョン</h3>
+<p>コントロールメッシュを均一に分割していきます。処理を繰り返すことでメッシュは極限サーフェスに
+収束していきます。</p>
+<a class="reference external image-reference" href="images/uniform.gif"><img alt="images/uniform.gif" class="align-center" src="images/uniform.gif" style="width: 300px;" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="id4">
+<h3>フィーチャーアダプティブ（特徴適応型）サブディビジョン</h3>
+<p>非正則な特徴を分離するような段階的な分割を行います。得られた頂点を使って極限サーフェスを
+直接定義する双三次サーフェスを得る事ができます。</p>
+<a class="reference external image-reference" href="images/adaptive.gif"><img alt="images/adaptive.gif" class="align-center" src="images/adaptive.gif" style="width: 300px;" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="id5">
+<h3>均一分割か、適応型分割か</h3>
+<p>特徴適応型分割は速度面でもメモリ消費面でも有利ですが、アプリケーションの用途によって選んでください。</p>
+<p>以下の表に検討すべき要素を列挙しています。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Uniform</th>
+<th class="head">Feature Adaptive</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><ul class="first last simple">
+<li>Exponential geometry growth</li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li>Geometry growth close to linear and occuring only in
+the neighborhood of isolated topological features</li>
+</ul>
+</td>
+</tr>
+<tr><td><ul class="first last simple">
+<li>Current implementation only produces bi-linear
+patches for uniform refinement</li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li>Current implementation only produces bi-cubic
+patches for feature adaptive refinement</li>
+</ul>
+</td>
+</tr>
+<tr><td><ul class="first last simple">
+<li>All face-varying interpolation rules supported at
+refined vertex locations</li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li>Currently, only bi-linear face-varying interpolation
+is supported for bi-cubic patches</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+<div class="notebox container">
+<p><strong>Release Notes (3.0.0)</strong></p>
+<ul class="simple">
+<li>Full support for bi-cubic face-varying interpolation is a significant
+feature which will be supported in future releases.</li>
+<li>Feature adaptive refinement for the Loop subdivision scheme is
+expected to be supported in future releases.</li>
+</ul>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id6">
+<h3>境界補間ルール</h3>
+<p>境界補間ルールとは、境界エッジと頂点をどのように補間するか制御する方法です。</p>
+<p>以下のルールが頂点の補間に適用可能です:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="37%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">モード</th>
+<th class="head">挙動</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><strong>VTX_BOUNDARY_NONE</strong></td>
+<td>何もしない;境界になる面はホールとして扱われます。
+内側の面の連続性のために使われますが、それ自体は極限
+サーフェスに含まれません。</td>
+</tr>
+<tr><td><strong>VTX_BOUNDARY_EDGE_ONLY</strong></td>
+<td>すべてのバウンダリエッジをシャープクリースとする</td>
+</tr>
+<tr><td><strong>VTX_BOUNDARY_EDGE_AND_CORNER</strong></td>
+<td>すべてのバウンダリエッジをシャープクリースとし、面を一つ
+だけもつバウンダリ頂点をシャープコーナーとする</td>
+</tr>
+</tbody>
+</table>
+<p>グリッドの例:</p>
+<a class="reference external image-reference" href="images/vertex_boundary.png"><img alt="images/vertex_boundary.png" class="align-center" src="images/vertex_boundary.png" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="face-varying">
+<h3>面変化(Face Varying) 補間ルール</h3>
+<p>面変化(Face-varying)データはサーフェス上で切れ目があるデータ、主に切れ目のあるUV
+などに使われます。面変化データは頂点データの補間と同じ規則に従うか、あるいはコーナー、
+境界、内部をそれぞれ直線的に補間するか選ぶ事ができます。</p>
+<p>面変化データの補間には以下の規則が適用可能です。下の表は直線的な補間になる順にならんでいます。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Mode</th>
+<th class="head">Behavior</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><strong>FVAR_LINEAR_NONE</strong></td>
+<td>smooth everywhere the mesh is smooth</td>
+</tr>
+<tr><td><strong>FVAR_LINEAR_CORNERS_ONLY</strong></td>
+<td>sharpen (linearly interpolate) corners only</td>
+</tr>
+<tr><td><strong>FVAR_LINEAR_CORNERS_PLUS1</strong></td>
+<td>CORNERS_ONLY + sharpening of junctions of 3 or more regions</td>
+</tr>
+<tr><td><strong>FVAR_LINEAR_CORNERS_PLUS2</strong></td>
+<td>CORNERS_PLUS1 + sharpening of darts and concave corners</td>
+</tr>
+<tr><td><strong>FVAR_LINEAR_BOUNDARIES</strong></td>
+<td>linear interpolation along all boundary edges and corners</td>
+</tr>
+<tr><td><strong>FVAR_LINEAR_ALL</strong></td>
+<td>linear interpolation everywhere (boundaries and interior)</td>
+</tr>
+</tbody>
+</table>
+<p>どの面変化補間ルールを使っても、ベースになる頂点より面変化データを滑らかに補間することはできません。
+メッシュのシャープな特徴はシャープネス値、境界補間ルール、スキーム自体が優先します。</p>
+<p>catmark_fvar_bound1 テストシェイプをすべての規則で分割した UV 値の例。このシェイプは
+単純な 4x4 グリッドの四角形ですが、３つの UV 領域に分かれています（コントロールポイント
+の場所は FVAR_LINEAR_ALL の様子でわかります）:</p>
+<a class="reference external image-reference" href="images/fvar_boundaries.png"><img alt="images/fvar_boundaries.png" class="align-center" src="images/fvar_boundaries.png" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="id7">
+<h3>セミシャープクリース</h3>
+<p>サブディビジョン規則を一部変更して部分的に滑らかなサーフェスにクリースやコーナー
+などの完全にシャープな特徴を作ることができます。特別なケースとしては境界エッジを
+シャープとタグ付けし、境界を補間することができます。</p>
+<p>しかし、現実世界のサーフェスは完全にシャープなエッジというのはありません。このため
+セミシャープクリースという表現を導入しました。つまり、丸みを帯びた制御可能な
+シャープネスをもつクリースです。これによりフィレットやブレンドのような特徴を
+作ることができます。エッジや連結エッジをクリースでタグ付ける際に、シャープネスの値を
+0〜10の範囲で与える事ができます。10 以上のシャープネスは完全シャープとして扱います。</p>
+<p>完全シャープクリースでは接線が不連続になり、法線ベクトルも不連続になることに
+注意してください。このため法線方向へのディスプレイスメントはクリースにそって
+分離してしまいます。クリース部分でディスプレイスメントが必要な場合はセミシャープ
+クリースをつけるようにしてください。</p>
+<a class="reference external image-reference" href="images/gtruck.png"><img alt="images/gtruck.png" class="align-center" src="images/gtruck.png" style="height: 300px;" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="id8">
+<h3>チャイキン則</h3>
+<p>チャイキンのカーブ分割アルゴリズムを使って複数エッジに渡るセミシャープ
+クリースの見た目を改善することができます。チャイキン則はシャープネスを
+隣接エッジで補間します。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">モード</th>
+<th class="head">挙動</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><strong>CREASE_UNIFORM</strong></td>
+<td>通常のセミシャープクリース則を適用</td>
+</tr>
+<tr><td><strong>CREASE_CHAIKIN</strong></td>
+<td>セミシャープクリース則にチャイキンアルゴリズムを適用</td>
+</tr>
+</tbody>
+</table>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/subdivision_surfaces.rst</tt>, line 396)</p>
+Explicit markup ends without a blank line; unexpected unindent.</div>
+<p>連続するセミシャープクリースの補間例:</p>
+<a class="reference external image-reference" href="images/chaikin.png"><img alt="images/chaikin.png" class="align-center" src="images/chaikin.png" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="id9">
+<h3>&quot;三角形サブディビジョン&quot;規則</h3>
+<p>三角形サブディビジョン規則は Catmull-Clark 分割のオプションで、三角形フェイスの
+分割に適用することができます。この規則は経験的に決められたもので、三角形の分割を
+滑らかにすることができます。ただし、この規則は２つのメッシュの境界を重ねる
+ことでシームレスに接続できるという便利な特性をなくしてしまいますので注意してください。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">モード</th>
+<th class="head">挙動</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><strong>TRI_SUB_CATMARK</strong></td>
+<td>標準の Catmark 重みづけ</td>
+</tr>
+<tr><td><strong>TRI_SUB_SMOOTH</strong></td>
+<td>&quot;スムーズ三角形&quot; 重みを適用</td>
+</tr>
+</tbody>
+</table>
+<p>シリンダーの例 :</p>
+<a class="reference external image-reference" href="images/smoothtriangles.png"><img alt="images/smoothtriangles.png" class="align-center" src="images/smoothtriangles.png" style="height: 300px;" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="id10">
+<h3>多様体と非多様体ジオメトリ</h3>
+<p>極限サーフェスを連続に一意に作るためには一般的にはトポロジが二次元多様体で
+ある必要があります。時として一時的に非多様体ジオメトリをモデリングするのが
+便利なこともありますが、その場合には極限サーフェスは定義されません。</p>
+<p>以下の例は非多様体ジオメトリを構成する典型的な例です。</p>
+<hr class="docutils" />
+<div class="section" id="id11">
+<h4>非多様体の羽根型形状</h4>
+<p>次の「羽根型（矢尻型）」のジオメトリは一つのエッジを３つの面で共有しています。</p>
+<a class="reference external image-reference" href="images/nonmanifold_fan.png"><img alt="images/nonmanifold_fan.png" class="align-center" src="images/nonmanifold_fan.png" /></a>
+<p>この構造だとどの面が極限サーフェスを構成するのかを決めることができません。
+これは３面の場合にかぎらず、３面以上の面がエッジを共有するときには同じ
+問題が発生します。</p>
+<p>非多様体エッジは、「部分的に多様体」な領域を考慮して取り扱われます。複数の面を
+含む問題があるエッジを補間して通過する極限サーフェスのかわりに、そのエッジで複数の極限
+サーフェスを幾つかに分割します。こうして面がそれぞれ極限サーフェスを持ち
+（部分的に多様体）、エッジでつながる、というような処理になります。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id12">
+<h4>非多様体として扱われる独立頂点</h4>
+<p>どのエッジ・面にも属していない頂点の場合です。</p>
+<a class="reference external image-reference" href="images/nonmanifold_vert.png"><img alt="images/nonmanifold_vert.png" class="align-center" src="images/nonmanifold_vert.png" /></a>
+<p>このケースは簡単です：４つの頂点とその面にはもちろん極限サーフェスがありますが、
+つながっていない頂点にはありません。</p>
+<p>この頂点はどの極限サーフェスにも寄与しませんが、まったく無関係というわけでも
+ありません。これらの頂点をサブディビジョン処理の間保持しておきたい場合も
+あります（頂点順序を維持したい場合）。これらは単純に極限サーフェスを求める
+ときには無視されます。</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

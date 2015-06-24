@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Modeling Tips</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要 (en)</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="modeling-tips">
+<h1 class="title">Modeling Tips</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Modeling Tips</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#topology" id="id1">Topology</a><ul>
+<li><a class="reference internal" href="#use-fewer-spans" id="id2">Use Fewer Spans</a></li>
+<li><a class="reference internal" href="#avoid-high-valence-vertices" id="id3">Avoid High Valence vertices</a></li>
+<li><a class="reference internal" href="#edge-loop-transitions" id="id4">Edge-Loop Transitions</a></li>
+<li><a class="reference internal" href="#practical-topology-primer" id="id5">Practical Topology Primer</a></li>
+<li><a class="reference internal" href="#triangles-and-n-gons" id="id6">Triangles and N-Gons</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#semi-sharp-creases" id="id7">Semi-Sharp Creases</a><ul>
+<li><a class="reference internal" href="#use-crease-sets" id="id8">Use crease sets</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#additional-resources" id="id9">Additional Resources</a></li>
+</ul>
+</div>
+<hr class="docutils" />
+<p>The following sections describe common techniques specific to modeling with
+subdivision surfaces.</p>
+<div class="notebox container">
+<p><strong>Note</strong></p>
+<p>The following information contains techniques specific to the Catmull-Clark
+subdivision scheme. Some elements need to be adjusted for Loop surfaces.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="topology">
+<h3>Topology</h3>
+<p>Well-constructed subdivision meshes have several important properties:</p>
+<blockquote>
+<ul class="simple">
+<li>They consist primarily of quad faces</li>
+<li>They contain few extraordinary vertices</li>
+<li>They efficiently describe the intended shape</li>
+<li>They are topologically <a class="reference external" href="subdivision_surfaces.html#manifold-geometry">manifold</a></li>
+</ul>
+</blockquote>
+<hr class="docutils" />
+<div class="section" id="use-fewer-spans">
+<h4>Use Fewer Spans</h4>
+<p>While polygon models need to use a large number of spans to approximate smooth
+curved surfaces, subdivision models require significantly fewer control points.</p>
+<p>In most situations, 6 spans are enough to create accurate circular shapes, and
+4 is often enough to approximate background objects.</p>
+<a class="reference external image-reference" href="images/mod_notes.0.png"><img alt="images/mod_notes.0.png" class="align-center" src="images/mod_notes.0.png" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="avoid-high-valence-vertices">
+<h4>Avoid High Valence vertices</h4>
+<p>A high valence vertex is a vertex connected to more than 4 adjacent edges.</p>
+<p>High valence vertices cause several problems when subdivided:</p>
+<blockquote>
+<ul>
+<li><p class="first">The Catmull-Clark scheme can produce &quot;wavy&quot; surfaces when a revolution
+vertex is surrounded by triangles (see <a class="reference external" href="subdivision_surfaces.html#triangle-subdivision-rule">here</a>):</p>
+<a class="reference external image-reference" href="images/mod_notes.2.png"><img alt="images/mod_notes.2.png" class="align-center" src="images/mod_notes.2.png" style="width: 150px;" /></a>
+</li>
+<li><p class="first">High valence vertices incur fairly large performance hits</p>
+</li>
+<li><p class="first">Currently, OpenSubdiv has a hard constraint imposed by GPU shaders on the
+maximum valence of a vertex (~27 on current hardware)</p>
+</li>
+</ul>
+</blockquote>
+<p>Instead, here are some topological strategies to cap revolution shapes:</p>
+<a class="reference external image-reference" href="images/mod_notes.1.png"><img alt="images/mod_notes.1.png" class="align-center" src="images/mod_notes.1.png" /></a>
+<p>Note that all these cylinders use only quad faces, and all the vertices in the
+caps have a valence of 4 (except the bottom left example)</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="edge-loop-transitions">
+<h4>Edge-Loop Transitions</h4>
+<p>It is often necessary to vary the density of control vertices over the surface
+mesh: areas around the fingers of a hand require more CVs than the comparatively
+simpler region around the palm. It is important to handle the topology around
+these transitions efficiently.</p>
+<p>One strategy is to use extraordinary vertices, such as this example, using a
+valence 5 vertex to expand 3 edge loops into 5.</p>
+<a class="reference external image-reference" href="images/edge_loops.png"><img alt="images/edge_loops.png" class="align-center" src="images/edge_loops.png" style="width: 400px;" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="practical-topology-primer">
+<h4>Practical Topology Primer</h4>
+<p>Some real-world examples showing how to produce detailed shapes with sparse
+topology, few extraordinary vertices, and no high-valence revolution poles.</p>
+<a class="reference external image-reference" href="images/mod_notes.3.png"><img alt="images/mod_notes.3.png" class="align-center" src="images/mod_notes.3.png" style="width: 400px;" /></a>
+<a class="reference external image-reference" href="images/mod_notes.4.jpg"><img alt="images/mod_notes.4.jpg" class="align-center" src="images/mod_notes.4.jpg" style="width: 400px;" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="triangles-and-n-gons">
+<h4>Triangles and N-Gons</h4>
+<p>Used sparsely, non-quads can be very useful to gather 3 or more diverging
+edge-loops. These are often encountered in highly deforming areas with curvature
+saddle-points (ex: arm-torso connection). The strategic placement of a pentagon
+in one of these critical spots ensures that the surface remains smooth, while
+allowing for complex topology to flow around.</p>
+<a class="reference external image-reference" href="images/mod_notes.5.png"><img alt="images/mod_notes.5.png" class="align-center" src="images/mod_notes.5.png" /></a>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="semi-sharp-creases">
+<h3>Semi-Sharp Creases</h3>
+<p>Semi-sharp creases can be a very powerful tool for hard-surface modeling.</p>
+<blockquote>
+<ul class="simple">
+<li>Both edges and vertices can be tagged with a sharpness value.</li>
+<li>Crease sharpness values range from 0 (smooth) to 10 (infinitely sharp)</li>
+<li>It is generally cheaper to use creases whenever possible, instead of adding
+extra edges/edge-loops. However...</li>
+<li>Creases introduce extra computation costs that are proportional to the
+sharpness value. So...</li>
+<li>Sharpness values above 5 should rarely be needed.</li>
+</ul>
+</blockquote>
+<p>The following sections introduce some techniques to best leverage them.</p>
+<div class="section" id="use-crease-sets">
+<h4>Use crease sets</h4>
+<p>Complex hard-surface models (giant robots, vehicles, buildings...) are likely to
+tag large number of edges : it is extremely useful to organize these edges/edge
+loops into logical sets with descriptive names. Edges or vertices in a crease
+set group all share the same sharpness value.</p>
+<p>If you are modeling with Maya, the CreaseSetEditor implements this type of
+workflow. Additionally, for debugging purposes, it is often very helpful if the
+name of a set contains the sharpness value (ex: topDeck_2).</p>
+<a class="reference external image-reference" href="images/crease_editor.png"><img alt="images/crease_editor.png" class="align-center" src="images/crease_editor.png" /></a>
+<p>Besides authoring convenience, one of the benefits of having many edge-loops
+share identical sharpness values is that it enables very powerful performance
+optimizations within the feature adaptive algorithm (faster renders &amp; less
+memory).</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="additional-resources">
+<h3>Additional Resources</h3>
+<p>An excellent short tutorial from the Guerrilla CG Project that illustrates many
+of the common pitfalls of subdivision modeling, and the strategies to overcome
+them:</p>
+<center>
+<iframe width="640" height="360" src="http://www.youtube.com/embed/k_S1INdEmdI" frameborder="0" allowfullscreen></iframe>
+</center><hr class="docutils" />
+<p>Ivo Kos, Modelling Technical Director at Pixar Animation Studios, shows some of
+the modeling techniques he uses when modeling props and architecture sets for
+feature films.</p>
+<center>
+<iframe src="http://player.vimeo.com/video/70600180" width="640" height="360" frameborder="0" allowfullscreen></iframe>
+</center></div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 04:40 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>
