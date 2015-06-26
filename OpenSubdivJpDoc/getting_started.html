@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -197,18 +197,9 @@ Please refer to the documentation of your preferred application.</p>
 <li><p class="first">From the GitShell, Cygwin or the CLI : assuming that you have the Git tools
 installed, you can clone the OpenSubdiv repository directly with the
 following command:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/getting_started.rst</tt>, line 52)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    git clone https://github.com/PixarAnimationStudios/OpenSubdiv.git
-
-
-
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">clone</span> <span class="name label">https</span><span class="punctuation">:</span><span class="comment single">//github.com/PixarAnimationStudios/OpenSubdiv.git</span>
 </pre>
-</div>
 </li>
 </ul>
 </blockquote>
@@ -236,40 +227,18 @@ working with the OpenSubdiv code base, but new work should always be performed i
 the <em>dev</em> branch, or dedicated feature-branches. By default, a cloned repository
 will be pointing to the 'master' branch. You can switch to the <em>dev</em> branch using
 the following command:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/getting_started.rst</tt>, line 94)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    git checkout dev
-
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">checkout</span> <span class="name">dev</span>
 </pre>
-</div>
 <p>You can check that the branch has now been switched simply with:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/getting_started.rst</tt>, line 100)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    git branch
-
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">branch</span>
 </pre>
-</div>
 <p>Which should return:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/getting_started.rst</tt>, line 106)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    * dev
-      master
-
-
+<pre class="code c++ literal-block">
+<span class="operator">*</span> <span class="name">dev</span>
+  <span class="name">master</span>
 </pre>
-</div>
 </div>
 <div class="section" id="api-versions">
 <h4>API Versions</h4>
@@ -278,27 +247,13 @@ read from the file <a class="reference external" href="https://github.com/PixarA
 Following the Git-Flow pattern, our releases are indexed using Git's tagging
 system.</p>
 <p>List of the existing tags:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/getting_started.rst</tt>, line 122)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    git tag --list
-
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">tag</span> <span class="operator">--</span><span class="name">list</span>
 </pre>
-</div>
 <p>Checking out version 1.2.0:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/getting_started.rst</tt>, line 128)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    git checkout v1_2_0
-
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">checkout</span> <span class="name">v1_2_0</span>
 </pre>
-</div>
 </div>
 <div class="section" id="making-changes">
 <h4>Making Changes</h4>
@@ -351,7 +306,7 @@ on those GPUs.</td>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

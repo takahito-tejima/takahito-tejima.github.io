@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -171,22 +171,20 @@ ul.creatorMainNav li a {
           <div class="topicLeftData-MainData">
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#api-layers" id="id3">API Layers</a></li>
-<li><a class="reference internal" href="#using-the-right-tools" id="id4">Using the Right Tools</a></li>
-<li><a class="reference internal" href="#use-case-1-simple-refinement" id="id5">Use case 1: Simple refinement</a></li>
-<li><a class="reference internal" href="#use-case-2-gl-adaptive-tessellation-drawing-of-animating-mesh" id="id6">Use case 2: GL adaptive tessellation drawing of animating mesh</a></li>
-<li><a class="reference internal" href="#tutorials-and-examples" id="id7">Tutorials and Examples</a></li>
+<li><a class="reference internal" href="#api" id="id6">API レイヤー</a></li>
+<li><a class="reference internal" href="#id1" id="id7">どのAPIを使うのか</a></li>
+<li><a class="reference internal" href="#id2" id="id8">利用例１：単純なサブディビジョン</a></li>
+<li><a class="reference internal" href="#gl" id="id9">利用例２：GLでアニメーションするメッシュを適応型テセレーションで描画</a></li>
+<li><a class="reference internal" href="#id5" id="id10">チュートリアルと例</a></li>
 </ul>
 </div>
 <a class="reference external image-reference" href="images/osd_splash.png"><img alt="images/osd_splash.png" class="align-center" src="images/osd_splash.png" /></a>
-<div class="section" id="api-layers">
-<h3>API Layers</h3>
-<p>OpenSubdiv is structured as a set of layered libraries.  This structure facilitates
-operation on a variety of computing resources, and allows developers to only opt-in
-to the layers and feature sets that they require.
-From a top-down point of view, OpenSubdiv is comprised of several layers,
-some public, and some private.</p>
-<p>Layers list:</p>
+<div class="section" id="api">
+<h3>API レイヤー</h3>
+<p>OpenSubidv はいくつかのレイヤーで構成されたライブラリです。この構造は様々な計算リソース
+（デバイス）を用いて、開発者が必要なレイヤーを必要に応じて使えるようにできています。
+いくつかのレイヤーがありますが、外向きのインタフェースと内部用のものとがあります。</p>
+<p>レイヤー一覧:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="34%" />
@@ -195,305 +193,234 @@ some public, and some private.</p>
 <tbody valign="top">
 <tr><td><div class="first last line-block">
 <div class="line"><strong>Sdc</strong></div>
-<div class="line">Subdivision Core</div>
+<div class="line">サブディビジョンコア</div>
 <div class="line"><a class="reference external" href="sdc_overview.html">Sdc Overview</a></div>
 </div>
 </td>
-<td>The lowest level layer, implements the core subdivision details
-to facilitate the generation of consistent results. Most cases will only
-require the use of simple public types and constants from Sdc.</td>
+<td>最も低レベルのレイヤーで、サブディジョンの中核アルゴリズムを実装しており
+一貫性のある結果を保証します。ほとんどの場合は単純な公開型と定数を利用する
+です。</td>
 </tr>
 <tr><td><div class="first last line-block">
 <div class="line"><strong>Vtr</strong></div>
-<div class="line">Vectorized Topological Representation</div>
+<div class="line">ベクトル化トポロジ表現</div>
 <div class="line"><a class="reference external" href="vtr_overview.html">Vtr Overview</a></div>
 </div>
 </td>
-<td>A suite of classes to provide an intermediate
-representation of topology that supports efficient refinement.
-<em>Vtr</em> is intended for internal use only.</td>
+<td>効率的な分割のためのトポロジの中間表現を表すクラス群があります。
+<em>Vtr</em> はライブラリの内部用で、公開インタフェースではありません</td>
 </tr>
 <tr><td><div class="first last line-block">
 <div class="line"><strong>Far</strong></div>
-<div class="line">Feature Adaptive Representation</div>
+<div class="line">特徴適応型表現</div>
 <div class="line"><a class="reference external" href="far_overview.html">Far Overview</a></div>
 </div>
 </td>
-<td>The central interface that processes client-supplied
-geometry and turns it into a serialized data
-representation ready for parallel processing in <em>Osd</em>.
-<em>Far</em> also provides a fully-featured single-threaded
-implementation of subdivision interpolation algorithms.</td>
+<td>クライアントが与えるジオメトリを <em>Osd</em> で並列処理可能な連続データに変換する
+中心となるインタフェースです。また <em>Far</em> 単独でもシングルスレッドの完全な
+サブディビジョン及び補間アルゴリズムが利用できます。</td>
 </tr>
 <tr><td><div class="first last line-block">
 <div class="line"><strong>Osd</strong></div>
-<div class="line">OpenSubdiv cross platform</div>
+<div class="line">OpenSubdiv クロスプラットフォーム</div>
 <div class="line"><a class="reference external" href="osd_overview.html">Osd Overview</a></div>
 </div>
 </td>
-<td>A suite of classes to provide parallel subdivision
-kernels and drawing utilities on a variety of platforms
-such as TBB, CUDA, OpenCL, GLSL and DirectX.</td>
+<td>様々なデバイスでの並列サブディビジョンカーネルおよび描画ユーティリティ
+を実装したクラス群です。TBB, CUDA, OpenCL, GLSL, DirectX などをサポート
+しています。</td>
 </tr>
 </tbody>
 </table>
-<p>Client mesh data enters the API through the Far layer. Typically, results will
-be collected from the Osd layer. However, it is possible to use
-functionality from Far without introducing any dependency on Osd.</p>
-<p>Although there are several entry-points to provide topology and primitive variable
-data to OpenSubdiv, eventually everything must pass through the private Vtr and Sdc
-representations for topological analysis.</p>
+<p>クライアントのメッシュデータは Far レイヤーを使って OpenSubdiv に与えます。通常は
+結果は Osd レイヤーで受け取りますが、Far レイヤーだけで使うこともできます。</p>
+<p>トポロジや頂点データを OpenSubdiv に与える方法はいくつかありますが、最終的には
+Vtr と Sdc を使ってトポロジ解析が行われます。</p>
 <img alt="images/api_layers_3_0.png" class="align-center" src="images/api_layers_3_0.png" />
 </div>
-<div class="section" id="using-the-right-tools">
-<h3>Using the Right Tools</h3>
-<p>OpenSubdiv's tiered interface offers a lot flexibility to make your application
-both fast and robust. Because navigating through the large collection of classes and
-features can be challenging, here are use cases that should help sketch
-the broad lines of going about using subdivisions in your application.</p>
-<p>General client application requirements:</p>
+<div class="section" id="id1">
+<h3>どのAPIを使うのか</h3>
+<p>OpenSubdiv の階層インタフェースは柔軟にできているので、様々なアプリケーションを
+高速かつ堅牢にすることができます。ただ多くのクラスや機能があるため正しい方法を
+見つけるのが難しい場合もあります。ここに一般的な用途をいくつかあげておきます。</p>
+<p>アプリケーションが必要な機能:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="29%" />
 <col width="71%" />
 </colgroup>
 <tbody valign="top">
-<tr><td>Surface Limit</td>
-<td>For some applications, a polygonal approximation of
-the smooth surface is enough. Others require
-C <sup>2</sup> continuous differentiable bi-cubic patches
-(ex: deformable displacement mapping, smooth normals
-and semi-sharp creases...)</td>
+<tr><td>リミットサーフェス</td>
+<td>スムーズサーフェスの表現はポリゴンの近似で行っている
+アプリケーションがほとんどですが、双３次パッチでは
+C <sup>2</sup> 連続なパッチを使うことが出来ます
+(例: 変形するディスプレイスメントマップ、スムーズ
+法線、セミシャープクリースなど)</td>
 </tr>
-<tr><td>Deforming Surface</td>
-<td>Applications such as off-line image renderers often
-process a single frame at a time. Others, such as
-interactive games need to evaluate deforming
-character surface every frame. Because we can amortize
-many computations if the topology of the mesh does not
-change, OpenSubdiv provides 'stencil tables' in order
-to leverage subdivision refinement into a
-pre-computation step.</td>
+<tr><td>変形サーフェス</td>
+<td>オフラインレンダラでは通常一度に一枚のフレームを生成
+しますが、インタラクティブなゲームなどでは毎フレーム
+変形するキャラクターのサーフェスを計算する必要があり
+ます。メッシュのトポロジが変わらなければ、大部分の
+計算をまとめて事前に行うことができるため、OpenSubdiv
+はステンシルテーブルを使って事前計算により効率的な
+サブディビジョンを行います。</td>
 </tr>
-<tr><td>Multi-threading</td>
-<td>OpenSubdiv also provides dedicated interfaces to
-leverage parallelism on a wide variety of platforms
-and API standards, including both CPUs and GPUs.</td>
+<tr><td>マルチスレッド</td>
+<td>OpenSubdiv は CPU や GPU など様々なデバイスやAPI
+における並列性を活かしたインタフェースを提供しています</td>
 </tr>
-<tr><td>GPU Draw</td>
-<td>If the application requires interactive drawing on
-screen, OpenSubdiv provides several back-end
-implementations, including D3D11 and OpenGL. These
-back-ends provide full support for programmable
-shading.</td>
+<tr><td>GPU 描画</td>
+<td>アプリケーションがインタラクティブな描画を行う場合、
+OpenSubdivの D3D11/OpenGL バックエンドが利用できます。
+これらはプログラマブルシェーディングを完全にサポート
+しています。</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="section" id="use-case-1-simple-refinement">
-<h3>Use case 1: Simple refinement</h3>
-<p>The following example shows the most simple case to get your mesh refined uniformly.</p>
+<div class="section" id="id2">
+<h3>利用例１：単純なサブディビジョン</h3>
+<p>以下に示すのは均一分割によってサブディビジョンを行う最も簡単な例です。</p>
 <img alt="images/usecase1_image.png" src="images/usecase1_image.png" />
 <img alt="images/usecase1.png" class="align-center" src="images/usecase1.png" />
 <ol class="arabic simple">
-<li>Define a class for the primvar you want to refine.
-It's required to have Clear() and AddWithWeight() functions.</li>
+<li>分割をしたい頂点データクラスを定義します。
+このクラスは Clear() および AddWithWeight() を実装する必要があります。</li>
 </ol>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 133)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    struct Vertex {
-        void Clear() { x = y = z = 0; }
-        void AddWithWeight(Vertex const &amp;src, float weight) {
-            x += weight * src.x;
-            y += weight * src.y;
-            z += weight * src.z;
-        }
-        float x, y, z;
-    };
-
+<pre class="code c++ literal-block">
+<span class="keyword">struct</span> <span class="name">Vertex</span> <span class="punctuation">{</span>
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="name">x</span> <span class="operator">=</span> <span class="name">y</span> <span class="operator">=</span> <span class="name">z</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span> <span class="punctuation">}</span>
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="name">src</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">x</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">x</span><span class="punctuation">;</span>
+        <span class="name">y</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">y</span><span class="punctuation">;</span>
+        <span class="name">z</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">z</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+    <span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span> <span class="name">y</span><span class="punctuation">,</span> <span class="name">z</span><span class="punctuation">;</span>
+<span class="punctuation">};</span>
 </pre>
-</div>
-<p>2. Instantiate a <a class="reference external" href="far_overview.html#far-topologyrefiner">Far::TopologyRefiner</a>
-from the <a class="reference external" href="far_overview.html#far-topologyrefinerfactory">Far::TopologyDescriptor</a>.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 149)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    Far::TopologyDescriptor desc;
-    desc.numVertices         = &lt;the number of vertices&gt;
-    desc.numFaces            = &lt;the number of faces&gt;
-    desc.numVertsPerFace     = &lt;array of the number of verts per face&gt;
-    desc.vertIndicesPerFace  = &lt;array of vert indices&gt;
-
-    Far::TopologyRefiner * refiner = Far::TopologyRefinerFactory&lt;Descriptor&gt;::Create(desc);
-
-</pre>
-</div>
-<ol class="arabic simple" start="3">
-<li>Call RefineUniform() to refine the topology up to 'maxlevel'.</li>
-</ol>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 161)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    refiner-&gt;RefineUniform(Far::TopologyRefiner::UniformOptions(maxlevel));
-
-</pre>
-</div>
-<p>4. Interpolate vertex primvar data at 'level' using
-<a class="reference external" href="far_overview.html#far-primvarrefiner">Far::PrimvarRefiner</a></p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 168)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    Far::PrimvarRefiner primvarRefiner(*refiner);
-
-    Vertex const *src = &lt;coarse vertices&gt;
-    Vertex *dst       = &lt;refined vertices&gt;
-
-    primvarRefiner.Interpolate(level, src, dst);
-
-</pre>
-</div>
-<ol class="arabic simple" start="5">
-<li>The topology at the refined level can be obtained from Far::TopologyLevel</li>
-</ol>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 179)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    Far::TopologyLevel const &amp; refLastLevel = refiner-&gt;GetLevel(maxlevel);
-
-    int nverts = refLastLevel.GetNumVertices();
-    int nfaces = refLastLevel.GetNumFaces();
-
-    for (int face = 0; face &lt; nfaces; ++face) {
-        Far::ConstIndexArray fverts = refLastLevel.GetFaceVertices(face);
-
-        // do something with dst and fverts
-    }
-
-</pre>
-</div>
-<ol class="arabic simple" start="6">
-<li>Done! See <a class="reference external" href="far_tutorial_0.html">far_tutorial_0</a> for the complete code example.</li>
-</ol>
-</div>
-<div class="section" id="use-case-2-gl-adaptive-tessellation-drawing-of-animating-mesh">
-<h3>Use case 2: GL adaptive tessellation drawing of animating mesh</h3>
-<p>The next example is showing how to draw adaptive tessellated patches in GL using OpenSubdiv.
-The osd layer helps you to interact with GL and other device specific APIs. Also for an
-efficient refinement of animating mesh on a static topology, we create a stencil table to
-refine the positions changing over time.</p>
-<p>The following example code uses an Osd::GLMesh utility class which composites a stencil
-table, patch table, vertex buffer and evaluator in osd layer. You can also use those classes
-independently.</p>
-<img alt="images/usecase2.png" class="align-center" src="images/usecase2.png" />
-<p>1. Instantiate a <a class="reference external" href="far_overview.html#far-topologyrefiner">Far::TopologyRefiner</a> from the
-<a class="reference external" href="far_overview.html#far-topologyrefinerfactory">Far::TopologyDescriptor</a>, same as usecase 1.</p>
 <ol class="arabic simple" start="2">
-<li>Setup Osd::Mesh. In this example we use b-spline endcap.</li>
+<li><a class="reference external" href="far_overview.html#far-topologyrefiner">Far::TopologyRefiner</a> を
+<a class="reference external" href="far_overview.html#far-topologyrefinerfactory">Far::TopologyDescriptor</a> から作成します。</li>
 </ol>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 214)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="name">Far</span><span class="operator">::</span><span class="name">TopologyDescriptor</span> <span class="name">desc</span><span class="punctuation">;</span>
+<span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertices</span>         <span class="operator">=</span> <span class="operator">&lt;</span><span class="error">頂点数</span><span class="operator">&gt;</span>
+<span class="name">desc</span><span class="punctuation">.</span><span class="name">numFaces</span>            <span class="operator">=</span> <span class="operator">&lt;</span><span class="error">面数</span><span class="operator">&gt;</span>
+<span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertsPerFace</span>     <span class="operator">=</span> <span class="operator">&lt;</span><span class="error">各面の頂点数配列</span><span class="operator">&gt;</span>
+<span class="name">desc</span><span class="punctuation">.</span><span class="name">vertIndicesPerFace</span>  <span class="operator">=</span> <span class="operator">&lt;</span><span class="error">頂点インデックス配列</span><span class="operator">&gt;</span>
 
-    int numVertexElements = 3; // x, y, z
-
-    Osd::MeshBitset bits;
-    bits.set(Osd::MeshAdaptive, true);           // set adaptive
-    bits.set(Osd::MeshEndCapBSplineBasis, true); // use b-spline basis patch for endcap.
-
-    Osd::GLMeshInterface *mesh = new Osd::Mesh&lt;Osd::CpuGLVertexBuffer, Far::StencilTable,
-                                               Osd::CpuEvaluator, Osd::GLPatchTable&gt;
-                                        (refiner, numVertexElements, 0, level, bits);
-
+<span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span> <span class="name">refiner</span> <span class="operator">=</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Create</span><span class="punctuation">(</span><span class="name">desc</span><span class="punctuation">);</span>
 </pre>
-</div>
-<p>3. Update coarse vertices and refine (Osd::Mesh::Refine() calls
-<a class="reference external" href="osd_overview.html#refinement">Osd::CpuEvaluator::EvalStencils()</a>)</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 229)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    mesh-&gt;UpdateVertexBuffer(&amp;vertex[0], 0, nverts);
-    mesh-&gt;Refine();
-
+<ol class="arabic simple" start="3">
+<li>RefineUniform() を呼び出しトポロジを 'maxlevel' まで分割します。</li>
+</ol>
+<pre class="code c++ literal-block">
+<span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">RefineUniform</span><span class="punctuation">(</span><span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span><span class="operator">::</span><span class="name">UniformOptions</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="punctuation">));</span>
 </pre>
-</div>
 <ol class="arabic simple" start="4">
-<li>Bind index buffer, PatchParamBuffer and vertex buffer</li>
+<li>レベル 'level' の頂点データを
+<a class="reference external" href="far_overview.html#far-primvarrefiner">Far::PrimvarRefiner</a> を使って補間します。</li>
 </ol>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 236)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="name">Far</span><span class="operator">::</span><span class="name">PrimvarRefiner</span> <span class="name">primvarRefiner</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">refiner</span><span class="punctuation">);</span>
 
-    // index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh-&gt;GetPatchTable()-&gt;GetPatchIndexBuffer());
+<span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">*</span><span class="name">src</span> <span class="operator">=</span> <span class="operator">&lt;</span><span class="name">coarse</span> <span class="name">vertices</span><span class="operator">&gt;</span>
+<span class="name">Vertex</span> <span class="operator">*</span><span class="name">dst</span>       <span class="operator">=</span> <span class="operator">&lt;</span><span class="name">refined</span> <span class="name">vertices</span><span class="operator">&gt;</span>
 
-    // vertex buffer
-    glBindBuffer(GL_ARRAY_BUFFER, mesh-&gt;BindVertexBuffer());
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, numVertexElements, GL_FLOAT, GL_FALSE,
-                          numVertexElements*sizeof(float), 0);
-
-    // patch param buffer
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_BUFFER, mesh-&gt;GetPatchTable()-&gt;GetPatchParamTextureBuffer());
-
+<span class="name">primvarRefiner</span><span class="punctuation">.</span><span class="name">Interpolate</span><span class="punctuation">(</span><span class="name">level</span><span class="punctuation">,</span> <span class="name">src</span><span class="punctuation">,</span> <span class="name">dst</span><span class="punctuation">);</span>
 </pre>
-</div>
 <ol class="arabic simple" start="5">
-<li>Draw. Since we use b-spline endcaps in this example, there is only one PatchArray in the patch table. You may need to iterate patch arrays as you use other type of endcap. To configure GLSL program for each patch type, see <a class="reference external" href="osd_shader_interface.html">osd shader interface</a> for more details.</li>
+<li>分割したレベルでのトポロジは Far::TopologyLevel から取得できます。</li>
 </ol>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/api_overview.rst</tt>, line 253)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="name">Far</span><span class="operator">::</span><span class="name">TopologyLevel</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">refLastLevel</span> <span class="operator">=</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetLevel</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="punctuation">);</span>
 
-    Osd::PatchArray const &amp; patch = mesh-&gt;GetPatchTable()-&gt;GetPatchArrays()[0];
-    Far::PatchDescriptor desc = patch.GetDescriptor();
+<span class="keyword type">int</span> <span class="name">nverts</span> <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetNumVertices</span><span class="punctuation">();</span>
+<span class="keyword type">int</span> <span class="name">nfaces</span> <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetNumFaces</span><span class="punctuation">();</span>
 
-    int numVertsPerPatch = desc.GetNumControlVertices();  // 16 for B-spline patches
-    glUseProgram(BSplinePatchProgram);
-    glPatchParameteri(GL_PATCH_VERTICES, numVertsPerPatch);
-    glDrawElements(GL_PATCHES, patch.GetNumPatches() * numVertsPerPatch,
-                   GL_UNSIGNED_INT, 0);
+<span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">face</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">face</span> <span class="operator">&lt;</span> <span class="name">nfaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">face</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="name">Far</span><span class="operator">::</span><span class="name">ConstIndexArray</span> <span class="name">fverts</span> <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetFaceVertices</span><span class="punctuation">(</span><span class="name">face</span><span class="punctuation">);</span>
 
+    <span class="comment single">// do something with dst and fverts
+</span><span class="punctuation">}</span>
 </pre>
-</div>
 <ol class="arabic simple" start="6">
-<li>As the mesh animates, repeat from step 3 to update positions, refine, and draw.
-See <a class="reference external" href="glviewer.html">glViewer</a> and other examples for more complete usage.</li>
+<li>以上で終わりです、詳しくは <a class="reference external" href="far_tutorial_0.html">far_tutorial_0</a> を参照してください。</li>
 </ol>
 </div>
-<div class="section" id="tutorials-and-examples">
-<h3>Tutorials and Examples</h3>
-<p>For more use cases, please see <a class="reference external" href="tutorials.html">Tutorials</a> and <a class="reference external" href="code_examples.html">Examples</a></p>
+<div class="section" id="gl">
+<h3>利用例２：GLでアニメーションするメッシュを適応型テセレーションで描画</h3>
+<p>次の例はOpenSubdiv を使って適応テセレーションパッチをGLで描画する例です。Osd レイヤーを使えば
+GLと様々なAPIとの間のやりとりを楽に行えます。またトポロジ一定でアニメーションするメッシュを
+効率的に分割するために、ステンシルテーブルを用いて時間変化する頂点の分割を行っています。</p>
+<p>以下の例では Osd::GLMesh ユーティリティクラスを使っています。GLMesh は Osd レイヤーの
+ステンシルテーブル、パッチテーブル、頂点バッファおよびエバリュエータなどをまとめたクラスです。
+これらのクラスをそれぞれ独立に利用することもできます。</p>
+<img alt="images/usecase2.png" class="align-center" src="images/usecase2.png" />
+<p>1. 利用例１と同様に、<a class="reference external" href="far_overview.html#far-topologyrefiner">Far::TopologyRefiner</a> を
+<a class="reference external" href="far_overview.html#far-topologyrefinerfactory">Far::TopologyDescriptor</a> から作成します。</p>
+<ol class="arabic simple" start="2">
+<li>Osd::Mesh を準備します。この例ではエンドキャップに B スプラインを使っています。</li>
+</ol>
+<pre class="code c++ literal-block">
+<span class="keyword type">int</span> <span class="name">numVertexElements</span> <span class="operator">=</span> <span class="literal number integer">3</span><span class="punctuation">;</span> <span class="comment single">// x, y, z
+</span>
+<span class="name">Osd</span><span class="operator">::</span><span class="name">MeshBitset</span> <span class="name">bits</span><span class="punctuation">;</span>
+<span class="name">bits</span><span class="punctuation">.</span><span class="name">set</span><span class="punctuation">(</span><span class="name">Osd</span><span class="operator">::</span><span class="name">MeshAdaptive</span><span class="punctuation">,</span> <span class="name builtin">true</span><span class="punctuation">);</span>           <span class="comment single">// set adaptive
+</span><span class="name">bits</span><span class="punctuation">.</span><span class="name">set</span><span class="punctuation">(</span><span class="name">Osd</span><span class="operator">::</span><span class="name">MeshEndCapBSplineBasis</span><span class="punctuation">,</span> <span class="name builtin">true</span><span class="punctuation">);</span> <span class="comment single">// use b-spline basis patch for endcap.
+</span>
+<span class="name">Osd</span><span class="operator">::</span><span class="name">GLMeshInterface</span> <span class="operator">*</span><span class="name">mesh</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="name">Osd</span><span class="operator">::</span><span class="name">Mesh</span><span class="operator">&lt;</span><span class="name">Osd</span><span class="operator">::</span><span class="name">CpuGLVertexBuffer</span><span class="punctuation">,</span> <span class="name">Far</span><span class="operator">::</span><span class="name">StencilTable</span><span class="punctuation">,</span>
+                                           <span class="name">Osd</span><span class="operator">::</span><span class="name">CpuEvaluator</span><span class="punctuation">,</span> <span class="name">Osd</span><span class="operator">::</span><span class="name">GLPatchTable</span><span class="operator">&gt;</span>
+                                    <span class="punctuation">(</span><span class="name">refiner</span><span class="punctuation">,</span> <span class="name">numVertexElements</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="name">level</span><span class="punctuation">,</span> <span class="name">bits</span><span class="punctuation">);</span>
+</pre>
+<p>3. コントロール頂点を更新し、分割します (Osd::Mesh::Refine() は内部で
+<a class="reference external" href="osd_overview.html#refinement">Osd::CpuEvaluator::EvalStencils()</a> を呼んでいます)</p>
+<pre class="code c++ literal-block">
+<span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">UpdateVertexBuffer</span><span class="punctuation">(</span><span class="operator">&amp;</span><span class="name">vertex</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="name">nverts</span><span class="punctuation">);</span>
+<span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">Refine</span><span class="punctuation">();</span>
+</pre>
+<ol class="arabic simple" start="4">
+<li>インデックスバッファ、パッチパラメータバッファ、頂点バッファをバインドします。</li>
+</ol>
+<pre class="code c++ literal-block">
+<span class="comment single">// インデックスバッファ
+</span><span class="name">glBindBuffer</span><span class="punctuation">(</span><span class="name">GL_ELEMENT_ARRAY_BUFFER</span><span class="punctuation">,</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetPatchTable</span><span class="punctuation">()</span><span class="operator">-&gt;</span><span class="name">GetPatchIndexBuffer</span><span class="punctuation">());</span>
+
+<span class="comment single">// 頂点バッファ
+</span><span class="name">glBindBuffer</span><span class="punctuation">(</span><span class="name">GL_ARRAY_BUFFER</span><span class="punctuation">,</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">BindVertexBuffer</span><span class="punctuation">());</span>
+<span class="name">glEnableVertexAttribArray</span><span class="punctuation">(</span><span class="literal number integer">0</span><span class="punctuation">);</span>
+<span class="name">glVertexAttribPointer</span><span class="punctuation">(</span><span class="literal number integer">0</span><span class="punctuation">,</span> <span class="name">numVertexElements</span><span class="punctuation">,</span> <span class="name">GL_FLOAT</span><span class="punctuation">,</span> <span class="name">GL_FALSE</span><span class="punctuation">,</span>
+                      <span class="name">numVertexElements</span><span class="operator">*</span><span class="keyword">sizeof</span><span class="punctuation">(</span><span class="keyword type">float</span><span class="punctuation">),</span> <span class="literal number integer">0</span><span class="punctuation">);</span>
+
+<span class="comment single">// パッチパラメータバッファ
+</span><span class="name">glActiveTexture</span><span class="punctuation">(</span><span class="name">GL_TEXTURE0</span><span class="punctuation">);</span>
+<span class="name">glBindTexture</span><span class="punctuation">(</span><span class="name">GL_TEXTURE_BUFFER</span><span class="punctuation">,</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetPatchTable</span><span class="punctuation">()</span><span class="operator">-&gt;</span><span class="name">GetPatchParamTextureBuffer</span><span class="punctuation">());</span>
+</pre>
+<p>5. 描画します。この例では Bスプラインのエンドキャップを使っているため、パッチテーブルにはパッチ配列がひとつしかありません。
+もし他のエンドキャップを使った場合にはパッチ配列でループする必要があります。それぞれのパッチタイプでの
+GLSLプログラムの構成方法は <a class="reference external" href="osd_shader_interface.html">osd shader interface</a> をご覧ください。</p>
+<pre class="code c++ literal-block">
+<span class="name">Osd</span><span class="operator">::</span><span class="name">PatchArray</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">patch</span> <span class="operator">=</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetPatchTable</span><span class="punctuation">()</span><span class="operator">-&gt;</span><span class="name">GetPatchArrays</span><span class="punctuation">()[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+<span class="name">Far</span><span class="operator">::</span><span class="name">PatchDescriptor</span> <span class="name">desc</span> <span class="operator">=</span> <span class="name">patch</span><span class="punctuation">.</span><span class="name">GetDescriptor</span><span class="punctuation">();</span>
+
+<span class="keyword type">int</span> <span class="name">numVertsPerPatch</span> <span class="operator">=</span> <span class="name">desc</span><span class="punctuation">.</span><span class="name">GetNumControlVertices</span><span class="punctuation">();</span>  <span class="comment single">// 16 for B-spline patches
+</span><span class="name">glUseProgram</span><span class="punctuation">(</span><span class="name">BSplinePatchProgram</span><span class="punctuation">);</span>
+<span class="name">glPatchParameteri</span><span class="punctuation">(</span><span class="name">GL_PATCH_VERTICES</span><span class="punctuation">,</span> <span class="name">numVertsPerPatch</span><span class="punctuation">);</span>
+<span class="name">glDrawElements</span><span class="punctuation">(</span><span class="name">GL_PATCHES</span><span class="punctuation">,</span> <span class="name">patch</span><span class="punctuation">.</span><span class="name">GetNumPatches</span><span class="punctuation">()</span> <span class="operator">*</span> <span class="name">numVertsPerPatch</span><span class="punctuation">,</span>
+               <span class="name">GL_UNSIGNED_INT</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">);</span>
+</pre>
+<p>6. メッシュのアニメーションに応じて、ステップ３から繰り返します（頂点の更新、分割、描画）。
+<a class="reference external" href="glviewer.html">glViewer</a> および他のサンプルプログラムも参照してください。</p>
+</div>
+<div class="section" id="id5">
+<h3>チュートリアルと例</h3>
+<p>より詳しい使い方は <a class="reference external" href="tutorials.html">Tutorials</a> と <a class="reference external" href="code_examples.html">Examples</a> にもあります。</p>
 </div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 20:59 UTC.
 
 </div>
 </body>

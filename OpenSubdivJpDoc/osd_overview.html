@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -419,16 +419,9 @@ A BufferDescriptor is a struct of 3 integers which specify an offset, length and
 </table>
 </blockquote>
 <p>The layout of this buffer can be described as</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_overview.rst</tt>, line 191)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-  Osd::BufferDescriptor desc(/*offset = */ 0, /*length = */ 3, /*stride = */ 3);
-
+<pre class="code c++ literal-block">
+<span class="name">Osd</span><span class="operator">::</span><span class="name">BufferDescriptor</span> <span class="name">desc</span><span class="punctuation">(</span><span class="comment multiline">/*offset = */</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="comment multiline">/*length = */</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="comment multiline">/*stride = */</span> <span class="literal number integer">3</span><span class="punctuation">);</span>
 </pre>
-</div>
 <p>BufferDescriptor can be used for an interleaved buffer too.</p>
 <blockquote>
 <table border="1" class="docutils">
@@ -473,17 +466,10 @@ A BufferDescriptor is a struct of 3 integers which specify an offset, length and
 </tbody>
 </table>
 </blockquote>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_overview.rst</tt>, line 203)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-  Osd::BufferDescriptor xyzDesc(0, 3, 7);
-  Osd::BufferDescriptor rgbaDesc(3, 4, 7);
-
+<pre class="code c++ literal-block">
+<span class="name">Osd</span><span class="operator">::</span><span class="name">BufferDescriptor</span> <span class="name">xyzDesc</span><span class="punctuation">(</span><span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">);</span>
+<span class="name">Osd</span><span class="operator">::</span><span class="name">BufferDescriptor</span> <span class="name">rgbaDesc</span><span class="punctuation">(</span><span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">);</span>
 </pre>
-</div>
 <p>Although the source and destination buffers don't need to be the same buffer for
 EvalStencils(), adaptive patch tables are constructed to first index the coarse
 vertices and the refined vertices immediately afterward. In this case, the
@@ -536,17 +522,10 @@ vertices to be skipped.</p>
 </tbody>
 </table>
 </blockquote>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_overview.rst</tt>, line 222)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-  Osd::BufferDescriptor srcDesc(0, 3, 3);
-  Osd::BufferDescriptor dstDesc(n*3, 3, 3);
-
+<pre class="code c++ literal-block">
+<span class="name">Osd</span><span class="operator">::</span><span class="name">BufferDescriptor</span> <span class="name">srcDesc</span><span class="punctuation">(</span><span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">);</span>
+<span class="name">Osd</span><span class="operator">::</span><span class="name">BufferDescriptor</span> <span class="name">dstDesc</span><span class="punctuation">(</span><span class="name">n</span><span class="operator">*</span><span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">);</span>
 </pre>
-</div>
 <p>Also note that the source descriptor doesn't have to start with offset = 0.
 This is useful when a client has a big buffer with multiple objects batched together.</p>
 </div>
@@ -623,7 +602,7 @@ class and pass it to the Evaluators.</p>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

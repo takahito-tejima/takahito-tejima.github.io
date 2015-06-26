@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -171,156 +171,149 @@ ul.creatorMainNav li a {
           <div class="topicLeftData-MainData">
 <p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/hbr/tutorial_0/hbr_tutorial_0.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/hbr/tutorial_0/hbr_tutorial_0.cpp</a></p>
 <hr class="docutils" />
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/hbr_tutorial_0.rst</tt>, line 9)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c
+<pre class="code c literal-block">
+<span class="comment single">//------------------------------------------------------------------------------
+// Tutorial description:
+//
+// This tutorial presents in a very succint way the requisite steps to
+// instantiate an Hbr mesh from simple topological data.
+//
+</span>
+<span class="comment preproc">#include &lt;opensubdiv/hbr/mesh.h&gt;
+#include &lt;opensubdiv/hbr/catmark.h&gt;
+</span>
+<span class="comment preproc">#include &lt;cstdio&gt;
+</span>
+<span class="comment single">//------------------------------------------------------------------------------
+// Vertex container implementation.
+//
+// The HbrMesh&lt;T&gt; class is a templated interface that expects a vertex class to
+// perform interpolation on arbitrary vertex data.
+//
+// For the template specialization of the HbrMesh interface to be met, our
+// Vertex object to implement a minimal set of constructors and member
+// functions.
+//
+// Since we are not going to subdivide the mesh, the struct presented here has
+// been left minimalistic. The only customization added to our container was to
+// provide storage and accessors for the position of a 3D vertex.
+//
+</span><span class="keyword">struct</span> <span class="name">Vertex</span> <span class="punctuation">{</span>
 
-    //------------------------------------------------------------------------------
-    // Tutorial description:
-    //
-    // This tutorial presents in a very succint way the requisite steps to
-    // instantiate an Hbr mesh from simple topological data.
-    //
+    <span class="comment single">// Hbr minimal required interface ----------------------
+</span>    <span class="name">Vertex</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-    #include &lt;opensubdiv/hbr/mesh.h&gt;
-    #include &lt;opensubdiv/hbr/catmark.h&gt;
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="comment multiline">/*i*/</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-    #include &lt;cstdio&gt;
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
 
-    //------------------------------------------------------------------------------
-    // Vertex container implementation.
-    //
-    // The HbrMesh&lt;T&gt; class is a templated interface that expects a vertex class to
-    // perform interpolation on arbitrary vertex data.
-    //
-    // For the template specialization of the HbrMesh interface to be met, our
-    // Vertex object to implement a minimal set of constructors and member
-    // functions.
-    //
-    // Since we are not going to subdivide the mesh, the struct presented here has
-    // been left minimalistic. The only customization added to our container was to
-    // provide storage and accessors for the position of a 3D vertex.
-    //
-    struct Vertex {
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        // Hbr minimal required interface ----------------------
-        Vertex() { }
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        Vertex(int /*i*/) { }
+    <span class="keyword type">void</span> <span class="name">AddVaryingWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="punctuation">,</span> <span class="keyword type">float</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        Vertex(Vertex const &amp; src) {
-            _position[0] = src._position[0];
-            _position[1] = src._position[1];
-            _position[2] = src._position[2];
-        }
+    <span class="comment single">// Public interface ------------------------------------
+</span>    <span class="keyword type">void</span> <span class="name">SetPosition</span><span class="punctuation">(</span><span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">y</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">z</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">x</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">y</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">z</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void Clear( void * =0 ) { }
+    <span class="keyword">const</span> <span class="keyword type">float</span> <span class="operator">*</span> <span class="name">GetPosition</span><span class="punctuation">()</span> <span class="keyword">const</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="name">_position</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void AddWithWeight(Vertex const &amp;, float ) { }
+<span class="name label">private</span><span class="punctuation">:</span>
+    <span class="keyword type">float</span> <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+<span class="punctuation">};</span>
 
-        void AddVaryingWithWeight(Vertex const &amp;, float) { }
-
-        // Public interface ------------------------------------
-        void SetPosition(float x, float y, float z) {
-            _position[0]=x;
-            _position[1]=y;
-            _position[2]=z;
-        }
-
-        const float * GetPosition() const {
-            return _position;
-        }
-
-    private:
-        float _position[3];
-    };
-
-    typedef OpenSubdiv::HbrMesh&lt;Vertex&gt;      Hmesh;
-    typedef OpenSubdiv::HbrFace&lt;Vertex&gt;      Hface;
-    typedef OpenSubdiv::HbrVertex&lt;Vertex&gt;    Hvertex;
-    typedef OpenSubdiv::HbrHalfedge&lt;Vertex&gt;  Hhalfedge;
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrMesh</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>      <span class="name">Hmesh</span><span class="punctuation">;</span>
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrFace</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>      <span class="name">Hface</span><span class="punctuation">;</span>
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertex</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>    <span class="name">Hvertex</span><span class="punctuation">;</span>
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHalfedge</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>  <span class="name">Hhalfedge</span><span class="punctuation">;</span>
 
 
-    //------------------------------------------------------------------------------
-    // Pyramid geometry from catmark_pyramid.h
-    static float verts[5][3] = {{ 0.0f,  0.0f,  2.0f},
-                                { 0.0f, -2.0f,  0.0f},
-                                { 2.0f,  0.0f,  0.0f},
-                                { 0.0f,  2.0f,  0.0f},
-                                {-2.0f,  0.0f,  0.0f}};
+<span class="comment single">//------------------------------------------------------------------------------
+// Pyramid geometry from catmark_pyramid.h
+</span><span class="keyword">static</span> <span class="keyword type">float</span> <span class="name">verts</span><span class="punctuation">[</span><span class="literal number integer">5</span><span class="punctuation">][</span><span class="literal number integer">3</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{{</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">2.0f</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span> <span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span><span class="operator">-</span><span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">}};</span>
 
-    static int nverts = 5,
-               nfaces = 5;
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">nverts</span> <span class="operator">=</span> <span class="literal number integer">5</span><span class="punctuation">,</span>
+           <span class="name">nfaces</span> <span class="operator">=</span> <span class="literal number integer">5</span><span class="punctuation">;</span>
 
-    static int facenverts[5] = { 3, 3, 3, 3, 4 };
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">facenverts</span><span class="punctuation">[</span><span class="literal number integer">5</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">4</span> <span class="punctuation">};</span>
 
-    static int faceverts[16] = { 0, 1, 2,
-                                 0, 2, 3,
-                                 0, 3, 4,
-                                 0, 4, 1,
-                                 4, 3, 2, 1 };
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">faceverts</span><span class="punctuation">[</span><span class="literal number integer">16</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span>
+                             <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span>
+                             <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span>
+                             <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span>
+                             <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">1</span> <span class="punctuation">};</span>
 
-    //------------------------------------------------------------------------------
-    int main(int, char **) {
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword type">int</span> <span class="name function">main</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">,</span> <span class="keyword type">char</span> <span class="operator">**</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-        // Create a subdivision scheme (Catmull-Clark here)
-        OpenSubdiv::HbrCatmarkSubdivision&lt;Vertex&gt; * catmark =
-            new OpenSubdiv::HbrCatmarkSubdivision&lt;Vertex&gt;();
+    <span class="comment single">// Create a subdivision scheme (Catmull-Clark here)
+</span>    <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrCatmarkSubdivision</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">catmark</span> <span class="operator">=</span>
+        <span class="name">new</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrCatmarkSubdivision</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span><span class="punctuation">();</span>
 
-        // Create an empty Hbr mesh
-        Hmesh * hmesh = new Hmesh(catmark);
+    <span class="comment single">// Create an empty Hbr mesh
+</span>    <span class="name">Hmesh</span> <span class="operator">*</span> <span class="name">hmesh</span> <span class="operator">=</span> <span class="name">new</span> <span class="name">Hmesh</span><span class="punctuation">(</span><span class="name">catmark</span><span class="punctuation">);</span>
 
-        // Populate the vertices
-        Vertex v;
-        for (int i=0; i&lt;nverts; ++i) {
+    <span class="comment single">// Populate the vertices
+</span>    <span class="name">Vertex</span> <span class="name">v</span><span class="punctuation">;</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">nverts</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-            // Primitive variable data must be set here: in our case we set
-            // the 3D position of the vertex.
-            v.SetPosition(verts[i][0], verts[i][1], verts[i][2]);
+        <span class="comment single">// Primitive variable data must be set here: in our case we set
+</span>        <span class="comment single">// the 3D position of the vertex.
+</span>        <span class="name">v</span><span class="punctuation">.</span><span class="name">SetPosition</span><span class="punctuation">(</span><span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
 
-            // Add the vertex to the mesh.
-            hmesh-&gt;NewVertex(i, v);
-        }
+        <span class="comment single">// Add the vertex to the mesh.
+</span>        <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">NewVertex</span><span class="punctuation">(</span><span class="name">i</span><span class="punctuation">,</span> <span class="name">v</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
 
-        // Create the topology
-        int * fv = faceverts;
-        for (int i=0; i&lt;nfaces; ++i) {
+    <span class="comment single">// Create the topology
+</span>    <span class="keyword type">int</span> <span class="operator">*</span> <span class="name">fv</span> <span class="operator">=</span> <span class="name">faceverts</span><span class="punctuation">;</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">nfaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-            int nv = facenverts[i];
+        <span class="keyword type">int</span> <span class="name">nv</span> <span class="operator">=</span> <span class="name">facenverts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">];</span>
 
-            hmesh-&gt;NewFace(nv, fv, 0);
+        <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">NewFace</span><span class="punctuation">(</span><span class="name">nv</span><span class="punctuation">,</span> <span class="name">fv</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">);</span>
 
-            fv+=nv;
-        }
+        <span class="name">fv</span><span class="operator">+=</span><span class="name">nv</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        // Set subdivision options
-        //
-        // By default vertex interpolation is set to &quot;none&quot; on boundaries, which
-        // can produce un-expected results, so we change it to &quot;edge-only&quot;.
-        //
-        hmesh-&gt;SetInterpolateBoundaryMethod(Hmesh::k_InterpolateBoundaryEdgeOnly);
+    <span class="comment single">// Set subdivision options
+</span>    <span class="comment single">//
+</span>    <span class="comment single">// By default vertex interpolation is set to &quot;none&quot; on boundaries, which
+</span>    <span class="comment single">// can produce un-expected results, so we change it to &quot;edge-only&quot;.
+</span>    <span class="comment single">//
+</span>    <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">SetInterpolateBoundaryMethod</span><span class="punctuation">(</span><span class="name">Hmesh</span><span class="operator">::</span><span class="name">k_InterpolateBoundaryEdgeOnly</span><span class="punctuation">);</span>
 
-        // Call 'Finish' to finalize the data structures before using the mesh.
-        hmesh-&gt;Finish();
+    <span class="comment single">// Call 'Finish' to finalize the data structures before using the mesh.
+</span>    <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">Finish</span><span class="punctuation">();</span>
 
 
-        printf(&quot;Created a pyramid with %d faces and %d vertices.\n&quot;,
-            hmesh-&gt;GetNumFaces(), hmesh-&gt;GetNumVertices());
+    <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;Created a pyramid with %d faces and %d vertices.</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span>
+        <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetNumFaces</span><span class="punctuation">(),</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetNumVertices</span><span class="punctuation">());</span>
 
-        delete hmesh;
-        delete catmark;
-    }
+    <span class="name">delete</span> <span class="name">hmesh</span><span class="punctuation">;</span>
+    <span class="name">delete</span> <span class="name">catmark</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
 
-    //------------------------------------------------------------------------------
-
+<span class="comment single">//------------------------------------------------------------------------------</span>
 </pre>
-</div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

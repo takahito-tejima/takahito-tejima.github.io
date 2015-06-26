@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -216,79 +216,63 @@ two vec4 parameters (tessOuterHi, tessOuterLo) will be needed in addition to bui
 uses OpenSubdiv shader functions to tessellate patches of a patch table.</p>
 <div class="section" id="tessellation-control-shader-example-for-bspline-patches">
 <h4>Tessellation Control Shader Example (for BSpline patches)</h4>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_shader_interface.rst</tt>, line 56)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: glsl
+<pre class="code glsl literal-block">
+<span class="name">layout</span> <span class="punctuation">(</span><span class="name">vertices</span> <span class="operator">=</span> <span class="literal number integer">16</span><span class="punctuation">)</span> <span class="keyword">out</span><span class="punctuation">;</span>
+<span class="keyword">in</span> <span class="keyword">vec3</span> <span class="name">position</span><span class="punctuation">[];</span>
+<span class="name">patch</span> <span class="keyword">out</span> <span class="keyword">vec4</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="name">tessOuterHi</span><span class="punctuation">;</span>
+<span class="keyword">out</span> <span class="name">OsdPerPatchVertexBezier</span> <span class="name">v</span><span class="punctuation">;</span>
 
-    layout (vertices = 16) out;
-    in vec3 position[];
-    patch out vec4 tessOuterLo, tessOuterHi;
-    out OsdPerPatchVertexBezier v;
+<span class="keyword">void</span> <span class="name">main</span><span class="punctuation">()</span>
+<span class="punctuation">{</span>
+    <span class="comment single">// Get a patch param from texture buffer.</span>
+    <span class="keyword">ivec3</span> <span class="name">patchParam</span> <span class="operator">=</span> <span class="name">OsdGetPatchParam</span><span class="punctuation">(</span><span class="name">gl_PrimitiveID</span><span class="punctuation">);</span>
 
-    void main()
-    {
-        // Get a patch param from texture buffer.
-        ivec3 patchParam = OsdGetPatchParam(gl_PrimitiveID);
+    <span class="comment single">// Compute per-patch vertices.</span>
+    <span class="name">OsdComputePerPatchVertexBSpline</span><span class="punctuation">(</span><span class="name">patchParam</span><span class="punctuation">,</span> <span class="name">gl_InvocationID</span><span class="punctuation">,</span> <span class="name">position</span><span class="punctuation">,</span> <span class="name">v</span><span class="punctuation">);</span>
 
-        // Compute per-patch vertices.
-        OsdComputePerPatchVertexBSpline(patchParam, gl_InvocationID, position, v);
+    <span class="comment single">// Compute tessellation factors.</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">gl_InvocationID</span> <span class="operator">==</span> <span class="literal number oct">0</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">vec4</span> <span class="name">tessLevelOuter</span> <span class="operator">=</span> <span class="keyword">vec4</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">);</span>
+        <span class="keyword">vec2</span> <span class="name">tessLevelInner</span> <span class="operator">=</span> <span class="keyword">vec2</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">);</span>
+        <span class="name">OsdGetTessLevelsUniform</span><span class="punctuation">(</span><span class="name">patchParam</span><span class="punctuation">,</span>
+                                <span class="name">tessLevelOuter</span><span class="punctuation">,</span> <span class="name">tessLevelInner</span><span class="punctuation">,</span>
+                                <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="name">tessOuterHi</span><span class="punctuation">);</span>
 
-        // Compute tessellation factors.
-        if (gl_InvocationID == 0) {
-            vec4 tessLevelOuter = vec4(0);
-            vec2 tessLevelInner = vec2(0);
-            OsdGetTessLevelsUniform(patchParam,
-                                    tessLevelOuter, tessLevelInner,
-                                    tessOuterLo, tessOuterHi);
+        <span class="name">gl_TessLevelOuter</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelOuter</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">];</span>
+        <span class="name">gl_TessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">gl_TessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+        <span class="name">gl_TessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
 
-            gl_TessLevelOuter[0] = tessLevelOuter[0];
-            gl_TessLevelOuter[1] = tessLevelOuter[1];
-            gl_TessLevelOuter[2] = tessLevelOuter[2];
-            gl_TessLevelOuter[3] = tessLevelOuter[3];
-
-            gl_TessLevelInner[0] = tessLevelInner[0];
-            gl_TessLevelInner[1] = tessLevelInner[1];
-        }
-    }
-
-
-
+        <span class="name">gl_TessLevelInner</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelInner</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">];</span>
+        <span class="name">gl_TessLevelInner</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelInner</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
 </pre>
-</div>
 </div>
 <div class="section" id="tessellation-evaluation-shader-example-for-bspline-patches">
 <h4>Tessellation Evaluation Shader Example (for BSpline patches)</h4>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_shader_interface.rst</tt>, line 94)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: glsl
+<pre class="code glsl literal-block">
+<span class="name">layout</span><span class="punctuation">(</span><span class="name">quads</span><span class="punctuation">)</span> <span class="keyword">in</span><span class="punctuation">;</span>
+<span class="name">patch</span> <span class="keyword">in</span> <span class="keyword">vec4</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="name">tessOuterHi</span><span class="punctuation">;</span>
+<span class="keyword">in</span> <span class="name">OsdPerPatchVertexBezier</span> <span class="name">v</span><span class="punctuation">[];</span>
+<span class="keyword">uniform</span> <span class="name">mat4</span> <span class="name">mvpMatrix</span><span class="punctuation">;</span>
 
-    layout(quads) in;
-    patch in vec4 tessOuterLo, tessOuterHi;
-    in OsdPerPatchVertexBezier v[];
-    uniform mat4 mvpMatrix;
+<span class="keyword">void</span> <span class="name">main</span><span class="punctuation">()</span>
+<span class="punctuation">{</span>
+    <span class="comment single">// Compute tesscoord.</span>
+    <span class="keyword">vec2</span> <span class="name">UV</span> <span class="operator">=</span> <span class="name">OsdGetTessParameterization</span><span class="punctuation">(</span><span class="name">gl_TessCoord</span><span class="punctuation">.</span><span class="name">xy</span><span class="punctuation">,</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="name">tessOuterHi</span><span class="punctuation">);</span>
 
-    void main()
-    {
-        // Compute tesscoord.
-        vec2 UV = OsdGetTessParameterization(gl_TessCoord.xy, tessOuterLo, tessOuterHi);
+    <span class="keyword">vec3</span> <span class="name">P</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">),</span> <span class="name">dPu</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">),</span> <span class="name">dPv</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">);</span>
+    <span class="keyword">vec3</span> <span class="name">N</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">),</span> <span class="name">dNu</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">),</span> <span class="name">dNv</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">);</span>
+    <span class="keyword">ivec3</span> <span class="name">patchParam</span> <span class="operator">=</span> <span class="name">inpt</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">].</span><span class="name">v</span><span class="punctuation">.</span><span class="name">patchParam</span><span class="punctuation">;</span>
 
-        vec3 P = vec3(0), dPu = vec3(0), dPv = vec3(0);
-        vec3 N = vec3(0), dNu = vec3(0), dNv = vec3(0);
-        ivec3 patchParam = inpt[0].v.patchParam;
+    <span class="comment single">// Evaluate patch at the tess coord UV</span>
+    <span class="name">OsdEvalPatchBezier</span><span class="punctuation">(</span><span class="name">patchParam</span><span class="punctuation">,</span> <span class="name">UV</span><span class="punctuation">,</span> <span class="name">v</span><span class="punctuation">,</span> <span class="name">P</span><span class="punctuation">,</span> <span class="name">dPu</span><span class="punctuation">,</span> <span class="name">dPv</span><span class="punctuation">,</span> <span class="name">N</span><span class="punctuation">,</span> <span class="name">dNu</span><span class="punctuation">,</span> <span class="name">dNv</span><span class="punctuation">);</span>
 
-        // Evaluate patch at the tess coord UV
-        OsdEvalPatchBezier(patchParam, UV, v, P, dPu, dPv, N, dNu, dNv);
-
-        // Apply model-view-projection matrix.
-        gl_Position = mvpMatrix * vec4(P, 1);
-    }
-
+    <span class="comment single">// Apply model-view-projection matrix.</span>
+    <span class="name">gl_Position</span> <span class="operator">=</span> <span class="name">mvpMatrix</span> <span class="operator">*</span> <span class="keyword">vec4</span><span class="punctuation">(</span><span class="name">P</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
 </pre>
-</div>
 </div>
 </div>
 <div class="section" id="basis-conversion">
@@ -303,33 +287,18 @@ This conversion is performed in the tessellation control stage. The boundary edg
 and single crease matrix evaluation are also resolved during this conversion.
 OsdComputePerPatchVertexBSpline() can be used for this process.
 The resulting Bezier control vertices are stored in OsdPerPatchVertexBezier struct.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_shader_interface.rst</tt>, line 134)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: glsl
-
-  void  OsdComputePerPatchVertexBSpline(
-      ivec3 patchParam, int ID, vec3 cv[16], out OsdPerPatchVertexBezier result);
-
+<pre class="code glsl literal-block">
+<span class="keyword">void</span>  <span class="name">OsdComputePerPatchVertexBSpline</span><span class="punctuation">(</span>
+    <span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span> <span class="keyword">int</span> <span class="name">ID</span><span class="punctuation">,</span> <span class="keyword">vec3</span> <span class="name">cv</span><span class="punctuation">[</span><span class="literal number integer">16</span><span class="punctuation">],</span> <span class="keyword">out</span> <span class="name">OsdPerPatchVertexBezier</span> <span class="name">result</span><span class="punctuation">);</span>
 </pre>
-</div>
 <p>The tessellation evaluation shader takes an array of OsdPerPatchVertexBezier struct,
 and then evaluates the patch using the OsdEvalPatchBezier() function.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_shader_interface.rst</tt>, line 142)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: glsl
-
-  void OsdEvalPatchBezier(ivec3 patchParam, vec2 UV,
-                          OsdPerPatchVertexBezier cv[16],
-                          out vec3 P, out vec3 dPu, out vec3 dPv,
-                          out vec3 N, out vec3 dNu, out vec3 dNv)
-
-
+<pre class="code glsl literal-block">
+<span class="keyword">void</span> <span class="name">OsdEvalPatchBezier</span><span class="punctuation">(</span><span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span> <span class="keyword">vec2</span> <span class="name">UV</span><span class="punctuation">,</span>
+                        <span class="name">OsdPerPatchVertexBezier</span> <span class="name">cv</span><span class="punctuation">[</span><span class="literal number integer">16</span><span class="punctuation">],</span>
+                        <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">P</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dPu</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dPv</span><span class="punctuation">,</span>
+                        <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">N</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dNu</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dNv</span><span class="punctuation">)</span>
 </pre>
-</div>
 </div>
 <div class="section" id="gregory-basis-patch">
 <h4>Gregory Basis Patch</h4>
@@ -338,33 +307,18 @@ and then evaluates the patch using the OsdEvalPatchBezier() function.</p>
 <p>OsdComputePerPatchVertexGregoryBasis() can be used for the Gregory patches
 (although no basis conversion involved for the Gregory patches) and the resulting vertices
 are stored in a OsdPerPatchVertexGreogryBasis struct.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_shader_interface.rst</tt>, line 161)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: glsl
-
-  void OsdComputePerPatchVertexGregoryBasis(
-      ivec3 patchParam, int ID, vec3 cv, out OsdPerPatchVertexGregoryBasis result)
-
+<pre class="code glsl literal-block">
+<span class="keyword">void</span> <span class="name">OsdComputePerPatchVertexGregoryBasis</span><span class="punctuation">(</span>
+    <span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span> <span class="keyword">int</span> <span class="name">ID</span><span class="punctuation">,</span> <span class="keyword">vec3</span> <span class="name">cv</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="name">OsdPerPatchVertexGregoryBasis</span> <span class="name">result</span><span class="punctuation">)</span>
 </pre>
-</div>
 <p>The tessellation evaluation shader takes an array of OsdPerPatchVertexGregoryBasis struct,
 and then evaluates the patch using the OsdEvalPatchGregory() function.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_shader_interface.rst</tt>, line 169)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: glsl
-
-  void
-  OsdEvalPatchGregory(ivec3 patchParam, vec2 UV, vec3 cv[20],
-                      out vec3 P, out vec3 dPu, out vec3 dPv,
-                      out vec3 N, out vec3 dNu, out vec3 dNv)
-
-
+<pre class="code glsl literal-block">
+<span class="keyword">void</span>
+<span class="name">OsdEvalPatchGregory</span><span class="punctuation">(</span><span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span> <span class="keyword">vec2</span> <span class="name">UV</span><span class="punctuation">,</span> <span class="keyword">vec3</span> <span class="name">cv</span><span class="punctuation">[</span><span class="literal number integer">20</span><span class="punctuation">],</span>
+                    <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">P</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dPu</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dPv</span><span class="punctuation">,</span>
+                    <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">N</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dNu</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dNv</span><span class="punctuation">)</span>
 </pre>
-</div>
 </div>
 <div class="section" id="legacy-gregory-patch-2-x-compatibility">
 <h4>Legacy Gregory Patch (2.x compatibility)</h4>
@@ -398,33 +352,19 @@ as separate levels for the two segments of the edge split at the middle.</p>
 gl_TessCoord using OsdGetTessParameterization() to ensure the parameters are consistent
 across adjacent patches.</p>
 <img alt="images/osd_shader_param_remap.png" src="images/osd_shader_param_remap.png" />
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_shader_interface.rst</tt>, line 221)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: glsl
-
-  vec2 OsdGetTessParameterization(vec2 uv, vec4 tessOuterLo, vec4 tessOuterHi)
-
+<pre class="code glsl literal-block">
+<span class="keyword">vec2</span> <span class="name">OsdGetTessParameterization</span><span class="punctuation">(</span><span class="keyword">vec2</span> <span class="name">uv</span><span class="punctuation">,</span> <span class="keyword">vec4</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="keyword">vec4</span> <span class="name">tessOuterHi</span><span class="punctuation">)</span>
 </pre>
-</div>
 <p>These tessellation levels can be computed by OsdGetTessLevelsAdaptiveLimitPoints()
 in the tessellation control shader. Note that this function requires all 16 bezier control
 points, you need to call barrier() to ensure the conversion is done for all invocations.
 See osd/glslPatchBSpline.glsl for more details.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/osd_shader_interface.rst</tt>, line 230)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: glsl
-
-  void OsdGetTessLevelsAdaptiveLimitPoints(OsdPerPatchVertexBezier cpBezier[16],
-                                           ivec3 patchParam,
-                                           out vec4 tessLevelOuter, out vec2 tessLevelInner,
-                                           out vec4 tessOuterLo, out vec4 tessOuterHi)
-
+<pre class="code glsl literal-block">
+<span class="keyword">void</span> <span class="name">OsdGetTessLevelsAdaptiveLimitPoints</span><span class="punctuation">(</span><span class="name">OsdPerPatchVertexBezier</span> <span class="name">cpBezier</span><span class="punctuation">[</span><span class="literal number integer">16</span><span class="punctuation">],</span>
+                                         <span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span>
+                                         <span class="keyword">out</span> <span class="keyword">vec4</span> <span class="name">tessLevelOuter</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec2</span> <span class="name">tessLevelInner</span><span class="punctuation">,</span>
+                                         <span class="keyword">out</span> <span class="keyword">vec4</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec4</span> <span class="name">tessOuterHi</span><span class="punctuation">)</span>
 </pre>
-</div>
 <div class="notebox container">
 <p><strong>Release Notes (3.0.0)</strong></p>
 <ul class="simple">
@@ -436,7 +376,7 @@ It will be fixed in a future release.</li>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

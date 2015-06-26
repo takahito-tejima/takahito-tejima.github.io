@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -171,53 +171,52 @@ ul.creatorMainNav li a {
           <div class="topicLeftData-MainData">
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#feature-adaptive-representation-far" id="id1">Feature Adaptive Representation (Far)</a><ul>
-<li><a class="reference internal" href="#topology-refinement" id="id2">Topology Refinement</a></li>
-<li><a class="reference internal" href="#primvar-refinement" id="id3">Primvar Refinement</a></li>
+<li><a class="reference internal" href="#far" id="id2">特徴適応型表現 (Far)</a><ul>
+<li><a class="reference internal" href="#id1" id="id3">トポロジ分割</a></li>
+<li><a class="reference internal" href="#primvar" id="id4">頂点データ (Primvar) 分割</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#far-topologyrefiner" id="id4">Far::TopologyRefiner</a></li>
-<li><a class="reference internal" href="#far-topologyrefinerfactory" id="id5">Far::TopologyRefinerFactory</a></li>
-<li><a class="reference internal" href="#far-primvarrefiner" id="id6">Far::PrimvarRefiner</a></li>
-<li><a class="reference internal" href="#far-patchtable" id="id7">Far::PatchTable</a><ul>
-<li><a class="reference internal" href="#patch-arrays" id="id8">Patch Arrays</a></li>
-<li><a class="reference internal" href="#patch-types" id="id9">Patch Types</a></li>
-<li><a class="reference internal" href="#patch-parameterization" id="id10">Patch Parameterization</a></li>
-<li><a class="reference internal" href="#single-crease-patches" id="id11">Single-Crease Patches</a></li>
-<li><a class="reference internal" href="#local-points" id="id12">Local Points</a></li>
-<li><a class="reference internal" href="#legacy-gregory-patches" id="id13">Legacy Gregory Patches</a></li>
+<li><a class="reference internal" href="#far-topologyrefiner" id="id5">Far::TopologyRefiner</a></li>
+<li><a class="reference internal" href="#far-topologyrefinerfactory" id="id6">Far::TopologyRefinerFactory</a></li>
+<li><a class="reference internal" href="#far-primvarrefiner" id="id7">Far::PrimvarRefiner</a></li>
+<li><a class="reference internal" href="#far-patchtable" id="id8">Far::PatchTable</a><ul>
+<li><a class="reference internal" href="#patch-arrays" id="id9">Patch Arrays</a></li>
+<li><a class="reference internal" href="#patch-types" id="id10">Patch Types</a></li>
+<li><a class="reference internal" href="#patch-parameterization" id="id11">Patch Parameterization</a></li>
+<li><a class="reference internal" href="#single-crease-patches" id="id12">Single-Crease Patches</a></li>
+<li><a class="reference internal" href="#local-points" id="id13">Local Points</a></li>
+<li><a class="reference internal" href="#legacy-gregory-patches" id="id14">Legacy Gregory Patches</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#far-stenciltable" id="id14">Far::StencilTable</a><ul>
-<li><a class="reference internal" href="#advantages" id="id15">Advantages</a></li>
-<li><a class="reference internal" href="#principles" id="id16">Principles</a></li>
-<li><a class="reference internal" href="#cascading-stencils" id="id17">Cascading Stencils</a></li>
-<li><a class="reference internal" href="#limit-stencils" id="id18">Limit Stencils</a></li>
-<li><a class="reference internal" href="#sample-location-on-extraordinary-faces" id="id19">Sample Location On Extraordinary Faces</a></li>
-<li><a class="reference internal" href="#code-example" id="id20">Code example</a></li>
+<li><a class="reference internal" href="#far-stenciltable" id="id15">Far::StencilTable</a><ul>
+<li><a class="reference internal" href="#advantages" id="id16">Advantages</a></li>
+<li><a class="reference internal" href="#principles" id="id17">Principles</a></li>
+<li><a class="reference internal" href="#cascading-stencils" id="id18">Cascading Stencils</a></li>
+<li><a class="reference internal" href="#limit-stencils" id="id19">Limit Stencils</a></li>
+<li><a class="reference internal" href="#sample-location-on-extraordinary-faces" id="id20">Sample Location On Extraordinary Faces</a></li>
+<li><a class="reference internal" href="#code-example" id="id21">Code example</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<div class="section" id="feature-adaptive-representation-far">
-<h3>Feature Adaptive Representation (Far)</h3>
-<p><em>Far</em> is the primary API layer for processing client-supplied mesh data
-into subdivided surfaces.</p>
-<p>The <em>Far</em> interface may be used directly and also may be used to prepare
-mesh data for further processing by <a class="reference external" href="osd_overview.html#Osd">Osd</a>.</p>
-<p>The two main aspects of the subdivision process are <em>Topology Refinement</em>
-and <em>Primvar Refinement</em>.</p>
-<div class="section" id="topology-refinement">
-<h4>Topology Refinement</h4>
-<p>Topology refinement is the process of splitting the mesh topology
-according to the specified subdivison rules to generate new topological
-vertices, edges, and faces. This process is purely topological and does
-not depend on the speciific values of any primvar data (point positions, etc).</p>
-<p>Topology refinement can be either uniform or adaptive, where extraordinary
-features are automatically isolated (see <a class="reference external" href="subdivision_surfaces.html#feature-adaptive-subdivision">feature adaptive subdivision</a>).</p>
-<p>The <em>Far</em> topology classes present a public interface for the refinement
-functionality provided in <a class="reference external" href="vtr_overview.html#Vtr">Vtr</a>,</p>
-<p>The main classes in <em>Far</em> related to topology refinement are:</p>
+<div class="section" id="far">
+<h3>特徴適応型表現 (Far)</h3>
+<p><em>Far</em> はクライアントが与えるメッシュをサブディビジョンサーフェスに変換する処理
+を行う主要 API です。</p>
+<p><em>Far</em> インタフェースは直接使うことも出来ますし、<a class="reference external" href="osd_overview.html#Osd">Osd</a>
+で処理を行うためのデータを準備として使うこともできます。</p>
+<p>サブディビジョン処理には大きく２つのステップがあります。それは <em>トポロジ分割</em> と
+<em>頂点データ分割（補間）</em> です。</p>
+<div class="section" id="id1">
+<h4>トポロジ分割</h4>
+<p>トポロジ分割はメッシュトポロジを指定されたサブディビジョンルールに従って
+分割し、新しいトポロジ（頂点・エッジ・面）を作る処理です。この処理は純粋に
+トポロジのみに依存しており、特定の頂点データ（座標など）とは無関係に行います。</p>
+<p>トポロジ分割は均一にも適当的にも行う事ができます。適応型分割の場合は
+非正則な特徴は自動的に分類されて処理されます。
+（<a class="reference external" href="subdivision_surfaces.html#feature-adaptive-subdivision">feature adaptive subdivision</a> を参照してください）</p>
+<p><em>Far</em> のトポロジクラスは <a class="reference external" href="vtr_overview.html#Vtr">Vtr</a> が担う分割機能の公開インタフェースとして使えます。</p>
+<p>トポロジ分割に関連する <em>Far</em> の主要なクラスは:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="41%" />
@@ -225,32 +224,30 @@ functionality provided in <a class="reference external" href="vtr_overview.html#
 </colgroup>
 <tbody valign="top">
 <tr><td>TopologyRefiner</td>
-<td>A class encapsulating mesh refinement.</td>
+<td>メッシュ分割を担当するクラス</td>
 </tr>
 <tr><td>TopologyLevel</td>
-<td>A class representing one level of
-refinement within a TopologyRefiner.</td>
+<td>TopologyRefiner 内の１レベルの分割を表現
+するクラス</td>
 </tr>
 <tr><td>TopologyRefinerFactory&lt;MESH&gt;</td>
-<td>A factory class template specialized in
-terms of the application's mesh
-representation used to construct
-TopologyRefiner instances.</td>
+<td>クライアントアプリケーションのメッシュデータ
+構造を使って TopologyRefiner インスタンスを
+構築するためのテンプレートクラス</td>
 </tr>
 </tbody>
 </table>
+<p>Primvar Refinement</p>
 </div>
-<div class="section" id="primvar-refinement">
-<h4>Primvar Refinement</h4>
-<p>Primvar refinement is the process of computing values for primvar data (points,
-colors, normals, texture coordinates, etc) by applying weights determined by
-the specified subdivision rules.  There are many advantages gained by
-distinguishing between topology refinement and primvar interpolation
-including the ability to apply a single static topological refinement to
-multiple primvar instances or to different animated primvar time samples.</p>
-<p><em>Far</em> supports methods to refine primvar data at the locations of topological
-vertices and at arbitrary locations on the subdivision limit surface.</p>
-<p>The main classes in <em>Far</em> related to primvar refinement are:</p>
+<div class="section" id="primvar">
+<h4>頂点データ (Primvar) 分割</h4>
+<p>頂点データ分割は指定されたサブディビジョン規則に従った重みを用いて頂点データ
+（座標、色、法線、テクスチャ座標など）を計算する処理です。頂点データ分割を
+トポロジ分割とは別に行うことには様々なメリットがありますが、同じトポロジ分割から
+アニメーションする複数の頂点データを計算することも一つの利点です。</p>
+<p><em>Far</em> はトポロジ分割頂点における頂点データ、またリミットサーフェス上の任意の
+場所での頂点データの計算をサポートしています。</p>
+<p><em>Far</em> の中の頂点データ分割に関連する主要なクラスは：</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="32%" />
@@ -408,17 +405,10 @@ runtime validation, and to vary that level of validation at any time on an
 instance of the Factory.  The factory does provide run-time validation on the
 topology constructed that can be used for debugging purposes.</p>
 <p>A common base class has been created for the factory class, i.e.:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/far_overview.rst</tt>, line 247)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    template &lt;class MESH&gt;
-    class TopologyRefinerFactory : public TopologyRefinerFactoryBase
-
+<pre class="code c++ literal-block">
+<span class="keyword">template</span> <span class="operator">&lt;</span><span class="keyword">class</span> <span class="name class">MESH</span><span class="operator">&gt;</span>
+<span class="keyword">class</span> <span class="name class">TopologyRefinerFactory</span> <span class="operator">:</span> <span class="keyword">public</span> <span class="name">TopologyRefinerFactoryBase</span>
 </pre>
-</div>
 <p>both to provide common code independent of &lt;MESH&gt; and also potentially to
 protect core code from unwanted specialization.</p>
 </div>
@@ -753,47 +743,40 @@ unique ptex face indices for instance.</p>
 <p>When the control vertices (controlPoints) move in space, the limit locations can
 be very efficiently recomputed simply by applying the blending weights to the
 series of coarse control vertices:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/far_overview.rst</tt>, line 607)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword">class</span> <span class="name class">StencilType</span> <span class="punctuation">{</span>
+<span class="keyword">public</span><span class="operator">:</span>
 
-    class StencilType {
-    public:
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="name">memset</span><span class="punctuation">(</span> <span class="operator">&amp;</span><span class="name">x</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="keyword">sizeof</span><span class="punctuation">(</span><span class="name">StencilType</span><span class="punctuation">));</span>
+    <span class="punctuation">}</span>
 
-        void Clear() {
-            memset( &amp;x, 0, sizeof(StencilType));
-        }
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span> <span class="name">StencilType</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">cv</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span>  <span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">x</span> <span class="operator">+=</span> <span class="name">cv</span><span class="punctuation">.</span><span class="name">x</span> <span class="operator">*</span> <span class="name">weight</span><span class="punctuation">;</span>
+        <span class="name">y</span> <span class="operator">+=</span> <span class="name">cv</span><span class="punctuation">.</span><span class="name">y</span> <span class="operator">*</span> <span class="name">weight</span><span class="punctuation">;</span>
+        <span class="name">z</span> <span class="operator">+=</span> <span class="name">cv</span><span class="punctuation">.</span><span class="name">z</span> <span class="operator">*</span> <span class="name">weight</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void AddWithWeight( StencilType const &amp; cv, float weight  ) {
-            x += cv.x * weight;
-            y += cv.y * weight;
-            z += cv.z * weight;
-        }
+    <span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span><span class="name">y</span><span class="punctuation">,</span><span class="name">z</span><span class="punctuation">;</span>
+<span class="punctuation">};</span>
 
-        float x,y,z;
-    };
+<span class="name">std</span><span class="operator">::</span><span class="name">vector</span><span class="operator">&lt;</span><span class="name">StencilType</span><span class="operator">&gt;</span> <span class="name">controlPoints</span><span class="punctuation">,</span>
+                         <span class="name">points</span><span class="punctuation">,</span>
+                         <span class="name">utan</span><span class="punctuation">,</span>
+                         <span class="name">vtan</span><span class="punctuation">;</span>
 
-    std::vector&lt;StencilType&gt; controlPoints,
-                             points,
-                             utan,
-                             vtan;
+<span class="comment single">// Update points by applying stencils
+</span><span class="name">controlStencils</span><span class="punctuation">.</span><span class="name">UpdateValues</span><span class="operator">&lt;</span><span class="name">StencilType</span><span class="operator">&gt;</span><span class="punctuation">(</span> <span class="operator">&amp;</span><span class="name">controlPoints</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="operator">&amp;</span><span class="name">points</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="punctuation">);</span>
 
-    // Update points by applying stencils
-    controlStencils.UpdateValues&lt;StencilType&gt;( &amp;controlPoints[0], &amp;points[0] );
-
-    // Update tangents by applying derivative stencils
-    controlStencils.UpdateDerivs&lt;StencilType&gt;( &amp;controlPoints[0], &amp;utan[0], &amp;vtan[0] );
-
+<span class="comment single">// Update tangents by applying derivative stencils
+</span><span class="name">controlStencils</span><span class="punctuation">.</span><span class="name">UpdateDerivs</span><span class="operator">&lt;</span><span class="name">StencilType</span><span class="operator">&gt;</span><span class="punctuation">(</span> <span class="operator">&amp;</span><span class="name">controlPoints</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="operator">&amp;</span><span class="name">utan</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="operator">&amp;</span><span class="name">vtan</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="punctuation">);</span>
 </pre>
-</div>
 </div>
 </div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-25 00:46 UTC.
 
 </div>
 </body>

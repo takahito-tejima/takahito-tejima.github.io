@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -171,183 +171,176 @@ ul.creatorMainNav li a {
           <div class="topicLeftData-MainData">
 <p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_0/far_tutorial_0.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_0/far_tutorial_0.cpp</a></p>
 <hr class="docutils" />
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/far_tutorial_0.rst</tt>, line 9)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c
+<pre class="code c literal-block">
+<span class="comment single">//------------------------------------------------------------------------------
+// Tutorial description:
+//
+// This tutorial presents in a very succint way the requisite steps to
+// instantiate and refine a mesh with Far from simple topological data.
+//
+</span>
+<span class="comment preproc">#include &lt;opensubdiv/far/topologyDescriptor.h&gt;
+#include &lt;opensubdiv/far/primvarRefiner.h&gt;
+</span>
+<span class="comment preproc">#include &lt;cstdio&gt;
+</span>
+<span class="comment single">//------------------------------------------------------------------------------
+// Vertex container implementation.
+//
+</span><span class="keyword">struct</span> <span class="name">Vertex</span> <span class="punctuation">{</span>
 
-    //------------------------------------------------------------------------------
-    // Tutorial description:
-    //
-    // This tutorial presents in a very succint way the requisite steps to
-    // instantiate and refine a mesh with Far from simple topological data.
-    //
+    <span class="comment single">// Minimal required interface ----------------------
+</span>    <span class="name">Vertex</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-    #include &lt;opensubdiv/far/topologyDescriptor.h&gt;
-    #include &lt;opensubdiv/far/primvarRefiner.h&gt;
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
 
-    #include &lt;cstdio&gt;
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="literal number float">0.0f</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-    //------------------------------------------------------------------------------
-    // Vertex container implementation.
-    //
-    struct Vertex {
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
 
-        // Minimal required interface ----------------------
-        Vertex() { }
+    <span class="keyword type">void</span> <span class="name">AddVaryingWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="punctuation">,</span> <span class="keyword type">float</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        Vertex(Vertex const &amp; src) {
-            _position[0] = src._position[0];
-            _position[1] = src._position[1];
-            _position[2] = src._position[2];
-        }
+    <span class="comment single">// Public interface ------------------------------------
+</span>    <span class="keyword type">void</span> <span class="name">SetPosition</span><span class="punctuation">(</span><span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">y</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">z</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">x</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">y</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">z</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void Clear( void * =0 ) {
-            _position[0]=_position[1]=_position[2]=0.0f;
-        }
+    <span class="keyword">const</span> <span class="keyword type">float</span> <span class="operator">*</span> <span class="name">GetPosition</span><span class="punctuation">()</span> <span class="keyword">const</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="name">_position</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void AddWithWeight(Vertex const &amp; src, float weight) {
-            _position[0]+=weight*src._position[0];
-            _position[1]+=weight*src._position[1];
-            _position[2]+=weight*src._position[2];
-        }
+<span class="name label">private</span><span class="punctuation">:</span>
+    <span class="keyword type">float</span> <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+<span class="punctuation">};</span>
 
-        void AddVaryingWithWeight(Vertex const &amp;, float) { }
+<span class="comment single">//------------------------------------------------------------------------------
+// Cube geometry from catmark_cube.h
+</span><span class="keyword">static</span> <span class="keyword type">float</span> <span class="name">g_verts</span><span class="punctuation">[</span><span class="literal number integer">8</span><span class="punctuation">][</span><span class="literal number integer">3</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{{</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span> <span class="punctuation">}};</span>
 
-        // Public interface ------------------------------------
-        void SetPosition(float x, float y, float z) {
-            _position[0]=x;
-            _position[1]=y;
-            _position[2]=z;
-        }
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_nverts</span> <span class="operator">=</span> <span class="literal number integer">8</span><span class="punctuation">,</span>
+           <span class="name">g_nfaces</span> <span class="operator">=</span> <span class="literal number integer">6</span><span class="punctuation">;</span>
 
-        const float * GetPosition() const {
-            return _position;
-        }
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_vertsperface</span><span class="punctuation">[</span><span class="literal number integer">6</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span> <span class="punctuation">};</span>
 
-    private:
-        float _position[3];
-    };
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_vertIndices</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">6</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">4</span>  <span class="punctuation">};</span>
 
-    //------------------------------------------------------------------------------
-    // Cube geometry from catmark_cube.h
-    static float g_verts[8][3] = {{ -0.5f, -0.5f,  0.5f },
-                                  {  0.5f, -0.5f,  0.5f },
-                                  { -0.5f,  0.5f,  0.5f },
-                                  {  0.5f,  0.5f,  0.5f },
-                                  { -0.5f,  0.5f, -0.5f },
-                                  {  0.5f,  0.5f, -0.5f },
-                                  { -0.5f, -0.5f, -0.5f },
-                                  {  0.5f, -0.5f, -0.5f }};
+<span class="name">using</span> <span class="name">namespace</span> <span class="name">OpenSubdiv</span><span class="punctuation">;</span>
 
-    static int g_nverts = 8,
-               g_nfaces = 6;
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword type">int</span> <span class="name function">main</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">,</span> <span class="keyword type">char</span> <span class="operator">**</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-    static int g_vertsperface[6] = { 4, 4, 4, 4, 4, 4 };
+    <span class="comment single">// Populate a topology descriptor with our raw data
+</span>
+    <span class="keyword">typedef</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyDescriptor</span> <span class="name">Descriptor</span><span class="punctuation">;</span>
 
-    static int g_vertIndices[24] = { 0, 1, 3, 2,
-                                     2, 3, 5, 4,
-                                     4, 5, 7, 6,
-                                     6, 7, 1, 0,
-                                     1, 7, 5, 3,
-                                     6, 0, 2, 4  };
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">SchemeType</span> <span class="name">type</span> <span class="operator">=</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">SCHEME_CATMARK</span><span class="punctuation">;</span>
 
-    using namespace OpenSubdiv;
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span> <span class="name">options</span><span class="punctuation">;</span>
+    <span class="name">options</span><span class="punctuation">.</span><span class="name">SetVtxBoundaryInterpolation</span><span class="punctuation">(</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span><span class="operator">::</span><span class="name">VTX_BOUNDARY_EDGE_ONLY</span><span class="punctuation">);</span>
 
-    //------------------------------------------------------------------------------
-    int main(int, char **) {
-
-        // Populate a topology descriptor with our raw data
-
-        typedef Far::TopologyDescriptor Descriptor;
-
-        Sdc::SchemeType type = OpenSubdiv::Sdc::SCHEME_CATMARK;
-
-        Sdc::Options options;
-        options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
-
-        Descriptor desc;
-        desc.numVertices  = g_nverts;
-        desc.numFaces     = g_nfaces;
-        desc.numVertsPerFace = g_vertsperface;
-        desc.vertIndicesPerFace  = g_vertIndices;
+    <span class="name">Descriptor</span> <span class="name">desc</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertices</span>  <span class="operator">=</span> <span class="name">g_nverts</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numFaces</span>     <span class="operator">=</span> <span class="name">g_nfaces</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertsPerFace</span> <span class="operator">=</span> <span class="name">g_vertsperface</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">vertIndicesPerFace</span>  <span class="operator">=</span> <span class="name">g_vertIndices</span><span class="punctuation">;</span>
 
 
-        // Instantiate a FarTopologyRefiner from the descriptor
-        Far::TopologyRefiner * refiner = Far::TopologyRefinerFactory&lt;Descriptor&gt;::Create(desc,
-                                                Far::TopologyRefinerFactory&lt;Descriptor&gt;::Options(type, options));
+    <span class="comment single">// Instantiate a FarTopologyRefiner from the descriptor
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span> <span class="name">refiner</span> <span class="operator">=</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Create</span><span class="punctuation">(</span><span class="name">desc</span><span class="punctuation">,</span>
+                                            <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Options</span><span class="punctuation">(</span><span class="name">type</span><span class="punctuation">,</span> <span class="name">options</span><span class="punctuation">));</span>
 
-        int maxlevel = 2;
+    <span class="keyword type">int</span> <span class="name">maxlevel</span> <span class="operator">=</span> <span class="literal number integer">2</span><span class="punctuation">;</span>
 
-        // Uniformly refine the topolgy up to 'maxlevel'
-        refiner-&gt;RefineUniform(Far::TopologyRefiner::UniformOptions(maxlevel));
-
-
-        // Allocate a buffer for vertex primvar data. The buffer length is set to
-        // be the sum of all children vertices up to the highest level of refinement.
-        std::vector&lt;Vertex&gt; vbuffer(refiner-&gt;GetNumVerticesTotal());
-        Vertex * verts = &amp;vbuffer[0];
+    <span class="comment single">// Uniformly refine the topolgy up to 'maxlevel'
+</span>    <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">RefineUniform</span><span class="punctuation">(</span><span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span><span class="operator">::</span><span class="name">UniformOptions</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="punctuation">));</span>
 
 
-        // Initialize coarse mesh positions
-        int nCoarseVerts = g_nverts;
-        for (int i=0; i&lt;nCoarseVerts; ++i) {
-            verts[i].SetPosition(g_verts[i][0], g_verts[i][1], g_verts[i][2]);
-        }
+    <span class="comment single">// Allocate a buffer for vertex primvar data. The buffer length is set to
+</span>    <span class="comment single">// be the sum of all children vertices up to the highest level of refinement.
+</span>    <span class="name">std</span><span class="operator">::</span><span class="name">vector</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="name">vbuffer</span><span class="punctuation">(</span><span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetNumVerticesTotal</span><span class="punctuation">());</span>
+    <span class="name">Vertex</span> <span class="operator">*</span> <span class="name">verts</span> <span class="operator">=</span> <span class="operator">&amp;</span><span class="name">vbuffer</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
 
 
-        // Interpolate vertex primvar data
-        Far::PrimvarRefiner primvarRefiner(*refiner);
-
-        Vertex * src = verts;
-        for (int level = 1; level &lt;= maxlevel; ++level) {
-            Vertex * dst = src + refiner-&gt;GetLevel(level-1).GetNumVertices();
-            primvarRefiner.Interpolate(level, src, dst);
-            src = dst;
-        }
+    <span class="comment single">// Initialize coarse mesh positions
+</span>    <span class="keyword type">int</span> <span class="name">nCoarseVerts</span> <span class="operator">=</span> <span class="name">g_nverts</span><span class="punctuation">;</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">nCoarseVerts</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">SetPosition</span><span class="punctuation">(</span><span class="name">g_verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">g_verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">g_verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+    <span class="punctuation">}</span>
 
 
-        { // Output OBJ of the highest level refined -----------
+    <span class="comment single">// Interpolate vertex primvar data
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">PrimvarRefiner</span> <span class="name">primvarRefiner</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">refiner</span><span class="punctuation">);</span>
 
-            Far::TopologyLevel const &amp; refLastLevel = refiner-&gt;GetLevel(maxlevel);
+    <span class="name">Vertex</span> <span class="operator">*</span> <span class="name">src</span> <span class="operator">=</span> <span class="name">verts</span><span class="punctuation">;</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">level</span> <span class="operator">=</span> <span class="literal number integer">1</span><span class="punctuation">;</span> <span class="name">level</span> <span class="operator">&lt;=</span> <span class="name">maxlevel</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">level</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">Vertex</span> <span class="operator">*</span> <span class="name">dst</span> <span class="operator">=</span> <span class="name">src</span> <span class="operator">+</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetLevel</span><span class="punctuation">(</span><span class="name">level</span><span class="operator">-</span><span class="literal number integer">1</span><span class="punctuation">).</span><span class="name">GetNumVertices</span><span class="punctuation">();</span>
+        <span class="name">primvarRefiner</span><span class="punctuation">.</span><span class="name">Interpolate</span><span class="punctuation">(</span><span class="name">level</span><span class="punctuation">,</span> <span class="name">src</span><span class="punctuation">,</span> <span class="name">dst</span><span class="punctuation">);</span>
+        <span class="name">src</span> <span class="operator">=</span> <span class="name">dst</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-            int nverts = refLastLevel.GetNumVertices();
-            int nfaces = refLastLevel.GetNumFaces();
 
-            // Print vertex positions
-            int firstOfLastVerts = refiner-&gt;GetNumVerticesTotal() - nverts;
+    <span class="punctuation">{</span> <span class="comment single">// Output OBJ of the highest level refined -----------
+</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyLevel</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">refLastLevel</span> <span class="operator">=</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetLevel</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="punctuation">);</span>
 
-            for (int vert = 0; vert &lt; nverts; ++vert) {
-                float const * pos = verts[firstOfLastVerts + vert].GetPosition();
-                printf(&quot;v %f %f %f\n&quot;, pos[0], pos[1], pos[2]);
-            }
+        <span class="keyword type">int</span> <span class="name">nverts</span> <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetNumVertices</span><span class="punctuation">();</span>
+        <span class="keyword type">int</span> <span class="name">nfaces</span> <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetNumFaces</span><span class="punctuation">();</span>
 
-            // Print faces
-            for (int face = 0; face &lt; nfaces; ++face) {
+        <span class="comment single">// Print vertex positions
+</span>        <span class="keyword type">int</span> <span class="name">firstOfLastVerts</span> <span class="operator">=</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetNumVerticesTotal</span><span class="punctuation">()</span> <span class="operator">-</span> <span class="name">nverts</span><span class="punctuation">;</span>
 
-                Far::ConstIndexArray fverts = refLastLevel.GetFaceVertices(face);
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">vert</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">vert</span> <span class="operator">&lt;</span> <span class="name">nverts</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">vert</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">pos</span> <span class="operator">=</span> <span class="name">verts</span><span class="punctuation">[</span><span class="name">firstOfLastVerts</span> <span class="operator">+</span> <span class="name">vert</span><span class="punctuation">].</span><span class="name">GetPosition</span><span class="punctuation">();</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;v %f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
 
-                // all refined Catmark faces should be quads
-                assert(fverts.size()==4);
+        <span class="comment single">// Print faces
+</span>        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">face</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">face</span> <span class="operator">&lt;</span> <span class="name">nfaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">face</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-                printf(&quot;f &quot;);
-                for (int vert=0; vert&lt;fverts.size(); ++vert) {
-                    printf(&quot;%d &quot;, fverts[vert]+1); // OBJ uses 1-based arrays...
-                }
-                printf(&quot;\n&quot;);
-            }
-        }
-    }
+            <span class="name">Far</span><span class="operator">::</span><span class="name">ConstIndexArray</span> <span class="name">fverts</span> <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetFaceVertices</span><span class="punctuation">(</span><span class="name">face</span><span class="punctuation">);</span>
 
-    //------------------------------------------------------------------------------
+            <span class="comment single">// all refined Catmark faces should be quads
+</span>            <span class="name">assert</span><span class="punctuation">(</span><span class="name">fverts</span><span class="punctuation">.</span><span class="name">size</span><span class="punctuation">()</span><span class="operator">==</span><span class="literal number integer">4</span><span class="punctuation">);</span>
 
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;f &quot;</span><span class="punctuation">);</span>
+            <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">vert</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">vert</span><span class="operator">&lt;</span><span class="name">fverts</span><span class="punctuation">.</span><span class="name">size</span><span class="punctuation">();</span> <span class="operator">++</span><span class="name">vert</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;%d &quot;</span><span class="punctuation">,</span> <span class="name">fverts</span><span class="punctuation">[</span><span class="name">vert</span><span class="punctuation">]</span><span class="operator">+</span><span class="literal number integer">1</span><span class="punctuation">);</span> <span class="comment single">// OBJ uses 1-based arrays...
+</span>            <span class="punctuation">}</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment single">//------------------------------------------------------------------------------</span>
 </pre>
-</div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

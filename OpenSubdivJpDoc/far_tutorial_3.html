@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -171,352 +171,346 @@ ul.creatorMainNav li a {
           <div class="topicLeftData-MainData">
 <p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_3/far_tutorial_3.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_3/far_tutorial_3.cpp</a></p>
 <hr class="docutils" />
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/far_tutorial_3.rst</tt>, line 9)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c
-
-    //------------------------------------------------------------------------------
-    // Tutorial description:
-    //
-    // Building on tutorial 0, this example shows how to instantiate a simple mesh,
-    // refine it uniformly and then interpolate both 'vertex' and 'face-varying'
-    // primvar data.
-    // The resulting interpolated data is output as an 'obj' file, with the
-    // 'face-varying' data recorded in the uv texture layout.
-    //
-
-    #include &lt;opensubdiv/far/topologyDescriptor.h&gt;
-    #include &lt;opensubdiv/far/primvarRefiner.h&gt;
-
-    #include &lt;cstdio&gt;
-
-    //------------------------------------------------------------------------------
-    // Face-varying implementation.
-    //
-    //
-    struct Vertex {
-
-        // Minimal required interface ----------------------
-        Vertex() { }
-
-        Vertex(Vertex const &amp; src) {
-            _position[0] = src._position[0];
-            _position[1] = src._position[1];
-            _position[2] = src._position[2];
-        }
-
-        void Clear( void * =0 ) {
-            _position[0]=_position[1]=_position[2]=0.0f;
-        }
-
-        void AddWithWeight(Vertex const &amp; src, float weight) {
-            _position[0]+=weight*src._position[0];
-            _position[1]+=weight*src._position[1];
-            _position[2]+=weight*src._position[2];
-        }
-
-        // Public interface ------------------------------------
-        void SetPosition(float x, float y, float z) {
-            _position[0]=x;
-            _position[1]=y;
-            _position[2]=z;
-        }
-
-        const float * GetPosition() const {
-            return _position;
-        }
-
-    private:
-        float _position[3];
-    };
-
-    //------------------------------------------------------------------------------
-    // Face-varying container implementation.
-    //
-    // We are using a uv texture layout as a 'face-varying' primtiive variable
-    // attribute. Because face-varying data is specified 'per-face-per-vertex',
-    // we cannot use the same container that we use for 'vertex' or 'varying'
-    // data. We specify a new container, which only carries (u,v) coordinates.
-    // Similarly to our 'Vertex' container, we add a minimaliztic interpolation
-    // interface with a 'Clear()' and 'AddWithWeight()' methods.
-    //
-    struct FVarVertexUV {
-
-        // Minimal required interface ----------------------
-        void Clear() {
-            u=v=0.0f;
-        }
-
-        void AddWithWeight(FVarVertexUV const &amp; src, float weight) {
-            u += weight * src.u;
-            v += weight * src.v;
-        }
-
-        // Basic 'uv' layout channel
-        float u,v;
-    };
-
-    struct FVarVertexColor {
-
-        // Minimal required interface ----------------------
-        void Clear() {
-            r=g=b=a=0.0f;
-        }
-
-        void AddWithWeight(FVarVertexColor const &amp; src, float weight) {
-            r += weight * src.r;
-            g += weight * src.g;
-            b += weight * src.b;
-            a += weight * src.a;
-        }
-
-        // Basic 'color' layout channel
-        float r,g,b,a;
-    };
-
-    //------------------------------------------------------------------------------
-    // Cube geometry from catmark_cube.h
-
-
-    // 'vertex' primitive variable data &amp; topology
-    static float g_verts[8][3] = {{ -0.5f, -0.5f,  0.5f },
-                                  {  0.5f, -0.5f,  0.5f },
-                                  { -0.5f,  0.5f,  0.5f },
-                                  {  0.5f,  0.5f,  0.5f },
-                                  { -0.5f,  0.5f, -0.5f },
-                                  {  0.5f,  0.5f, -0.5f },
-                                  { -0.5f, -0.5f, -0.5f },
-                                  {  0.5f, -0.5f, -0.5f }};
-    static int g_nverts = 8,
-               g_nfaces = 6;
-
-    static int g_vertsperface[6] = { 4, 4, 4, 4, 4, 4 };
-
-    static int g_vertIndices[24] = { 0, 1, 3, 2,
-                                     2, 3, 5, 4,
-                                     4, 5, 7, 6,
-                                     6, 7, 1, 0,
-                                     1, 7, 5, 3,
-                                     6, 0, 2, 4  };
-
-    // 'face-varying' primitive variable data &amp; topology for UVs
-    static float g_uvs[14][2] = {{ 0.375, 0.00 },
-                                 { 0.625, 0.00 },
-                                 { 0.375, 0.25 },
-                                 { 0.625, 0.25 },
-                                 { 0.375, 0.50 },
-                                 { 0.625, 0.50 },
-                                 { 0.375, 0.75 },
-                                 { 0.625, 0.75 },
-                                 { 0.375, 1.00 },
-                                 { 0.625, 1.00 },
-                                 { 0.875, 0.00 },
-                                 { 0.875, 0.25 },
-                                 { 0.125, 0.00 },
-                                 { 0.125, 0.25 }};
-
-    static int g_nuvs = 14;
-
-    static int g_uvIndices[24] = {  0,  1,  3,  2,
-                                    2,  3,  5,  4,
-                                    4,  5,  7,  6,
-                                    6,  7,  9,  8,
-                                    1, 10, 11,  3,
-                                   12,  0,  2, 13  };
-
-    // 'face-varying' primitive variable data &amp; topology for color
-    static float g_colors[24][4] = {{1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 0.0, 0.0, 1.0},
-                                    {1.0, 0.0, 0.0, 1.0},
-                                    {1.0, 0.0, 0.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0},
-                                    {1.0, 1.0, 1.0, 1.0}};
-
-    static int g_ncolors = 24;
-
-    static int g_colorIndices[24] = { 0,  3,  9,  6,
-                                      7, 10, 15, 12,
-                                     13, 16, 21, 18,
-                                     19, 22,  4,  1,
-                                      5, 23, 17, 11,
-                                     20,  2,  8, 14 };
-
-    using namespace OpenSubdiv;
-
-    //------------------------------------------------------------------------------
-    int main(int, char **) {
-
-        int maxlevel = 3;
-
-        typedef Far::TopologyDescriptor Descriptor;
-
-        Sdc::SchemeType type = OpenSubdiv::Sdc::SCHEME_CATMARK;
-
-        Sdc::Options options;
-        options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
-        options.SetFVarLinearInterpolation(Sdc::Options::FVAR_LINEAR_NONE);
-
-        // Populate a topology descriptor with our raw data
-        Descriptor desc;
-        desc.numVertices  = g_nverts;
-        desc.numFaces     = g_nfaces;
-        desc.numVertsPerFace = g_vertsperface;
-        desc.vertIndicesPerFace  = g_vertIndices;
-
-        int channelUV = 0;
-        int channelColor = 1;
-
-        // Create a face-varying channel descriptor
-        Descriptor::FVarChannel channels[2];
-        channels[channelUV].numValues = g_nuvs;
-        channels[channelUV].valueIndices = g_uvIndices;
-        channels[channelColor].numValues = g_ncolors;
-        channels[channelColor].valueIndices = g_colorIndices;
-
-        // Add the channel topology to the main descriptor
-        desc.numFVarChannels = 2;
-        desc.fvarChannels = channels;
-
-        // Instantiate a FarTopologyRefiner from the descriptor
-        Far::TopologyRefiner * refiner =
-            Far::TopologyRefinerFactory&lt;Descriptor&gt;::Create(desc,
-                Far::TopologyRefinerFactory&lt;Descriptor&gt;::Options(type, options));
-
-        // Uniformly refine the topolgy up to 'maxlevel'
-        // note: fullTopologyInLastLevel must be true to work with face-varying data
-        {
-            Far::TopologyRefiner::UniformOptions refineOptions(maxlevel);
-            refineOptions.fullTopologyInLastLevel = true;
-            refiner-&gt;RefineUniform(refineOptions);
-        }
-
-        // Allocate and initialize the 'vertex' primvar data (see tutorial 2 for
-        // more details).
-        std::vector&lt;Vertex&gt; vbuffer(refiner-&gt;GetNumVerticesTotal());
-        Vertex * verts = &amp;vbuffer[0];
-
-        for (int i=0; i&lt;g_nverts; ++i) {
-            verts[i].SetPosition(g_verts[i][0], g_verts[i][1], g_verts[i][2]);
-        }
-
-        // Allocate and initialize the first channel of 'face-varying' primvar data (UVs)
-        std::vector&lt;FVarVertexUV&gt; fvBufferUV(refiner-&gt;GetNumFVarValuesTotal(channelUV));
-        FVarVertexUV * fvVertsUV = &amp;fvBufferUV[0];
-        for (int i=0; i&lt;g_nuvs; ++i) {
-            fvVertsUV[i].u = g_uvs[i][0];
-            fvVertsUV[i].v = g_uvs[i][1];
-        }
-
-        // Allocate &amp; interpolate the 'face-varying' primvar data (colors)
-        std::vector&lt;FVarVertexColor&gt; fvBufferColor(refiner-&gt;GetNumFVarValuesTotal(channelColor));
-        FVarVertexColor * fvVertsColor = &amp;fvBufferColor[0];
-        for (int i=0; i&lt;g_ncolors; ++i) {
-            fvVertsColor[i].r = g_colors[i][0];
-            fvVertsColor[i].g = g_colors[i][1];
-            fvVertsColor[i].b = g_colors[i][2];
-            fvVertsColor[i].a = g_colors[i][3];
-        }
-
-        // Interpolate both vertex and face-varying primvar data
-        Far::PrimvarRefiner primvarRefiner(*refiner);
-
-        Vertex *     srcVert = verts;
-        FVarVertexUV * srcFVarUV = fvVertsUV;
-        FVarVertexColor * srcFVarColor = fvVertsColor;
-
-        for (int level = 1; level &lt;= maxlevel; ++level) {
-            Vertex *     dstVert = srcVert + refiner-&gt;GetLevel(level-1).GetNumVertices();
-            FVarVertexUV * dstFVarUV = srcFVarUV + refiner-&gt;GetLevel(level-1).GetNumFVarValues(channelUV);
-            FVarVertexColor * dstFVarColor = srcFVarColor + refiner-&gt;GetLevel(level-1).GetNumFVarValues(channelColor);
-
-            primvarRefiner.Interpolate(level, srcVert, dstVert);
-            primvarRefiner.InterpolateFaceVarying(level, srcFVarUV, dstFVarUV, channelUV);
-            primvarRefiner.InterpolateFaceVarying(level, srcFVarColor, dstFVarColor, channelColor);
-
-            srcVert = dstVert;
-            srcFVarUV = dstFVarUV;
-            srcFVarColor = dstFVarColor;
-        }
-
-
-        { // Output OBJ of the highest level refined -----------
-
-            Far::TopologyLevel const &amp; refLastLevel = refiner-&gt;GetLevel(maxlevel);
-
-            int nverts = refLastLevel.GetNumVertices();
-            int nuvs   = refLastLevel.GetNumFVarValues(channelUV);
-            int ncolors= refLastLevel.GetNumFVarValues(channelColor);
-            int nfaces = refLastLevel.GetNumFaces();
-
-            // Print vertex positions
-            int firstOfLastVerts = refiner-&gt;GetNumVerticesTotal() - nverts;
-
-            for (int vert = 0; vert &lt; nverts; ++vert) {
-                float const * pos = verts[firstOfLastVerts + vert].GetPosition();
-                printf(&quot;v %f %f %f\n&quot;, pos[0], pos[1], pos[2]);
-            }
-
-            // Print uvs
-            int firstOfLastUvs = refiner-&gt;GetNumFVarValuesTotal(channelUV) - nuvs;
-
-            for (int fvvert = 0; fvvert &lt; nuvs; ++fvvert) {
-                FVarVertexUV const &amp; uv = fvVertsUV[firstOfLastUvs + fvvert];
-                printf(&quot;vt %f %f\n&quot;, uv.u, uv.v);
-            }
-
-            // Print colors
-            int firstOfLastColors = refiner-&gt;GetNumFVarValuesTotal(channelColor) - ncolors;
-
-            for (int fvvert = 0; fvvert &lt; nuvs; ++fvvert) {
-                FVarVertexColor const &amp; c = fvVertsColor[firstOfLastColors + fvvert];
-                printf(&quot;c %f %f %f %f\n&quot;, c.r, c.g, c.b, c.a);
-            }
-
-            // Print faces
-            for (int face = 0; face &lt; nfaces; ++face) {
-
-                Far::ConstIndexArray fverts = refLastLevel.GetFaceVertices(face);
-                Far::ConstIndexArray fuvs   = refLastLevel.GetFaceFVarValues(face, channelUV);
-
-                // all refined Catmark faces should be quads
-                assert(fverts.size()==4 and fuvs.size()==4);
-
-                printf(&quot;f &quot;);
-                for (int vert=0; vert&lt;fverts.size(); ++vert) {
-                    // OBJ uses 1-based arrays...
-                    printf(&quot;%d/%d &quot;, fverts[vert]+1, fuvs[vert]+1);
-                }
-                printf(&quot;\n&quot;);
-            }
-        }
-    }
-    //------------------------------------------------------------------------------
+<pre class="code c literal-block">
+<span class="comment single">//------------------------------------------------------------------------------
+// Tutorial description:
+//
+// Building on tutorial 0, this example shows how to instantiate a simple mesh,
+// refine it uniformly and then interpolate both 'vertex' and 'face-varying'
+// primvar data.
+// The resulting interpolated data is output as an 'obj' file, with the
+// 'face-varying' data recorded in the uv texture layout.
+//
+</span>
+<span class="comment preproc">#include &lt;opensubdiv/far/topologyDescriptor.h&gt;
+#include &lt;opensubdiv/far/primvarRefiner.h&gt;
+</span>
+<span class="comment preproc">#include &lt;cstdio&gt;
+</span>
+<span class="comment single">//------------------------------------------------------------------------------
+// Face-varying implementation.
+//
+//
+</span><span class="keyword">struct</span> <span class="name">Vertex</span> <span class="punctuation">{</span>
+
+    <span class="comment single">// Minimal required interface ----------------------
+</span>    <span class="name">Vertex</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
+
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="literal number float">0.0f</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment single">// Public interface ------------------------------------
+</span>    <span class="keyword type">void</span> <span class="name">SetPosition</span><span class="punctuation">(</span><span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">y</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">z</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">x</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">y</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">z</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">const</span> <span class="keyword type">float</span> <span class="operator">*</span> <span class="name">GetPosition</span><span class="punctuation">()</span> <span class="keyword">const</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="name">_position</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+<span class="name label">private</span><span class="punctuation">:</span>
+    <span class="keyword type">float</span> <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+<span class="punctuation">};</span>
+
+<span class="comment single">//------------------------------------------------------------------------------
+// Face-varying container implementation.
+//
+// We are using a uv texture layout as a 'face-varying' primtiive variable
+// attribute. Because face-varying data is specified 'per-face-per-vertex',
+// we cannot use the same container that we use for 'vertex' or 'varying'
+// data. We specify a new container, which only carries (u,v) coordinates.
+// Similarly to our 'Vertex' container, we add a minimaliztic interpolation
+// interface with a 'Clear()' and 'AddWithWeight()' methods.
+//
+</span><span class="keyword">struct</span> <span class="name">FVarVertexUV</span> <span class="punctuation">{</span>
+
+    <span class="comment single">// Minimal required interface ----------------------
+</span>    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="name">u</span><span class="operator">=</span><span class="name">v</span><span class="operator">=</span><span class="literal number float">0.0f</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">FVarVertexUV</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">u</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">u</span><span class="punctuation">;</span>
+        <span class="name">v</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">v</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment single">// Basic 'uv' layout channel
+</span>    <span class="keyword type">float</span> <span class="name">u</span><span class="punctuation">,</span><span class="name">v</span><span class="punctuation">;</span>
+<span class="punctuation">};</span>
+
+<span class="keyword">struct</span> <span class="name">FVarVertexColor</span> <span class="punctuation">{</span>
+
+    <span class="comment single">// Minimal required interface ----------------------
+</span>    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="name">r</span><span class="operator">=</span><span class="name">g</span><span class="operator">=</span><span class="name">b</span><span class="operator">=</span><span class="name">a</span><span class="operator">=</span><span class="literal number float">0.0f</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">FVarVertexColor</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">r</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">r</span><span class="punctuation">;</span>
+        <span class="name">g</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">g</span><span class="punctuation">;</span>
+        <span class="name">b</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">b</span><span class="punctuation">;</span>
+        <span class="name">a</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">a</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment single">// Basic 'color' layout channel
+</span>    <span class="keyword type">float</span> <span class="name">r</span><span class="punctuation">,</span><span class="name">g</span><span class="punctuation">,</span><span class="name">b</span><span class="punctuation">,</span><span class="name">a</span><span class="punctuation">;</span>
+<span class="punctuation">};</span>
+
+<span class="comment single">//------------------------------------------------------------------------------
+// Cube geometry from catmark_cube.h
+</span>
+
+<span class="comment single">// 'vertex' primitive variable data &amp; topology
+</span><span class="keyword">static</span> <span class="keyword type">float</span> <span class="name">g_verts</span><span class="punctuation">[</span><span class="literal number integer">8</span><span class="punctuation">][</span><span class="literal number integer">3</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{{</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span> <span class="punctuation">},</span>
+                              <span class="punctuation">{</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span> <span class="punctuation">}};</span>
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_nverts</span> <span class="operator">=</span> <span class="literal number integer">8</span><span class="punctuation">,</span>
+           <span class="name">g_nfaces</span> <span class="operator">=</span> <span class="literal number integer">6</span><span class="punctuation">;</span>
+
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_vertsperface</span><span class="punctuation">[</span><span class="literal number integer">6</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span> <span class="punctuation">};</span>
+
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_vertIndices</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">6</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">4</span>  <span class="punctuation">};</span>
+
+<span class="comment single">// 'face-varying' primitive variable data &amp; topology for UVs
+</span><span class="keyword">static</span> <span class="keyword type">float</span> <span class="name">g_uvs</span><span class="punctuation">[</span><span class="literal number integer">14</span><span class="punctuation">][</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{{</span> <span class="literal number float">0.375</span><span class="punctuation">,</span> <span class="literal number float">0.00</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.625</span><span class="punctuation">,</span> <span class="literal number float">0.00</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.375</span><span class="punctuation">,</span> <span class="literal number float">0.25</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.625</span><span class="punctuation">,</span> <span class="literal number float">0.25</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.375</span><span class="punctuation">,</span> <span class="literal number float">0.50</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.625</span><span class="punctuation">,</span> <span class="literal number float">0.50</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.375</span><span class="punctuation">,</span> <span class="literal number float">0.75</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.625</span><span class="punctuation">,</span> <span class="literal number float">0.75</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.375</span><span class="punctuation">,</span> <span class="literal number float">1.00</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.625</span><span class="punctuation">,</span> <span class="literal number float">1.00</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.875</span><span class="punctuation">,</span> <span class="literal number float">0.00</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.875</span><span class="punctuation">,</span> <span class="literal number float">0.25</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.125</span><span class="punctuation">,</span> <span class="literal number float">0.00</span> <span class="punctuation">},</span>
+                             <span class="punctuation">{</span> <span class="literal number float">0.125</span><span class="punctuation">,</span> <span class="literal number float">0.25</span> <span class="punctuation">}};</span>
+
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_nuvs</span> <span class="operator">=</span> <span class="literal number integer">14</span><span class="punctuation">;</span>
+
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_uvIndices</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span>  <span class="literal number integer">0</span><span class="punctuation">,</span>  <span class="literal number integer">1</span><span class="punctuation">,</span>  <span class="literal number integer">3</span><span class="punctuation">,</span>  <span class="literal number integer">2</span><span class="punctuation">,</span>
+                                <span class="literal number integer">2</span><span class="punctuation">,</span>  <span class="literal number integer">3</span><span class="punctuation">,</span>  <span class="literal number integer">5</span><span class="punctuation">,</span>  <span class="literal number integer">4</span><span class="punctuation">,</span>
+                                <span class="literal number integer">4</span><span class="punctuation">,</span>  <span class="literal number integer">5</span><span class="punctuation">,</span>  <span class="literal number integer">7</span><span class="punctuation">,</span>  <span class="literal number integer">6</span><span class="punctuation">,</span>
+                                <span class="literal number integer">6</span><span class="punctuation">,</span>  <span class="literal number integer">7</span><span class="punctuation">,</span>  <span class="literal number integer">9</span><span class="punctuation">,</span>  <span class="literal number integer">8</span><span class="punctuation">,</span>
+                                <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">10</span><span class="punctuation">,</span> <span class="literal number integer">11</span><span class="punctuation">,</span>  <span class="literal number integer">3</span><span class="punctuation">,</span>
+                               <span class="literal number integer">12</span><span class="punctuation">,</span>  <span class="literal number integer">0</span><span class="punctuation">,</span>  <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">13</span>  <span class="punctuation">};</span>
+
+<span class="comment single">// 'face-varying' primitive variable data &amp; topology for color
+</span><span class="keyword">static</span> <span class="keyword type">float</span> <span class="name">g_colors</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">][</span><span class="literal number integer">4</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">0.0</span><span class="punctuation">,</span> <span class="literal number float">0.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">0.0</span><span class="punctuation">,</span> <span class="literal number float">0.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">0.0</span><span class="punctuation">,</span> <span class="literal number float">0.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="literal number float">1.0</span><span class="punctuation">}};</span>
+
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_ncolors</span> <span class="operator">=</span> <span class="literal number integer">24</span><span class="punctuation">;</span>
+
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_colorIndices</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span><span class="punctuation">,</span>  <span class="literal number integer">3</span><span class="punctuation">,</span>  <span class="literal number integer">9</span><span class="punctuation">,</span>  <span class="literal number integer">6</span><span class="punctuation">,</span>
+                                  <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">10</span><span class="punctuation">,</span> <span class="literal number integer">15</span><span class="punctuation">,</span> <span class="literal number integer">12</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">13</span><span class="punctuation">,</span> <span class="literal number integer">16</span><span class="punctuation">,</span> <span class="literal number integer">21</span><span class="punctuation">,</span> <span class="literal number integer">18</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">19</span><span class="punctuation">,</span> <span class="literal number integer">22</span><span class="punctuation">,</span>  <span class="literal number integer">4</span><span class="punctuation">,</span>  <span class="literal number integer">1</span><span class="punctuation">,</span>
+                                  <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">23</span><span class="punctuation">,</span> <span class="literal number integer">17</span><span class="punctuation">,</span> <span class="literal number integer">11</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">20</span><span class="punctuation">,</span>  <span class="literal number integer">2</span><span class="punctuation">,</span>  <span class="literal number integer">8</span><span class="punctuation">,</span> <span class="literal number integer">14</span> <span class="punctuation">};</span>
+
+<span class="name">using</span> <span class="name">namespace</span> <span class="name">OpenSubdiv</span><span class="punctuation">;</span>
+
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword type">int</span> <span class="name function">main</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">,</span> <span class="keyword type">char</span> <span class="operator">**</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+
+    <span class="keyword type">int</span> <span class="name">maxlevel</span> <span class="operator">=</span> <span class="literal number integer">3</span><span class="punctuation">;</span>
+
+    <span class="keyword">typedef</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyDescriptor</span> <span class="name">Descriptor</span><span class="punctuation">;</span>
+
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">SchemeType</span> <span class="name">type</span> <span class="operator">=</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">SCHEME_CATMARK</span><span class="punctuation">;</span>
+
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span> <span class="name">options</span><span class="punctuation">;</span>
+    <span class="name">options</span><span class="punctuation">.</span><span class="name">SetVtxBoundaryInterpolation</span><span class="punctuation">(</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span><span class="operator">::</span><span class="name">VTX_BOUNDARY_EDGE_ONLY</span><span class="punctuation">);</span>
+    <span class="name">options</span><span class="punctuation">.</span><span class="name">SetFVarLinearInterpolation</span><span class="punctuation">(</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span><span class="operator">::</span><span class="name">FVAR_LINEAR_NONE</span><span class="punctuation">);</span>
+
+    <span class="comment single">// Populate a topology descriptor with our raw data
+</span>    <span class="name">Descriptor</span> <span class="name">desc</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertices</span>  <span class="operator">=</span> <span class="name">g_nverts</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numFaces</span>     <span class="operator">=</span> <span class="name">g_nfaces</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertsPerFace</span> <span class="operator">=</span> <span class="name">g_vertsperface</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">vertIndicesPerFace</span>  <span class="operator">=</span> <span class="name">g_vertIndices</span><span class="punctuation">;</span>
+
+    <span class="keyword type">int</span> <span class="name">channelUV</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span>
+    <span class="keyword type">int</span> <span class="name">channelColor</span> <span class="operator">=</span> <span class="literal number integer">1</span><span class="punctuation">;</span>
+
+    <span class="comment single">// Create a face-varying channel descriptor
+</span>    <span class="name">Descriptor</span><span class="operator">::</span><span class="name">FVarChannel</span> <span class="name">channels</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="name">channels</span><span class="punctuation">[</span><span class="name">channelUV</span><span class="punctuation">].</span><span class="name">numValues</span> <span class="operator">=</span> <span class="name">g_nuvs</span><span class="punctuation">;</span>
+    <span class="name">channels</span><span class="punctuation">[</span><span class="name">channelUV</span><span class="punctuation">].</span><span class="name">valueIndices</span> <span class="operator">=</span> <span class="name">g_uvIndices</span><span class="punctuation">;</span>
+    <span class="name">channels</span><span class="punctuation">[</span><span class="name">channelColor</span><span class="punctuation">].</span><span class="name">numValues</span> <span class="operator">=</span> <span class="name">g_ncolors</span><span class="punctuation">;</span>
+    <span class="name">channels</span><span class="punctuation">[</span><span class="name">channelColor</span><span class="punctuation">].</span><span class="name">valueIndices</span> <span class="operator">=</span> <span class="name">g_colorIndices</span><span class="punctuation">;</span>
+
+    <span class="comment single">// Add the channel topology to the main descriptor
+</span>    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numFVarChannels</span> <span class="operator">=</span> <span class="literal number integer">2</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">fvarChannels</span> <span class="operator">=</span> <span class="name">channels</span><span class="punctuation">;</span>
+
+    <span class="comment single">// Instantiate a FarTopologyRefiner from the descriptor
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span> <span class="name">refiner</span> <span class="operator">=</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Create</span><span class="punctuation">(</span><span class="name">desc</span><span class="punctuation">,</span>
+            <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Options</span><span class="punctuation">(</span><span class="name">type</span><span class="punctuation">,</span> <span class="name">options</span><span class="punctuation">));</span>
+
+    <span class="comment single">// Uniformly refine the topolgy up to 'maxlevel'
+</span>    <span class="comment single">// note: fullTopologyInLastLevel must be true to work with face-varying data
+</span>    <span class="punctuation">{</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span><span class="operator">::</span><span class="name">UniformOptions</span> <span class="name">refineOptions</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="punctuation">);</span>
+        <span class="name">refineOptions</span><span class="punctuation">.</span><span class="name">fullTopologyInLastLevel</span> <span class="operator">=</span> <span class="name builtin">true</span><span class="punctuation">;</span>
+        <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">RefineUniform</span><span class="punctuation">(</span><span class="name">refineOptions</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment single">// Allocate and initialize the 'vertex' primvar data (see tutorial 2 for
+</span>    <span class="comment single">// more details).
+</span>    <span class="name">std</span><span class="operator">::</span><span class="name">vector</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="name">vbuffer</span><span class="punctuation">(</span><span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetNumVerticesTotal</span><span class="punctuation">());</span>
+    <span class="name">Vertex</span> <span class="operator">*</span> <span class="name">verts</span> <span class="operator">=</span> <span class="operator">&amp;</span><span class="name">vbuffer</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">g_nverts</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">SetPosition</span><span class="punctuation">(</span><span class="name">g_verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">g_verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">g_verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment single">// Allocate and initialize the first channel of 'face-varying' primvar data (UVs)
+</span>    <span class="name">std</span><span class="operator">::</span><span class="name">vector</span><span class="operator">&lt;</span><span class="name">FVarVertexUV</span><span class="operator">&gt;</span> <span class="name">fvBufferUV</span><span class="punctuation">(</span><span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetNumFVarValuesTotal</span><span class="punctuation">(</span><span class="name">channelUV</span><span class="punctuation">));</span>
+    <span class="name">FVarVertexUV</span> <span class="operator">*</span> <span class="name">fvVertsUV</span> <span class="operator">=</span> <span class="operator">&amp;</span><span class="name">fvBufferUV</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">g_nuvs</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">fvVertsUV</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">u</span> <span class="operator">=</span> <span class="name">g_uvs</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">fvVertsUV</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">v</span> <span class="operator">=</span> <span class="name">g_uvs</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment single">// Allocate &amp; interpolate the 'face-varying' primvar data (colors)
+</span>    <span class="name">std</span><span class="operator">::</span><span class="name">vector</span><span class="operator">&lt;</span><span class="name">FVarVertexColor</span><span class="operator">&gt;</span> <span class="name">fvBufferColor</span><span class="punctuation">(</span><span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetNumFVarValuesTotal</span><span class="punctuation">(</span><span class="name">channelColor</span><span class="punctuation">));</span>
+    <span class="name">FVarVertexColor</span> <span class="operator">*</span> <span class="name">fvVertsColor</span> <span class="operator">=</span> <span class="operator">&amp;</span><span class="name">fvBufferColor</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">g_ncolors</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">fvVertsColor</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">r</span> <span class="operator">=</span> <span class="name">g_colors</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">fvVertsColor</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">g</span> <span class="operator">=</span> <span class="name">g_colors</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">fvVertsColor</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">b</span> <span class="operator">=</span> <span class="name">g_colors</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+        <span class="name">fvVertsColor</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">a</span> <span class="operator">=</span> <span class="name">g_colors</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment single">// Interpolate both vertex and face-varying primvar data
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">PrimvarRefiner</span> <span class="name">primvarRefiner</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">refiner</span><span class="punctuation">);</span>
+
+    <span class="name">Vertex</span> <span class="operator">*</span>     <span class="name">srcVert</span> <span class="operator">=</span> <span class="name">verts</span><span class="punctuation">;</span>
+    <span class="name">FVarVertexUV</span> <span class="operator">*</span> <span class="name">srcFVarUV</span> <span class="operator">=</span> <span class="name">fvVertsUV</span><span class="punctuation">;</span>
+    <span class="name">FVarVertexColor</span> <span class="operator">*</span> <span class="name">srcFVarColor</span> <span class="operator">=</span> <span class="name">fvVertsColor</span><span class="punctuation">;</span>
+
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">level</span> <span class="operator">=</span> <span class="literal number integer">1</span><span class="punctuation">;</span> <span class="name">level</span> <span class="operator">&lt;=</span> <span class="name">maxlevel</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">level</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">Vertex</span> <span class="operator">*</span>     <span class="name">dstVert</span> <span class="operator">=</span> <span class="name">srcVert</span> <span class="operator">+</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetLevel</span><span class="punctuation">(</span><span class="name">level</span><span class="operator">-</span><span class="literal number integer">1</span><span class="punctuation">).</span><span class="name">GetNumVertices</span><span class="punctuation">();</span>
+        <span class="name">FVarVertexUV</span> <span class="operator">*</span> <span class="name">dstFVarUV</span> <span class="operator">=</span> <span class="name">srcFVarUV</span> <span class="operator">+</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetLevel</span><span class="punctuation">(</span><span class="name">level</span><span class="operator">-</span><span class="literal number integer">1</span><span class="punctuation">).</span><span class="name">GetNumFVarValues</span><span class="punctuation">(</span><span class="name">channelUV</span><span class="punctuation">);</span>
+        <span class="name">FVarVertexColor</span> <span class="operator">*</span> <span class="name">dstFVarColor</span> <span class="operator">=</span> <span class="name">srcFVarColor</span> <span class="operator">+</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetLevel</span><span class="punctuation">(</span><span class="name">level</span><span class="operator">-</span><span class="literal number integer">1</span><span class="punctuation">).</span><span class="name">GetNumFVarValues</span><span class="punctuation">(</span><span class="name">channelColor</span><span class="punctuation">);</span>
+
+        <span class="name">primvarRefiner</span><span class="punctuation">.</span><span class="name">Interpolate</span><span class="punctuation">(</span><span class="name">level</span><span class="punctuation">,</span> <span class="name">srcVert</span><span class="punctuation">,</span> <span class="name">dstVert</span><span class="punctuation">);</span>
+        <span class="name">primvarRefiner</span><span class="punctuation">.</span><span class="name">InterpolateFaceVarying</span><span class="punctuation">(</span><span class="name">level</span><span class="punctuation">,</span> <span class="name">srcFVarUV</span><span class="punctuation">,</span> <span class="name">dstFVarUV</span><span class="punctuation">,</span> <span class="name">channelUV</span><span class="punctuation">);</span>
+        <span class="name">primvarRefiner</span><span class="punctuation">.</span><span class="name">InterpolateFaceVarying</span><span class="punctuation">(</span><span class="name">level</span><span class="punctuation">,</span> <span class="name">srcFVarColor</span><span class="punctuation">,</span> <span class="name">dstFVarColor</span><span class="punctuation">,</span> <span class="name">channelColor</span><span class="punctuation">);</span>
+
+        <span class="name">srcVert</span> <span class="operator">=</span> <span class="name">dstVert</span><span class="punctuation">;</span>
+        <span class="name">srcFVarUV</span> <span class="operator">=</span> <span class="name">dstFVarUV</span><span class="punctuation">;</span>
+        <span class="name">srcFVarColor</span> <span class="operator">=</span> <span class="name">dstFVarColor</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+
+    <span class="punctuation">{</span> <span class="comment single">// Output OBJ of the highest level refined -----------
+</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyLevel</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">refLastLevel</span> <span class="operator">=</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetLevel</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="punctuation">);</span>
+
+        <span class="keyword type">int</span> <span class="name">nverts</span> <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetNumVertices</span><span class="punctuation">();</span>
+        <span class="keyword type">int</span> <span class="name">nuvs</span>   <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetNumFVarValues</span><span class="punctuation">(</span><span class="name">channelUV</span><span class="punctuation">);</span>
+        <span class="keyword type">int</span> <span class="name">ncolors</span><span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetNumFVarValues</span><span class="punctuation">(</span><span class="name">channelColor</span><span class="punctuation">);</span>
+        <span class="keyword type">int</span> <span class="name">nfaces</span> <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetNumFaces</span><span class="punctuation">();</span>
+
+        <span class="comment single">// Print vertex positions
+</span>        <span class="keyword type">int</span> <span class="name">firstOfLastVerts</span> <span class="operator">=</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetNumVerticesTotal</span><span class="punctuation">()</span> <span class="operator">-</span> <span class="name">nverts</span><span class="punctuation">;</span>
+
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">vert</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">vert</span> <span class="operator">&lt;</span> <span class="name">nverts</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">vert</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">pos</span> <span class="operator">=</span> <span class="name">verts</span><span class="punctuation">[</span><span class="name">firstOfLastVerts</span> <span class="operator">+</span> <span class="name">vert</span><span class="punctuation">].</span><span class="name">GetPosition</span><span class="punctuation">();</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;v %f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
+
+        <span class="comment single">// Print uvs
+</span>        <span class="keyword type">int</span> <span class="name">firstOfLastUvs</span> <span class="operator">=</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetNumFVarValuesTotal</span><span class="punctuation">(</span><span class="name">channelUV</span><span class="punctuation">)</span> <span class="operator">-</span> <span class="name">nuvs</span><span class="punctuation">;</span>
+
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">fvvert</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">fvvert</span> <span class="operator">&lt;</span> <span class="name">nuvs</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">fvvert</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="name">FVarVertexUV</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">uv</span> <span class="operator">=</span> <span class="name">fvVertsUV</span><span class="punctuation">[</span><span class="name">firstOfLastUvs</span> <span class="operator">+</span> <span class="name">fvvert</span><span class="punctuation">];</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;vt %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">uv</span><span class="punctuation">.</span><span class="name">u</span><span class="punctuation">,</span> <span class="name">uv</span><span class="punctuation">.</span><span class="name">v</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+
+        <span class="comment single">// Print colors
+</span>        <span class="keyword type">int</span> <span class="name">firstOfLastColors</span> <span class="operator">=</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetNumFVarValuesTotal</span><span class="punctuation">(</span><span class="name">channelColor</span><span class="punctuation">)</span> <span class="operator">-</span> <span class="name">ncolors</span><span class="punctuation">;</span>
+
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">fvvert</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">fvvert</span> <span class="operator">&lt;</span> <span class="name">nuvs</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">fvvert</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="name">FVarVertexColor</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">c</span> <span class="operator">=</span> <span class="name">fvVertsColor</span><span class="punctuation">[</span><span class="name">firstOfLastColors</span> <span class="operator">+</span> <span class="name">fvvert</span><span class="punctuation">];</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;c %f %f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">c</span><span class="punctuation">.</span><span class="name">r</span><span class="punctuation">,</span> <span class="name">c</span><span class="punctuation">.</span><span class="name">g</span><span class="punctuation">,</span> <span class="name">c</span><span class="punctuation">.</span><span class="name">b</span><span class="punctuation">,</span> <span class="name">c</span><span class="punctuation">.</span><span class="name">a</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+
+        <span class="comment single">// Print faces
+</span>        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">face</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">face</span> <span class="operator">&lt;</span> <span class="name">nfaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">face</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+
+            <span class="name">Far</span><span class="operator">::</span><span class="name">ConstIndexArray</span> <span class="name">fverts</span> <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetFaceVertices</span><span class="punctuation">(</span><span class="name">face</span><span class="punctuation">);</span>
+            <span class="name">Far</span><span class="operator">::</span><span class="name">ConstIndexArray</span> <span class="name">fuvs</span>   <span class="operator">=</span> <span class="name">refLastLevel</span><span class="punctuation">.</span><span class="name">GetFaceFVarValues</span><span class="punctuation">(</span><span class="name">face</span><span class="punctuation">,</span> <span class="name">channelUV</span><span class="punctuation">);</span>
+
+            <span class="comment single">// all refined Catmark faces should be quads
+</span>            <span class="name">assert</span><span class="punctuation">(</span><span class="name">fverts</span><span class="punctuation">.</span><span class="name">size</span><span class="punctuation">()</span><span class="operator">==</span><span class="literal number integer">4</span> <span class="name">and</span> <span class="name">fuvs</span><span class="punctuation">.</span><span class="name">size</span><span class="punctuation">()</span><span class="operator">==</span><span class="literal number integer">4</span><span class="punctuation">);</span>
+
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;f &quot;</span><span class="punctuation">);</span>
+            <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">vert</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">vert</span><span class="operator">&lt;</span><span class="name">fverts</span><span class="punctuation">.</span><span class="name">size</span><span class="punctuation">();</span> <span class="operator">++</span><span class="name">vert</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="comment single">// OBJ uses 1-based arrays...
+</span>                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;%d/%d &quot;</span><span class="punctuation">,</span> <span class="name">fverts</span><span class="punctuation">[</span><span class="name">vert</span><span class="punctuation">]</span><span class="operator">+</span><span class="literal number integer">1</span><span class="punctuation">,</span> <span class="name">fuvs</span><span class="punctuation">[</span><span class="name">vert</span><span class="punctuation">]</span><span class="operator">+</span><span class="literal number integer">1</span><span class="punctuation">);</span>
+            <span class="punctuation">}</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+<span class="comment single">//------------------------------------------------------------------------------</span>
 </pre>
-</div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

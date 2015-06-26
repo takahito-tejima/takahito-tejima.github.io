@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -171,191 +171,184 @@ ul.creatorMainNav li a {
           <div class="topicLeftData-MainData">
 <p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/hbr/tutorial_1/hbr_tutorial_1.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/hbr/tutorial_1/hbr_tutorial_1.cpp</a></p>
 <hr class="docutils" />
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/hbr_tutorial_1.rst</tt>, line 9)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c
+<pre class="code c literal-block">
+<span class="comment single">//------------------------------------------------------------------------------
+// Tutorial description:
+//
+// This tutorial shows how to safely create Hbr meshes from arbitrary topology.
+// Because Hbr is a half-edge data structure, it cannot represeent non-manifold
+// topology. Ensuring that the geometry used is manifold is a requirement to use
+// Hbr safely. This tutorial presents some simple tests to detect inappropriate
+// topology.
+//
+</span>
+<span class="comment preproc">#include &lt;opensubdiv/hbr/mesh.h&gt;
+#include &lt;opensubdiv/hbr/catmark.h&gt;
+</span>
+<span class="comment preproc">#include &lt;cstdio&gt;
+</span>
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword">struct</span> <span class="name">Vertex</span> <span class="punctuation">{</span>
 
-    //------------------------------------------------------------------------------
-    // Tutorial description:
-    //
-    // This tutorial shows how to safely create Hbr meshes from arbitrary topology.
-    // Because Hbr is a half-edge data structure, it cannot represeent non-manifold
-    // topology. Ensuring that the geometry used is manifold is a requirement to use
-    // Hbr safely. This tutorial presents some simple tests to detect inappropriate
-    // topology.
-    //
+    <span class="comment single">// Hbr minimal required interface ----------------------
+</span>    <span class="name">Vertex</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-    #include &lt;opensubdiv/hbr/mesh.h&gt;
-    #include &lt;opensubdiv/hbr/catmark.h&gt;
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="comment multiline">/*i*/</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-    #include &lt;cstdio&gt;
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
 
-    //------------------------------------------------------------------------------
-    struct Vertex {
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        // Hbr minimal required interface ----------------------
-        Vertex() { }
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        Vertex(int /*i*/) { }
+    <span class="keyword type">void</span> <span class="name">AddVaryingWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="punctuation">,</span> <span class="keyword type">float</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        Vertex(Vertex const &amp; src) {
-            _position[0] = src._position[0];
-            _position[1] = src._position[1];
-            _position[2] = src._position[2];
-        }
+    <span class="comment single">// Public interface ------------------------------------
+</span>    <span class="keyword type">void</span> <span class="name">SetPosition</span><span class="punctuation">(</span><span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">y</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">z</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">x</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">y</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">z</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void Clear( void * =0 ) { }
+    <span class="keyword">const</span> <span class="keyword type">float</span> <span class="operator">*</span> <span class="name">GetPosition</span><span class="punctuation">()</span> <span class="keyword">const</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="name">_position</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void AddWithWeight(Vertex const &amp;, float ) { }
+<span class="name label">private</span><span class="punctuation">:</span>
+    <span class="keyword type">float</span> <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+<span class="punctuation">};</span>
 
-        void AddVaryingWithWeight(Vertex const &amp;, float) { }
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrMesh</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>      <span class="name">Hmesh</span><span class="punctuation">;</span>
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrFace</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>      <span class="name">Hface</span><span class="punctuation">;</span>
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertex</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>    <span class="name">Hvertex</span><span class="punctuation">;</span>
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHalfedge</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>  <span class="name">Hhalfedge</span><span class="punctuation">;</span>
 
-        // Public interface ------------------------------------
-        void SetPosition(float x, float y, float z) {
-            _position[0]=x;
-            _position[1]=y;
-            _position[2]=z;
-        }
+<span class="comment single">//------------------------------------------------------------------------------
+// Non-manifold geometry from catmark_fan.h
+//
+//                     o
+//                    /|
+//                   / |
+//                  /  |
+//                 /   |
+//                o    |
+//                | f2 |
+//                |    |
+//       o--------+----o------------o
+//      /         |   /            /
+//     /          |  /            /
+//    /    f0     | /     f1     /
+//   /            |/            /
+//  o------------ o------------o
+//
+// The shared edge of a fan is adjacent to 3 faces, and therefore non-manifold.
+//
+</span><span class="keyword">static</span> <span class="keyword type">float</span> <span class="name">verts</span><span class="punctuation">[</span><span class="literal number integer">8</span><span class="punctuation">][</span><span class="literal number integer">3</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{{</span><span class="operator">-</span><span class="literal number float">1.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">1.0</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span><span class="operator">-</span><span class="literal number float">1.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span> <span class="literal number float">0.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span> <span class="literal number float">0.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">1.0</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span> <span class="literal number float">1.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span> <span class="literal number float">1.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">1.0</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span> <span class="literal number float">0.0</span><span class="punctuation">,</span>  <span class="literal number float">1.0</span><span class="punctuation">,</span>  <span class="literal number float">0.0</span><span class="punctuation">},</span>
+                            <span class="punctuation">{</span> <span class="literal number float">0.0</span><span class="punctuation">,</span>  <span class="literal number float">1.0</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">1.0</span><span class="punctuation">}};</span>
 
-        const float * GetPosition() const {
-            return _position;
-        }
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">nverts</span> <span class="operator">=</span> <span class="literal number integer">8</span><span class="punctuation">,</span>
+           <span class="name">nfaces</span> <span class="operator">=</span> <span class="literal number integer">3</span><span class="punctuation">;</span>
 
-    private:
-        float _position[3];
-    };
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">facenverts</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span> <span class="punctuation">};</span>
 
-    typedef OpenSubdiv::HbrMesh&lt;Vertex&gt;      Hmesh;
-    typedef OpenSubdiv::HbrFace&lt;Vertex&gt;      Hface;
-    typedef OpenSubdiv::HbrVertex&lt;Vertex&gt;    Hvertex;
-    typedef OpenSubdiv::HbrHalfedge&lt;Vertex&gt;  Hhalfedge;
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">faceverts</span><span class="punctuation">[</span><span class="literal number integer">12</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span>
+                             <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span>
+                             <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal number integer">7</span> <span class="punctuation">};</span>
 
-    //------------------------------------------------------------------------------
-    // Non-manifold geometry from catmark_fan.h
-    //
-    //                     o
-    //                    /|
-    //                   / |
-    //                  /  |
-    //                 /   |
-    //                o    |
-    //                | f2 |
-    //                |    |
-    //       o--------+----o------------o
-    //      /         |   /            /
-    //     /          |  /            /
-    //    /    f0     | /     f1     /
-    //   /            |/            /
-    //  o------------ o------------o
-    //
-    // The shared edge of a fan is adjacent to 3 faces, and therefore non-manifold.
-    //
-    static float verts[8][3] = {{-1.0,  0.0, -1.0},
-                                {-1.0,  0.0,  0.0},
-                                { 0.0,  0.0,  0.0},
-                                { 0.0,  0.0, -1.0},
-                                { 1.0,  0.0,  0.0},
-                                { 1.0,  0.0, -1.0},
-                                { 0.0,  1.0,  0.0},
-                                { 0.0,  1.0, -1.0}};
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword type">int</span> <span class="name function">main</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">,</span> <span class="keyword type">char</span> <span class="operator">**</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-    static int nverts = 8,
-               nfaces = 3;
+    <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrCatmarkSubdivision</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">catmark</span> <span class="operator">=</span>
+        <span class="name">new</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrCatmarkSubdivision</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span><span class="punctuation">();</span>
 
-    static int facenverts[3] = { 4, 4, 4 };
+    <span class="name">Hmesh</span> <span class="operator">*</span> <span class="name">hmesh</span> <span class="operator">=</span> <span class="name">new</span> <span class="name">Hmesh</span><span class="punctuation">(</span><span class="name">catmark</span><span class="punctuation">);</span>
 
-    static int faceverts[12] = { 0, 1, 2, 3,
-                                 3, 2, 4, 5,
-                                 3, 2, 6, 7 };
+    <span class="name">Vertex</span> <span class="name">v</span><span class="punctuation">;</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">nverts</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">v</span><span class="punctuation">.</span><span class="name">SetPosition</span><span class="punctuation">(</span><span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">NewVertex</span><span class="punctuation">(</span><span class="name">i</span><span class="punctuation">,</span> <span class="name">v</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
 
-    //------------------------------------------------------------------------------
-    int main(int, char **) {
+    <span class="comment single">// Create the topology
+</span>    <span class="keyword type">int</span> <span class="operator">*</span> <span class="name">fv</span> <span class="operator">=</span> <span class="name">faceverts</span><span class="punctuation">;</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">nfaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-        OpenSubdiv::HbrCatmarkSubdivision&lt;Vertex&gt; * catmark =
-            new OpenSubdiv::HbrCatmarkSubdivision&lt;Vertex&gt;();
+        <span class="keyword type">int</span> <span class="name">nv</span> <span class="operator">=</span> <span class="name">facenverts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">];</span>
 
-        Hmesh * hmesh = new Hmesh(catmark);
+        <span class="keyword type">bool</span> <span class="name">valid</span> <span class="operator">=</span> <span class="name builtin">true</span><span class="punctuation">;</span>
 
-        Vertex v;
-        for (int i=0; i&lt;nverts; ++i) {
-            v.SetPosition(verts[i][0], verts[i][1], verts[i][2]);
-            hmesh-&gt;NewVertex(i, v);
-        }
+        <span class="keyword">for</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">j</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span><span class="name">j</span><span class="operator">&lt;</span><span class="name">nv</span><span class="punctuation">;</span><span class="name">j</span><span class="operator">++</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-        // Create the topology
-        int * fv = faceverts;
-        for (int i=0; i&lt;nfaces; ++i) {
+            <span class="name">Hvertex</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">origin</span>      <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span><span class="name">fv</span><span class="punctuation">[</span><span class="name">j</span><span class="punctuation">]),</span>
+                          <span class="operator">*</span> <span class="name">destination</span> <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span><span class="name">fv</span><span class="punctuation">[(</span><span class="name">j</span><span class="operator">+</span><span class="literal number integer">1</span><span class="punctuation">)</span><span class="operator">%</span><span class="name">nv</span><span class="punctuation">]);</span>
+            <span class="name">Hhalfedge</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">opposite</span> <span class="operator">=</span> <span class="name">destination</span><span class="operator">-&gt;</span><span class="name">GetEdge</span><span class="punctuation">(</span><span class="name">origin</span><span class="punctuation">);</span>
 
-            int nv = facenverts[i];
+            <span class="comment single">// Make sure that the vertices exist in the mesh
+</span>            <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">origin</span><span class="operator">==</span><span class="name builtin">NULL</span> <span class="name">or</span> <span class="name">destination</span><span class="operator">==</span><span class="name builtin">NULL</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; An edge was specified that connected a nonexistent vertex</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+                <span class="name">valid</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
+                <span class="keyword">break</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
 
-            bool valid = true;
+            <span class="comment single">// Check for a degenerate edge
+</span>            <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">origin</span> <span class="operator">==</span> <span class="name">destination</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; An edge was specified that connected a vertex to itself</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+                <span class="name">valid</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
+                <span class="keyword">break</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
 
-            for(int j=0;j&lt;nv;j++) {
+            <span class="comment single">// Check that no more than 2 faces are adjacent to the edge
+</span>            <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">opposite</span> <span class="name">and</span> <span class="name">opposite</span><span class="operator">-&gt;</span><span class="name">GetOpposite</span><span class="punctuation">()</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; A non-manifold edge incident to more than 2 faces was found</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+                <span class="name">valid</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
+                <span class="keyword">break</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
 
-                Hvertex const * origin      = hmesh-&gt;GetVertex(fv[j]),
-                              * destination = hmesh-&gt;GetVertex(fv[(j+1)%nv]);
-                Hhalfedge const * opposite = destination-&gt;GetEdge(origin);
+            <span class="comment single">// Check that the edge is unique and oriented properly
+</span>            <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">origin</span><span class="operator">-&gt;</span><span class="name">GetEdge</span><span class="punctuation">(</span><span class="name">destination</span><span class="punctuation">))</span> <span class="punctuation">{</span>
+                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; An edge connecting two vertices was specified more than once.&quot;</span>
+                       <span class="literal string">&quot; It's likely that an incident face was flipped</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+                <span class="name">valid</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
+                <span class="keyword">break</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
+        <span class="punctuation">}</span>
 
-                // Make sure that the vertices exist in the mesh
-                if (origin==NULL or destination==NULL) {
-                    printf(&quot; An edge was specified that connected a nonexistent vertex\n&quot;);
-                    valid=false;
-                    break;
-                }
+        <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">valid</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">NewFace</span><span class="punctuation">(</span><span class="name">nv</span><span class="punctuation">,</span> <span class="name">fv</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; Skipped face %d</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">i</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
 
-                // Check for a degenerate edge
-                if (origin == destination) {
-                    printf(&quot; An edge was specified that connected a vertex to itself\n&quot;);
-                    valid=false;
-                    break;
-                }
+        <span class="name">fv</span><span class="operator">+=</span><span class="name">nv</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-                // Check that no more than 2 faces are adjacent to the edge
-                if (opposite and opposite-&gt;GetOpposite() ) {
-                    printf(&quot; A non-manifold edge incident to more than 2 faces was found\n&quot;);
-                    valid=false;
-                    break;
-                }
+    <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">SetInterpolateBoundaryMethod</span><span class="punctuation">(</span><span class="name">Hmesh</span><span class="operator">::</span><span class="name">k_InterpolateBoundaryEdgeOnly</span><span class="punctuation">);</span>
 
-                // Check that the edge is unique and oriented properly
-                if (origin-&gt;GetEdge(destination)) {
-                    printf(&quot; An edge connecting two vertices was specified more than once.&quot;
-                           &quot; It's likely that an incident face was flipped\n&quot;);
-                    valid=false;
-                    break;
-                }
-            }
+    <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">Finish</span><span class="punctuation">();</span>
 
-            if (valid) {
-                hmesh-&gt;NewFace(nv, fv, 0);
-            } else {
-                printf(&quot; Skipped face %d\n&quot;, i);
-            }
+    <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;Created a fan with %d faces and %d vertices.</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span>
+        <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetNumFaces</span><span class="punctuation">(),</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetNumVertices</span><span class="punctuation">());</span>
 
-            fv+=nv;
-        }
+    <span class="name">delete</span> <span class="name">hmesh</span><span class="punctuation">;</span>
+    <span class="name">delete</span> <span class="name">catmark</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
 
-        hmesh-&gt;SetInterpolateBoundaryMethod(Hmesh::k_InterpolateBoundaryEdgeOnly);
-
-        hmesh-&gt;Finish();
-
-        printf(&quot;Created a fan with %d faces and %d vertices.\n&quot;,
-            hmesh-&gt;GetNumFaces(), hmesh-&gt;GetNumVertices());
-
-        delete hmesh;
-        delete catmark;
-    }
-
-    //------------------------------------------------------------------------------
-
+<span class="comment single">//------------------------------------------------------------------------------</span>
 </pre>
-</div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -216,98 +216,82 @@ expected to provide a vertex class that implements the requisite interpolation
 functionality.</p>
 <p>Here is an example of a simple vertex class that accounts for 3D position, but
 does not support arbitrary variables or varying interpolation.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 58)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword">struct</span> <span class="name">Vertex</span> <span class="punctuation">{</span>
 
-    struct Vertex {
+    <span class="name">Vertex</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        Vertex() { }
+    <span class="name">Vertex</span><span class="punctuation">(</span> <span class="keyword type">int</span> <span class="comment multiline">/*i*/</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        Vertex( int /*i*/ ) { }
+    <span class="name">Vertex</span><span class="punctuation">(</span> <span class="keyword">const</span> <span class="name">Vertex</span> <span class="operator">&amp;</span> <span class="name">src</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span> <span class="punctuation">}</span>
 
-        Vertex( const Vertex &amp; src ) { _pos[0]=src._pos[0]; _pos[1]=src._pos[1]; _pos[2]=src._pos[2]; }
+   <span class="operator">~</span><span class="name">Vertex</span><span class="punctuation">(</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-       ~Vertex( ) { }
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="keyword">const</span> <span class="name">Vertex</span><span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">,</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
 
-        void AddWithWeight(const Vertex&amp; src, float weight, void * =0 ) {
-            _pos[0]+=weight*src._pos[0];
-            _pos[1]+=weight*src._pos[1];
-            _pos[2]+=weight*src._pos[2];
-        }
+    <span class="keyword type">void</span> <span class="name">AddVaryingWithWeight</span><span class="punctuation">(</span><span class="keyword">const</span> <span class="name">Vertex</span><span class="operator">&amp;</span> <span class="punctuation">,</span> <span class="keyword type">float</span><span class="punctuation">,</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        void AddVaryingWithWeight(const Vertex&amp; , float, void * =0 ) { }
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="literal number float">0.0f</span><span class="punctuation">;</span> <span class="punctuation">}</span>
 
-        void Clear( void * =0 ) { _pos[0]=_pos[1]=_pos[2]=0.0f; }
+    <span class="keyword type">void</span> <span class="name">SetPosition</span><span class="punctuation">(</span><span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">y</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">z</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">x</span><span class="punctuation">;</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">y</span><span class="punctuation">;</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">z</span><span class="punctuation">;</span> <span class="punctuation">}</span>
 
-        void SetPosition(float x, float y, float z) { _pos[0]=x; _pos[1]=y; _pos[2]=z; }
+    <span class="keyword type">void</span> <span class="name">ApplyVertexEdit</span><span class="punctuation">(</span><span class="keyword">const</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertexEdit</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">&amp;</span> <span class="name">edit</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">const</span> <span class="keyword type">float</span> <span class="operator">*</span><span class="name">src</span> <span class="operator">=</span> <span class="name">edit</span><span class="punctuation">.</span><span class="name">GetEdit</span><span class="punctuation">();</span>
+        <span class="keyword">switch</span><span class="punctuation">(</span><span class="name">edit</span><span class="punctuation">.</span><span class="name">GetOperation</span><span class="punctuation">())</span> <span class="punctuation">{</span>
+          <span class="keyword">case</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHierarchicalEdit</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;::</span><span class="name label">Set</span><span class="punctuation">:</span>
+            <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+            <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+            <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+            <span class="keyword">break</span><span class="punctuation">;</span>
+          <span class="keyword">case</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHierarchicalEdit</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;::</span><span class="name label">Add</span><span class="punctuation">:</span>
+            <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">src</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+            <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">src</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+            <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">src</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+            <span class="keyword">break</span><span class="punctuation">;</span>
+          <span class="keyword">case</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHierarchicalEdit</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;::</span><span class="name label">Subtract</span><span class="punctuation">:</span>
+            <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">-=</span> <span class="name">src</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+            <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">-=</span> <span class="name">src</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+            <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">-=</span> <span class="name">src</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+            <span class="keyword">break</span><span class="punctuation">;</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
 
-        void ApplyVertexEdit(const OpenSubdiv::HbrVertexEdit&lt;Vertex&gt; &amp; edit) {
-            const float *src = edit.GetEdit();
-            switch(edit.GetOperation()) {
-              case OpenSubdiv::HbrHierarchicalEdit&lt;Vertex&gt;::Set:
-                _pos[0] = src[0];
-                _pos[1] = src[1];
-                _pos[2] = src[2];
-                break;
-              case OpenSubdiv::HbrHierarchicalEdit&lt;Vertex&gt;::Add:
-                _pos[0] += src[0];
-                _pos[1] += src[1];
-                _pos[2] += src[2];
-                break;
-              case OpenSubdiv::HbrHierarchicalEdit&lt;Vertex&gt;::Subtract:
-                _pos[0] -= src[0];
-                _pos[1] -= src[1];
-                _pos[2] -= src[2];
-                break;
-            }
-        }
+    <span class="keyword type">void</span> <span class="name">ApplyMovingVertexEdit</span><span class="punctuation">(</span><span class="keyword">const</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrMovingVertexEdit</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">&amp;</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        void ApplyMovingVertexEdit(const OpenSubdiv::HbrMovingVertexEdit&lt;Vertex&gt; &amp;) { }
+    <span class="comment single">// custom functions &amp; data not required by Hbr -------------------------
+</span>
+    <span class="name">Vertex</span><span class="punctuation">(</span> <span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">y</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">z</span> <span class="punctuation">)</span> <span class="punctuation">{</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">x</span><span class="punctuation">;</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">y</span><span class="punctuation">;</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">z</span><span class="punctuation">;</span> <span class="punctuation">}</span>
 
-        // custom functions &amp; data not required by Hbr -------------------------
+    <span class="keyword">const</span> <span class="keyword type">float</span> <span class="operator">*</span> <span class="name">GetPos</span><span class="punctuation">()</span> <span class="keyword">const</span> <span class="punctuation">{</span> <span class="keyword">return</span> <span class="name">_pos</span><span class="punctuation">;</span> <span class="punctuation">}</span>
 
-        Vertex( float x, float y, float z ) { _pos[0]=x; _pos[1]=y; _pos[2]=z; }
-
-        const float * GetPos() const { return _pos; }
-
-        float _pos[3];
-    };
-
+    <span class="keyword type">float</span> <span class="name">_pos</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+<span class="punctuation">};</span>
 </pre>
-</div>
 <p>In some cases, if only topological analysis is required, the class can be left un-implemented.
 Far and Osd for instance store vertex data in serialized interleaved vectors. Here
 is the Osd::Vertex class for reference:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 118)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword">class</span> <span class="name class">Vertex</span> <span class="punctuation">{</span>
+<span class="keyword">public</span><span class="operator">:</span>
+    <span class="name">Vertex</span><span class="punctuation">()</span> <span class="punctuation">{}</span>
 
-    class Vertex {
-    public:
-        Vertex() {}
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="comment multiline">/* index */</span><span class="punctuation">)</span> <span class="punctuation">{}</span>
 
-        Vertex(int /* index */) {}
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="comment multiline">/* src */</span><span class="punctuation">)</span> <span class="punctuation">{}</span>
 
-        Vertex(Vertex const &amp; /* src */) {}
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="comment multiline">/* i */</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="comment multiline">/* weight */</span><span class="punctuation">,</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">)</span> <span class="punctuation">{}</span>
 
-        void AddWithWeight(Vertex const &amp; /* i */, float /* weight */, void * = 0) {}
+    <span class="keyword type">void</span> <span class="name">AddVaryingWithWeight</span><span class="punctuation">(</span><span class="keyword">const</span> <span class="name">Vertex</span> <span class="operator">&amp;</span> <span class="comment multiline">/* i */</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="comment multiline">/* weight */</span><span class="punctuation">,</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">)</span> <span class="punctuation">{}</span>
 
-        void AddVaryingWithWeight(const Vertex &amp; /* i */, float /* weight */, void * = 0) {}
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span><span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">)</span> <span class="punctuation">{}</span>
 
-        void Clear(void * = 0) {}
-
-        void ApplyVertexEdit(FarVertexEdit const &amp;) { }
-    };
-
-
-
+    <span class="keyword type">void</span> <span class="name">ApplyVertexEdit</span><span class="punctuation">(</span><span class="name">FarVertexEdit</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
+<span class="punctuation">};</span>
 </pre>
-</div>
 </div>
 <div class="section" id="creating-a-mesh">
 <h3>Creating a Mesh</h3>
@@ -332,18 +316,11 @@ coverage for the complete Renderman specification though.</p>
 <p>The scheme is selected by passing an specialized instance of <em>HbrSubdivision&lt;T&gt;</em>,
 <em>HbrCatmarkSubdivision&lt;T&gt;</em> in this case. The scheme can be shared across multiple
 mesh objects, so we only need a single instance.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 165)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword">static</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrCatmarkSubdivision</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="name">_scheme</span><span class="punctuation">;</span>
 
-    static OpenSubdiv::HbrCatmarkSubdivision&lt;Vertex&gt; _scheme;
-
-    OpenSubdiv::HbrMesh&lt;Vertex&gt; * mesh = new OpenSubdiv::HbrMesh&lt;Vertex&gt;( _scheme );
-
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrMesh</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">mesh</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrMesh</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span><span class="punctuation">(</span> <span class="name">_scheme</span> <span class="punctuation">);</span>
 </pre>
-</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="creating-vertices">
@@ -352,21 +329,14 @@ mesh objects, so we only need a single instance.</p>
 <p>Because <strong>Hbr</strong> uses a dedicated vertex allocator to help alleviate the performance
 impact of intensive fragmented memory allocations. This optimization results in
 the following design pattern:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 182)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="name">Vertex</span> <span class="name">vtx</span><span class="punctuation">;</span>
+<span class="keyword">for</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span><span class="name">i</span><span class="operator">&lt;</span><span class="name">numVerts</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">++</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="name">Vertex</span> <span class="operator">*</span> <span class="name">v</span> <span class="operator">=</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">NewVertex</span><span class="punctuation">(</span> <span class="name">i</span><span class="punctuation">,</span> <span class="name">vtx</span><span class="punctuation">);</span>
 
-    Vertex vtx;
-    for(int i=0;i&lt;numVerts; i++ ) {
-        Vertex * v = mesh-&gt;NewVertex( i, vtx);
-
-        // v-&gt;SetPosition();
-    }
-
+    <span class="comment single">// v-&gt;SetPosition();
+</span><span class="punctuation">}</span>
 </pre>
-</div>
 <p>We instantiate a single &quot;default&quot; vertex object named 'vtx' on the stack. We then
 recover the pointer to the actual vertex created in the mesh from the NewVertex()
 method. Once we have recovered that pointer, we can set the data for our vertex
@@ -378,115 +348,85 @@ by using any of the custom accessors.</p>
 <p>Once all the vertices have been registered in the mesh, we can start adding the
 faces with <em>HbrMesh::NewFace()</em>. Assuming we had an <em>obj</em> style reader, we need
 to know the number of vertices in the face and the indices of these vertices.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 205)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">f</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">f</span><span class="operator">&lt;</span><span class="name">numFaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">f</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-    for (int f=0; f&lt;numFaces; ++f) {
+    <span class="keyword type">int</span> <span class="name">nverts</span> <span class="operator">=</span> <span class="name">obj</span><span class="operator">-&gt;</span><span class="name">GetNumVertices</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">);</span>
 
-        int nverts = obj-&gt;GetNumVertices(f);
+    <span class="keyword">const</span> <span class="keyword type">int</span> <span class="operator">*</span> <span class="name">faceverts</span> <span class="operator">=</span> <span class="name">obj</span><span class="operator">-&gt;</span><span class="name">GetFaceVerts</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">);</span>
 
-        const int * faceverts = obj-&gt;GetFaceVerts(f);
-
-        mesh-&gt;NewFace(nv, fv, 0);
-    }
-
+    <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">NewFace</span><span class="punctuation">(</span><span class="name">nv</span><span class="punctuation">,</span> <span class="name">fv</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
 </pre>
-</div>
 <p>However, currently <strong>Hbr</strong> is not able to handle <a class="reference external" href="subdivision_surfaces.html#manifold-geometry">non-manifold</a>
 geometry. In order to avoid tripping asserts or causing memory violations, let's
 rewrite the previous loop with some some prototype code to check the validity of
 the topology.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 221)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">f</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">f</span><span class="operator">&lt;</span><span class="name">numFaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">f</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-    for (int f=0; f&lt;numFaces; ++f) {
+    <span class="keyword type">int</span> <span class="name">nv</span> <span class="operator">=</span> <span class="name">obj</span><span class="operator">-&gt;</span><span class="name">GetNumVertices</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">);</span>
 
-        int nv = obj-&gt;GetNumVertices(f);
+    <span class="keyword">const</span> <span class="keyword type">int</span> <span class="operator">*</span> <span class="name">fv</span> <span class="operator">=</span> <span class="name">obj</span><span class="operator">-&gt;</span><span class="name">GetFaceVerts</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">);</span>
 
-        const int * fv = obj-&gt;GetFaceVerts(f);
+    <span class="comment single">// triangles only for Loop subdivision !
+</span>    <span class="keyword">if</span> <span class="punctuation">((</span><span class="name">scheme</span><span class="operator">==</span><span class="name">kLoop</span><span class="punctuation">)</span> <span class="name">and</span> <span class="punctuation">(</span><span class="name">nv</span><span class="operator">!=</span><span class="literal number integer">3</span><span class="punctuation">))</span> <span class="punctuation">{</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;Trying to create a Loop subd with non-triangle face</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+        <span class="keyword">continue</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        // triangles only for Loop subdivision !
-        if ((scheme==kLoop) and (nv!=3)) {
-            printf(&quot;Trying to create a Loop subd with non-triangle face\n&quot;);
-            continue;
-        }
+    <span class="comment single">// now check the half-edges connectivity
+</span>    <span class="keyword">for</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">j</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span><span class="name">j</span><span class="operator">&lt;</span><span class="name">nv</span><span class="punctuation">;</span><span class="name">j</span><span class="operator">++</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertex</span><span class="operator">&lt;</span><span class="name">T</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">origin</span>      <span class="operator">=</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span> <span class="name">fv</span><span class="punctuation">[</span><span class="name">j</span><span class="punctuation">]</span> <span class="punctuation">);</span>
+        <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertex</span><span class="operator">&lt;</span><span class="name">T</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">destination</span> <span class="operator">=</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span> <span class="name">fv</span><span class="punctuation">[(</span><span class="name">j</span><span class="operator">+</span><span class="literal number integer">1</span><span class="punctuation">)</span><span class="operator">%</span><span class="name">nv</span><span class="punctuation">]</span> <span class="punctuation">);</span>
+        <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHalfedge</span><span class="operator">&lt;</span><span class="name">T</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">opposite</span>  <span class="operator">=</span> <span class="name">destination</span><span class="operator">-&gt;</span><span class="name">GetEdge</span><span class="punctuation">(</span><span class="name">origin</span><span class="punctuation">);</span>
 
-        // now check the half-edges connectivity
-        for(int j=0;j&lt;nv;j++) {
-            OpenSubdiv::HbrVertex&lt;T&gt; * origin      = mesh-&gt;GetVertex( fv[j] );
-            OpenSubdiv::HbrVertex&lt;T&gt; * destination = mesh-&gt;GetVertex( fv[(j+1)%nv] );
-            OpenSubdiv::HbrHalfedge&lt;T&gt; * opposite  = destination-&gt;GetEdge(origin);
+        <span class="keyword">if</span><span class="punctuation">(</span><span class="name">origin</span><span class="operator">==</span><span class="name builtin">NULL</span> <span class="operator">||</span> <span class="name">destination</span><span class="operator">==</span><span class="name builtin">NULL</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; An edge was specified that connected a nonexistent vertex</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+            <span class="keyword">continue</span><span class="punctuation">;</span>
+        <span class="punctuation">}</span>
 
-            if(origin==NULL || destination==NULL) {
-                printf(&quot; An edge was specified that connected a nonexistent vertex\n&quot;);
-                continue;
-            }
+        <span class="keyword">if</span><span class="punctuation">(</span><span class="name">origin</span> <span class="operator">==</span> <span class="name">destination</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; An edge was specified that connected a vertex to itself</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+            <span class="keyword">continue</span><span class="punctuation">;</span>
+        <span class="punctuation">}</span>
 
-            if(origin == destination) {
-                printf(&quot; An edge was specified that connected a vertex to itself\n&quot;);
-                continue;
-            }
+        <span class="keyword">if</span><span class="punctuation">(</span><span class="name">opposite</span> <span class="operator">&amp;&amp;</span> <span class="name">opposite</span><span class="operator">-&gt;</span><span class="name">GetOpposite</span><span class="punctuation">()</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; A non-manifold edge incident to more than 2 faces was found</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+            <span class="keyword">continue</span><span class="punctuation">;</span>
+        <span class="punctuation">}</span>
 
-            if(opposite &amp;&amp; opposite-&gt;GetOpposite() ) {
-                printf(&quot; A non-manifold edge incident to more than 2 faces was found\n&quot;);
-                continue;
-            }
+        <span class="keyword">if</span><span class="punctuation">(</span><span class="name">origin</span><span class="operator">-&gt;</span><span class="name">GetEdge</span><span class="punctuation">(</span><span class="name">destination</span><span class="punctuation">))</span> <span class="punctuation">{</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; An edge connecting two vertices was specified more than once.&quot;</span>
+                   <span class="literal string">&quot; It's likely that an incident face was flipped</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+            <span class="keyword">continue</span><span class="punctuation">;</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
 
-            if(origin-&gt;GetEdge(destination)) {
-                printf(&quot; An edge connecting two vertices was specified more than once.&quot;
-                       &quot; It's likely that an incident face was flipped\n&quot;);
-                continue;
-            }
-        }
-
-        mesh-&gt;NewFace(nv, fv, 0);
-    }
-
+    <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">NewFace</span><span class="punctuation">(</span><span class="name">nv</span><span class="punctuation">,</span> <span class="name">fv</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
 </pre>
-</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="wrapping-things-up">
 <h4>Wrapping Things Up</h4>
 <p>Once we have vertices and faces set in our mesh, we still need to wrap things up
 by calling <em>HbrMesh::Finish()</em>:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 274)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    mesh-&gt;Finish()
-
+<pre class="code c++ literal-block">
+<span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">Finish</span><span class="punctuation">()</span>
 </pre>
-</div>
 <p><em>Finish</em> iterates over the mesh to apply the boundary interpolation rules and
 checks for singular vertices. At this point, there is one final topology check
 remaining to validate the mesh:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 282)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">Finish</span><span class="punctuation">()</span>
 
-    mesh-&gt;Finish()
+<span class="keyword">if</span> <span class="punctuation">(</span><span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetNumDisconnectedVertices</span><span class="punctuation">())</span> <span class="punctuation">{</span>
+    <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;The specified subdivmesh contains disconnected surface components.</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
 
-    if (mesh-&gt;GetNumDisconnectedVertices()) {
-        printf(&quot;The specified subdivmesh contains disconnected surface components.\n&quot;);
-
-        // abort or iterate over the mesh to remove the offending vertices
-    }
-
-
-
+    <span class="comment single">// abort or iterate over the mesh to remove the offending vertices
+</span><span class="punctuation">}</span>
 </pre>
-</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -494,28 +434,13 @@ remaining to validate the mesh:</p>
 <h3>Boundary Interpolation Rules</h3>
 <p>The rule-set can be selected using the following accessors:</p>
 <p><em>Vertex</em> and <em>varying</em> data:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 303)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    mesh-&gt;SetInterpolateBoundaryMethod( OpenSubdiv::HbrMesh&lt;Vertex&gt;::k_InterpolateBoundaryEdgeOnly );
-
+<pre class="code c++ literal-block">
+<span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">SetInterpolateBoundaryMethod</span><span class="punctuation">(</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrMesh</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;::</span><span class="name">k_InterpolateBoundaryEdgeOnly</span> <span class="punctuation">);</span>
 </pre>
-</div>
 <p><em>Face-varying</em> data:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 309)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    mesh-&gt;SetFVarInterpolateBoundaryMethod( OpenSubdiv::HbrMesh&lt;Vertex&gt;::k_InterpolateBoundaryEdgeOnly );
-
-
+<pre class="code c++ literal-block">
+<span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">SetFVarInterpolateBoundaryMethod</span><span class="punctuation">(</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrMesh</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;::</span><span class="name">k_InterpolateBoundaryEdgeOnly</span> <span class="punctuation">);</span>
 </pre>
-</div>
 <p>Additional information on boundary interpolation rules can be found
 <a class="reference external" href="subdivision_surfaces.html#boundary-interpolation-rules">here</a> and
 <a class="reference external" href="hbr_overview.html#boundary-interpolation-rules">here</a></p>
@@ -534,82 +459,58 @@ and vertices based on these rules.</p>
 <div class="section" id="vertex-creases">
 <h4>Vertex Creases</h4>
 <p>Given an index, vertices are very easy to access in the mesh.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 341)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword type">int</span> <span class="name">idx</span><span class="punctuation">;</span>     <span class="comment single">// vertex index
+</span><span class="keyword type">float</span> <span class="name">sharp</span><span class="punctuation">;</span> <span class="comment single">// the edge sharpness
+</span>
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertex</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">v</span> <span class="operator">=</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span> <span class="name">idx</span> <span class="punctuation">);</span>
 
-    int idx;     // vertex index
-    float sharp; // the edge sharpness
-
-    OpenSubdiv::HbrVertex&lt;Vertex&gt; * v = mesh-&gt;GetVertex( idx );
-
-    if(v) {
-        v-&gt;SetSharpness( std::max(0.0f, sharp) );
-    } else
-       printf(&quot;cannot find vertex for corner tag (%d)\n&quot;, idx );
-
+<span class="keyword">if</span><span class="punctuation">(</span><span class="name">v</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="name">v</span><span class="operator">-&gt;</span><span class="name">SetSharpness</span><span class="punctuation">(</span> <span class="name">std</span><span class="operator">::</span><span class="name">max</span><span class="punctuation">(</span><span class="literal number float">0.0f</span><span class="punctuation">,</span> <span class="name">sharp</span><span class="punctuation">)</span> <span class="punctuation">);</span>
+<span class="punctuation">}</span> <span class="keyword">else</span>
+   <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;cannot find vertex for corner tag (%d)</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">idx</span> <span class="punctuation">);</span>
 </pre>
-</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="edge-creases">
 <h4>Edge Creases</h4>
 <p>Usually, edge creases are described with a vertex indices pair. Here is some
 sample code to locate the matching half-edge and set a crease sharpness.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 361)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword type">int</span> <span class="name">v0</span><span class="punctuation">,</span> <span class="name">v1</span><span class="punctuation">;</span>  <span class="comment single">// vertex indices
+</span><span class="keyword type">float</span> <span class="name">sharp</span><span class="punctuation">;</span> <span class="comment single">// the edge sharpness
+</span>
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertex</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">v</span> <span class="operator">=</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span> <span class="name">v0</span> <span class="punctuation">),</span>
+                              <span class="operator">*</span> <span class="name">w</span> <span class="operator">=</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span> <span class="name">v1</span> <span class="punctuation">);</span>
 
-    int v0, v1;  // vertex indices
-    float sharp; // the edge sharpness
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHalfedge</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">e</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span>
 
-    OpenSubdiv::HbrVertex&lt;Vertex&gt; * v = mesh-&gt;GetVertex( v0 ),
-                                  * w = mesh-&gt;GetVertex( v1 );
+<span class="keyword">if</span><span class="punctuation">(</span> <span class="name">v</span> <span class="operator">&amp;&amp;</span> <span class="name">w</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
 
-    OpenSubdiv::HbrHalfedge&lt;Vertex&gt; * e = 0;
+    <span class="keyword">if</span><span class="punctuation">((</span><span class="name">e</span> <span class="operator">=</span> <span class="name">v</span><span class="operator">-&gt;</span><span class="name">GetEdge</span><span class="punctuation">(</span><span class="name">w</span><span class="punctuation">))</span> <span class="operator">==</span> <span class="literal number integer">0</span><span class="punctuation">)</span>
+        <span class="name">e</span> <span class="operator">=</span> <span class="name">w</span><span class="operator">-&gt;</span><span class="name">GetEdge</span><span class="punctuation">(</span><span class="name">v</span><span class="punctuation">);</span>
 
-    if( v &amp;&amp; w ) {
-
-        if((e = v-&gt;GetEdge(w)) == 0)
-            e = w-&gt;GetEdge(v);
-
-        if(e) {
-            e-&gt;SetSharpness( std::max(0.0f, sharp) );
-        } else
-           printf(&quot;cannot find edge for crease tag (%d,%d)\n&quot;, v0, v1 );
-    }
-
-
+    <span class="keyword">if</span><span class="punctuation">(</span><span class="name">e</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">e</span><span class="operator">-&gt;</span><span class="name">SetSharpness</span><span class="punctuation">(</span> <span class="name">std</span><span class="operator">::</span><span class="name">max</span><span class="punctuation">(</span><span class="literal number float">0.0f</span><span class="punctuation">,</span> <span class="name">sharp</span><span class="punctuation">)</span> <span class="punctuation">);</span>
+    <span class="punctuation">}</span> <span class="keyword">else</span>
+       <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;cannot find edge for crease tag (%d,%d)</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">v0</span><span class="punctuation">,</span> <span class="name">v1</span> <span class="punctuation">);</span>
+<span class="punctuation">}</span>
 </pre>
-</div>
 </div>
 </div>
 <hr class="docutils" />
 <div class="section" id="holes">
 <h3>Holes</h3>
 <p><strong>Hbr</strong> faces support a &quot;hole&quot; tag.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 390)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    int idx; // the face index
-
-    OpenSubdiv::HbrFace&lt;Vertex&gt; * f = mesh-&gt;GetFace( idx );
-    if(f) {
-        f-&gt;SetHole();
-    } else
-       printf(&quot;cannot find face for hole tag (%d)\n&quot;, idx );
-
-
-
+<pre class="code c++ literal-block">
+<span class="keyword type">int</span> <span class="name">idx</span><span class="punctuation">;</span> <span class="comment single">// the face index
+</span>
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrFace</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">f</span> <span class="operator">=</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetFace</span><span class="punctuation">(</span> <span class="name">idx</span> <span class="punctuation">);</span>
+<span class="keyword">if</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="name">f</span><span class="operator">-&gt;</span><span class="name">SetHole</span><span class="punctuation">();</span>
+<span class="punctuation">}</span> <span class="keyword">else</span>
+   <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;cannot find face for hole tag (%d)</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">idx</span> <span class="punctuation">);</span>
 </pre>
-</div>
 <div class="note container">
 <p><strong>Note</strong></p>
 <p>The hole tag is hierarchical : sub-faces can also be marked as holes.</p>
@@ -671,41 +572,34 @@ sample code to locate the matching half-edge and set a crease sharpness.</p>
 </table>
 <p>Here is a simple example that creates a hierarchical vertex edit that corresponds
 to <a class="reference external" href="subdivision_surfaces.html#hierarchical-edits-paths">this example</a>.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 448)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="comment single">// path = 655, 2, 3, 0
+</span><span class="keyword type">int</span> <span class="name">faceid</span> <span class="operator">=</span> <span class="literal number integer">655</span><span class="punctuation">,</span>
+    <span class="name">nsubfaces</span> <span class="operator">=</span> <span class="literal number integer">2</span><span class="punctuation">,</span>
+    <span class="name">subfaces</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">3</span> <span class="punctuation">},</span>
+    <span class="name">vertexid</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">;</span>
 
-    // path = 655, 2, 3, 0
-    int faceid = 655,
-        nsubfaces = 2,
-        subfaces[2] = { 2, 3 },
-        vertexid = 0;
+<span class="keyword type">int</span> <span class="name">offset</span> <span class="operator">=</span> <span class="literal number integer">0</span><span class="punctuation">,</span>       <span class="comment single">// offset to the vertex or varying data
+</span>    <span class="name">numElems</span> <span class="operator">=</span> <span class="literal number integer">3</span><span class="punctuation">;</span>     <span class="comment single">// number of elements to apply the modifier to (x,y,z = 3)
+</span>
+<span class="keyword type">bool</span> <span class="name">isP</span> <span class="operator">=</span> <span class="name builtin">false</span><span class="punctuation">;</span>     <span class="comment single">// shortcut to identify modifications to the vertex position &quot;P&quot;
+</span>
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHierarchicalEdit</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;::</span><span class="name">Operation</span> <span class="name">op</span> <span class="operator">=</span>
+     <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHierarchicalEdit</span><span class="operator">&lt;</span><span class="name">T</span><span class="operator">&gt;::</span><span class="name">Set</span><span class="punctuation">;</span>
 
-    int offset = 0,       // offset to the vertex or varying data
-        numElems = 3;     // number of elements to apply the modifier to (x,y,z = 3)
-
-    bool isP = false;     // shortcut to identify modifications to the vertex position &quot;P&quot;
-
-    OpenSubdiv::HbrHierarchicalEdit&lt;Vertex&gt;::Operation op =
-         OpenSubdiv::HbrHierarchicalEdit&lt;T&gt;::Set;
-
-    float values[3] = { 1.0f, 0.5f, 0.0f }; // edit values
-
-    OpenSubdiv::HbrVertexEdit&lt;T&gt; * edit =
-         new OpenSubdiv::HbrVertexEdit&lt;T&gt;(faceid,
-                                          nsubfaces,
-                                          subfaces,
-                                          vertexid,
-                                          offset,
-                                          floatwidth,
-                                          isP,
-                                          op,
-                                          values);
-
+<span class="keyword type">float</span> <span class="name">values</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number float">1.0f</span><span class="punctuation">,</span> <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="literal number float">0.0f</span> <span class="punctuation">};</span> <span class="comment single">// edit values
+</span>
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertexEdit</span><span class="operator">&lt;</span><span class="name">T</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">edit</span> <span class="operator">=</span>
+     <span class="keyword">new</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertexEdit</span><span class="operator">&lt;</span><span class="name">T</span><span class="operator">&gt;</span><span class="punctuation">(</span><span class="name">faceid</span><span class="punctuation">,</span>
+                                      <span class="name">nsubfaces</span><span class="punctuation">,</span>
+                                      <span class="name">subfaces</span><span class="punctuation">,</span>
+                                      <span class="name">vertexid</span><span class="punctuation">,</span>
+                                      <span class="name">offset</span><span class="punctuation">,</span>
+                                      <span class="name">floatwidth</span><span class="punctuation">,</span>
+                                      <span class="name">isP</span><span class="punctuation">,</span>
+                                      <span class="name">op</span><span class="punctuation">,</span>
+                                      <span class="name">values</span><span class="punctuation">);</span>
 </pre>
-</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="face-varying-data">
@@ -717,72 +611,57 @@ API, face-varying data is directly aggregated as vectors of float data.</p>
 <h4>Instantiating the <em>HbrMesh</em></h4>
 <p>The <em>HbrMesh</em> needs to retain some knowledge about the face-varying data that it
 carries in order to refine it correctly.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 493)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword type">int</span> <span class="name">fvarwidth</span> <span class="operator">=</span> <span class="literal number integer">2</span><span class="punctuation">;</span> <span class="comment single">// total width of the fvar data
+</span>
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">indices</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span> <span class="punctuation">},</span> <span class="comment single">// 1 offset set to 0
+</span>           <span class="name">widths</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">2</span> <span class="punctuation">};</span>  <span class="comment single">// 2 floats in a (u,v) pair
+</span>
+<span class="keyword type">int</span> <span class="keyword">const</span>   <span class="name">fvarcount</span>   <span class="operator">=</span> <span class="name">fvarwidth</span> <span class="operator">&gt;</span> <span class="literal number integer">0</span> <span class="operator">?</span> <span class="literal number integer">1</span> <span class="operator">:</span> <span class="literal number integer">0</span><span class="punctuation">,</span>
+          <span class="operator">*</span> <span class="name">fvarindices</span> <span class="operator">=</span> <span class="name">fvarwidth</span> <span class="operator">&gt;</span> <span class="literal number integer">0</span> <span class="operator">?</span> <span class="name label">indices</span> <span class="punctuation">:</span> <span class="name builtin">NULL</span><span class="punctuation">,</span>
+          <span class="operator">*</span> <span class="name">fvarwidths</span>  <span class="operator">=</span> <span class="name">fvarwidth</span> <span class="operator">&gt;</span> <span class="literal number integer">0</span> <span class="operator">?</span> <span class="name label">widths</span> <span class="punctuation">:</span> <span class="name builtin">NULL</span><span class="punctuation">;</span>
 
-    int fvarwidth = 2; // total width of the fvar data
-
-    static int indices[1] = { 0 }, // 1 offset set to 0
-               widths[1] = { 2 };  // 2 floats in a (u,v) pair
-
-    int const   fvarcount   = fvarwidth &gt; 0 ? 1 : 0,
-              * fvarindices = fvarwidth &gt; 0 ? indices : NULL,
-              * fvarwidths  = fvarwidth &gt; 0 ? widths : NULL;
-
-    mesh = new OpenSubdiv::HbrMesh&lt;T&gt;( &amp;_scheme,
-                                       fvarcount,
-                                       fvarindices,
-                                       fvarwidths,
-                                       fvarwidth );
-
+<span class="name">mesh</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrMesh</span><span class="operator">&lt;</span><span class="name">T</span><span class="operator">&gt;</span><span class="punctuation">(</span> <span class="operator">&amp;</span><span class="name">_scheme</span><span class="punctuation">,</span>
+                                   <span class="name">fvarcount</span><span class="punctuation">,</span>
+                                   <span class="name">fvarindices</span><span class="punctuation">,</span>
+                                   <span class="name">fvarwidths</span><span class="punctuation">,</span>
+                                   <span class="name">fvarwidth</span> <span class="punctuation">);</span>
 </pre>
-</div>
 </div>
 <div class="section" id="setting-the-face-varying-data">
 <h4>Setting the Face-Varying Data</h4>
 <p>After the topology has been created, <strong>Hbr</strong> is ready to accept face-varying data.
 Here is some sample code:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 516)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">,</span> <span class="name">idx</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">numFaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
 
-    for (int i=0, idx=0; i&lt;numFaces; ++i ) {
+    <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrFace</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">f</span> <span class="operator">=</span> <span class="name">mesh</span><span class="operator">-&gt;</span><span class="name">GetFace</span><span class="punctuation">(</span><span class="name">i</span><span class="punctuation">);</span>
 
-        OpenSubdiv::HbrFace&lt;Vertex&gt; * f = mesh-&gt;GetFace(i);
+    <span class="keyword type">int</span> <span class="name">nv</span> <span class="operator">=</span> <span class="name">f</span><span class="operator">-&gt;</span><span class="name">GetNumVertices</span><span class="punctuation">();</span> <span class="comment single">// note: this is not the fastest way
+</span>
+    <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHalfedge</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">e</span> <span class="operator">=</span> <span class="name">f</span><span class="operator">-&gt;</span><span class="name">GetFirstEdge</span><span class="punctuation">();</span>
 
-        int nv = f-&gt;GetNumVertices(); // note: this is not the fastest way
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">j</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">j</span><span class="operator">&lt;</span><span class="name">nv</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">j</span><span class="punctuation">,</span> <span class="name">e</span><span class="operator">=</span><span class="name">e</span><span class="operator">-&gt;</span><span class="name">GetNext</span><span class="punctuation">())</span> <span class="punctuation">{</span>
 
-        OpenSubdiv::HbrHalfedge&lt;Vertex&gt; * e = f-&gt;GetFirstEdge();
+        <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrFVarData</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">&amp;</span> <span class="name">fvt</span> <span class="operator">=</span> <span class="name">e</span><span class="operator">-&gt;</span><span class="name">GetOrgVertex</span><span class="punctuation">()</span><span class="operator">-&gt;</span><span class="name">GetFVarData</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">);</span>
 
-        for (int j=0; j&lt;nv; ++j, e=e-&gt;GetNext()) {
+        <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">fvdata</span> <span class="operator">=</span> <span class="name">GetFaceVaryingData</span><span class="punctuation">(</span> <span class="name">i</span><span class="punctuation">,</span> <span class="name">j</span> <span class="punctuation">);</span>
 
-            OpenSubdiv::HbrFVarData&lt;Vertex&gt; &amp; fvt = e-&gt;GetOrgVertex()-&gt;GetFVarData(f);
+        <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">not</span> <span class="name">fvt</span><span class="punctuation">.</span><span class="name">IsInitialized</span><span class="punctuation">())</span> <span class="punctuation">{</span>
 
-            float const * fvdata = GetFaceVaryingData( i, j );
+            <span class="comment single">// if no fvar daa exists yet on the vertex
+</span>            <span class="name">fvt</span><span class="punctuation">.</span><span class="name">SetAllData</span><span class="punctuation">(</span><span class="literal number integer">2</span><span class="punctuation">,</span> <span class="name">fvdata</span><span class="punctuation">);</span>
 
-            if (not fvt.IsInitialized()) {
+        <span class="punctuation">}</span> <span class="keyword">else</span> <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">not</span> <span class="name">fvt</span><span class="punctuation">.</span><span class="name">CompareAll</span><span class="punctuation">(</span><span class="literal number integer">2</span><span class="punctuation">,</span> <span class="name">fvdata</span><span class="punctuation">))</span> <span class="punctuation">{</span>
 
-                // if no fvar daa exists yet on the vertex
-                fvt.SetAllData(2, fvdata);
+            <span class="comment single">// if there already is fvar data and there is a boundary add the new data
+</span>            <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrFVarData</span><span class="operator">&lt;</span><span class="name">T</span><span class="operator">&gt;</span> <span class="operator">&amp;</span> <span class="name">nfvt</span> <span class="operator">=</span> <span class="name">e</span><span class="operator">-&gt;</span><span class="name">GetOrgVertex</span><span class="punctuation">()</span><span class="operator">-&gt;</span><span class="name">NewFVarData</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">);</span>
+            <span class="name">nfvt</span><span class="punctuation">.</span><span class="name">SetAllData</span><span class="punctuation">(</span><span class="literal number integer">2</span><span class="punctuation">,</span> <span class="name">fvdata</span><span class="punctuation">);</span>
 
-            } else if (not fvt.CompareAll(2, fvdata)) {
-
-                // if there already is fvar data and there is a boundary add the new data
-                OpenSubdiv::HbrFVarData&lt;T&gt; &amp; nfvt = e-&gt;GetOrgVertex()-&gt;NewFVarData(f);
-                nfvt.SetAllData(2, fvdata);
-
-            }
-        }
-    }
-
-
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
 </pre>
-</div>
 </div>
 <div class="section" id="retrieving-the-face-varying-data">
 <h4>Retrieving the Face-Varying Data</h4>
@@ -790,37 +669,21 @@ Here is some sample code:</p>
 sub-face being assigned a set of interpolated face-varying data. This data can be
 accessed in 2 ways :</p>
 <p>From a face, passing a vertex index:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 557)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="comment single">// OpenSubdiv::HbrFace&lt;Vertex&gt; * f
+</span>
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrFVarData</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="name">fv</span> <span class="operator">=</span> <span class="name">f</span><span class="punctuation">.</span><span class="name">GetFVarData</span><span class="punctuation">(</span><span class="name">vindex</span><span class="punctuation">);</span>
 
-    // OpenSubdiv::HbrFace&lt;Vertex&gt; * f
-
-    OpenSubdiv::HbrFVarData const &amp;fv = f.GetFVarData(vindex);
-
-    const float * data = fv.GetData()
-
-
+<span class="keyword">const</span> <span class="keyword type">float</span> <span class="operator">*</span> <span class="name">data</span> <span class="operator">=</span> <span class="name">fv</span><span class="punctuation">.</span><span class="name">GetData</span><span class="punctuation">()</span>
 </pre>
-</div>
 <p>From a vertex, passing a pointer to an incident face:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 568)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="comment single">// OpenSubdiv::HbrFace&lt;Vertex&gt; * f
+</span>
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrFVarData</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="name">fv</span> <span class="operator">=</span> <span class="name">myVertex</span><span class="punctuation">.</span><span class="name">GetFVarData</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">);</span>
 
-    // OpenSubdiv::HbrFace&lt;Vertex&gt; * f
-
-    OpenSubdiv::HbrFVarData const &amp;fv = myVertex.GetFVarData(f);
-
-    const float * data = fv.GetData()
-
-
+<span class="keyword">const</span> <span class="keyword type">float</span> <span class="operator">*</span> <span class="name">data</span> <span class="operator">=</span> <span class="name">fv</span><span class="punctuation">.</span><span class="name">GetData</span><span class="punctuation">()</span>
 </pre>
-</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -831,32 +694,25 @@ or vertices. Rather than gather lists of pointers and return them, Hbr exposes
 an operator pattern that guarantees consistent mesh traversals.</p>
 <p>The following example shows how to use an operator to count the number of neighboring
 vertices (use HbrVertex::GetValence() for proper valence counts)</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 589)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="comment single">//OpenSubdiv::HbrVertex&lt;Vertex&gt; * v;
+</span>
+<span class="keyword">class</span> <span class="name class">MyOperator</span> <span class="operator">:</span> <span class="keyword">public</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertexOperator</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="punctuation">{</span>
 
-    //OpenSubdiv::HbrVertex&lt;Vertex&gt; * v;
+<span class="keyword">public</span><span class="operator">:</span>
+    <span class="keyword type">int</span> <span class="name">count</span><span class="punctuation">;</span>
 
-    class MyOperator : public OpenSubdiv::HbrVertexOperator&lt;Vertex&gt; {
+    <span class="name">MyOperator</span><span class="punctuation">()</span> <span class="operator">:</span> <span class="name">count</span><span class="punctuation">(</span><span class="literal number integer">0</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-    public:
-        int count;
+    <span class="keyword">virtual</span> <span class="keyword type">void</span> <span class="keyword">operator</span><span class="punctuation">()</span> <span class="punctuation">(</span><span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertex</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">&amp;</span><span class="name">v</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="operator">++</span><span class="name">count</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">};</span>
 
-        MyOperator() : count(0) { }
+<span class="name">MyOperator</span> <span class="name">op</span><span class="punctuation">;</span>
 
-        virtual void operator() (OpenSubdiv::HbrVertex&lt;Vertex&gt; &amp;v) {
-            ++count;
-        }
-    };
-
-    MyOperator op;
-
-    v-&gt;ApplyOperatorSurroundingVertices( op );
-
+<span class="name">v</span><span class="operator">-&gt;</span><span class="name">ApplyOperatorSurroundingVertices</span><span class="punctuation">(</span> <span class="name">op</span> <span class="punctuation">);</span>
 </pre>
-</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="managing-singular-vertices">
@@ -868,32 +724,26 @@ instantiation.</p>
 <p>These duplicated vertices can cause problems for client-code that tries to
 populate buffers of vertex or varying data. The following sample code shows
 how to match the vertex data to singular vertex splits:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/using_osd_hbr.rst</tt>, line 623)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="comment single">// Populating an OsdCpuVertexBuffer with vertex data (positions,...)
+</span><span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">vtxData</span> <span class="operator">=</span> <span class="name">inMeshFn</span><span class="punctuation">.</span><span class="name">getRawPoints</span><span class="punctuation">(</span><span class="operator">&amp;</span><span class="name">returnStatus</span><span class="punctuation">);</span>
 
-    // Populating an OsdCpuVertexBuffer with vertex data (positions,...)
-    float const * vtxData = inMeshFn.getRawPoints(&amp;returnStatus);
+<span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">OsdCpuVertexBuffer</span> <span class="operator">*</span><span class="name">vertexBuffer</span> <span class="operator">=</span>
+    <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">OsdCpuVertexBuffer</span><span class="operator">::</span><span class="name">Create</span><span class="punctuation">(</span><span class="name">numVertexElements</span><span class="punctuation">,</span> <span class="name">numFarVerts</span><span class="punctuation">);</span>
 
-    OpenSubdiv::OsdCpuVertexBuffer *vertexBuffer =
-        OpenSubdiv::OsdCpuVertexBuffer::Create(numVertexElements, numFarVerts);
+<span class="name">vertexBuffer</span><span class="operator">-&gt;</span><span class="name">UpdateData</span><span class="punctuation">(</span><span class="name">vtxData</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="name">numVertices</span> <span class="punctuation">);</span>
 
-    vertexBuffer-&gt;UpdateData(vtxData, 0, numVertices );
-
-    // Duplicate the vertex data into the split singular vertices
-    std::vector&lt;std::pair&lt;int, int&gt; &gt; const splits = hbrMesh-&gt;GetSplitVertices();
-    for (int i=0; i&lt;(int)splits.size(); ++i) {
-        vertexBuffer-&gt;UpdateData(vtxData+splits[i].second*numVertexElements, splits[i].first, 1);
-    }
+<span class="comment single">// Duplicate the vertex data into the split singular vertices
+</span><span class="name">std</span><span class="operator">::</span><span class="name">vector</span><span class="operator">&lt;</span><span class="name">std</span><span class="operator">::</span><span class="name">pair</span><span class="operator">&lt;</span><span class="keyword type">int</span><span class="punctuation">,</span> <span class="keyword type">int</span><span class="operator">&gt;</span> <span class="operator">&gt;</span> <span class="keyword">const</span> <span class="name">splits</span> <span class="operator">=</span> <span class="name">hbrMesh</span><span class="operator">-&gt;</span><span class="name">GetSplitVertices</span><span class="punctuation">();</span>
+<span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">)</span><span class="name">splits</span><span class="punctuation">.</span><span class="name">size</span><span class="punctuation">();</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="name">vertexBuffer</span><span class="operator">-&gt;</span><span class="name">UpdateData</span><span class="punctuation">(</span><span class="name">vtxData</span><span class="operator">+</span><span class="name">splits</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">second</span><span class="operator">*</span><span class="name">numVertexElements</span><span class="punctuation">,</span> <span class="name">splits</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">first</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
 </pre>
-</div>
 </div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

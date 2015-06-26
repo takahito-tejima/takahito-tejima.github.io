@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -310,17 +310,10 @@ specializations for each of the supported subdivision schemes. Mask queries
 are defined in terms of interfaces for two template parameters: the first
 defining the topological neighborhood of a vertex, and a second defining a
 container in which to gather the individual weights:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/sdc_overview.rst</tt>, line 179)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    template &lt;typename FACE, typename MASK&gt;
-    void ComputeFaceVertexMask(FACE const&amp; faceNeighborhood, MASK&amp; faceVertexMask, ...) const;
-
+<pre class="code c++ literal-block">
+<span class="keyword">template</span> <span class="operator">&lt;</span><span class="keyword">typename</span> <span class="name">FACE</span><span class="punctuation">,</span> <span class="keyword">typename</span> <span class="name">MASK</span><span class="operator">&gt;</span>
+<span class="keyword type">void</span> <span class="name">ComputeFaceVertexMask</span><span class="punctuation">(</span><span class="name">FACE</span> <span class="keyword">const</span><span class="operator">&amp;</span> <span class="name">faceNeighborhood</span><span class="punctuation">,</span> <span class="name">MASK</span><span class="operator">&amp;</span> <span class="name">faceVertexMask</span><span class="punctuation">,</span> <span class="punctuation">...)</span> <span class="keyword">const</span><span class="punctuation">;</span>
 </pre>
-</div>
 <p>Each mask query is expected to call methods defined for the <strong>FACE</strong>, <strong>EDGE</strong> or
 <strong>VERTEX</strong> classes to obtain the information they require ; typically these
 methods are simple queries about the topology and associated sharpness values.
@@ -493,7 +486,7 @@ edge -- either the vertex opposite the edge for each triangle, or its center
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

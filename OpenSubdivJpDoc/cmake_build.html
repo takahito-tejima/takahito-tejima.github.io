@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -258,109 +258,80 @@ the custom CMake modules in the OpenSubdiv/cmake/ folder.</p>
 <div class="section" id="useful-build-options">
 <h4>Useful Build Options</h4>
 <p>The following configuration arguments can be passed to the CMake command line.</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 101)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="operator">-</span><span class="name">DCMAKE_BUILD_TYPE</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">Debug</span><span class="operator">|</span><span class="name">Release</span><span class="punctuation">]</span>
 
-   -DCMAKE_BUILD_TYPE=[Debug|Release]
+<span class="operator">-</span><span class="name">DCMAKE_INSTALL_PREFIX</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">base</span> <span class="name">path</span> <span class="name">to</span> <span class="name">install</span> <span class="name">OpenSubdiv</span> <span class="punctuation">(</span><span class="keyword">default</span><span class="operator">:</span> <span class="name">Current</span> <span class="name">directory</span><span class="punctuation">)]</span>
+<span class="operator">-</span><span class="name">DCMAKE_LIBDIR_BASE</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">library</span> <span class="name">directory</span> <span class="name">basename</span> <span class="punctuation">(</span><span class="keyword">default</span><span class="operator">:</span> <span class="name">lib</span><span class="punctuation">)]</span>
 
-   -DCMAKE_INSTALL_PREFIX=[base path to install OpenSubdiv (default: Current directory)]
-   -DCMAKE_LIBDIR_BASE=[library directory basename (default: lib)]
+<span class="operator">-</span><span class="name">DCUDA_TOOLKIT_ROOT_DIR</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">CUDA</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DPTEX_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Ptex</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DGLEW_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">GLEW</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DGLFW_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">GLFW</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DMAYA_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Maya</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DTBB_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Intel</span><span class="error">'</span><span class="name">s</span> <span class="name">TBB</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DICC_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Intel</span><span class="error">'</span><span class="name">s</span> <span class="name">C</span><span class="operator">++</span> <span class="name">Studio</span> <span class="name">XE</span><span class="punctuation">]</span>
 
-   -DCUDA_TOOLKIT_ROOT_DIR=[path to CUDA]
-   -DPTEX_LOCATION=[path to Ptex]
-   -DGLEW_LOCATION=[path to GLEW]
-   -DGLFW_LOCATION=[path to GLFW]
-   -DMAYA_LOCATION=[path to Maya]
-   -DTBB_LOCATION=[path to Intel's TBB]
-   -DICC_LOCATION=[path to Intel's C++ Studio XE]
-
-   -DNO_LIB=1        // disable the opensubdiv libs build (caveat emptor)
-   -DNO_EXAMPLES=1   // disable examples build
-   -DNO_TUTORIALS=1  // disable tutorials build
-   -DNO_REGRESSION=1 // disable regression tests build
-   -DNO_MAYA=1       // disable Maya plugin build
-   -DNO_PTEX=1       // disable PTex support
-   -DNO_DOC=1        // disable documentation build
-   -DNO_OMP=1        // disable OpenMP
-   -DNO_TBB=1        // disable TBB
-   -DNO_CUDA=1       // disable CUDA
-   -DNO_OPENCL=1     // disable OpenCL
-   -DNO_OPENGL=1     // disable OpenGL
-   -DNO_CLEW=1       // disable CLEW wrapper library
-
+<span class="operator">-</span><span class="name">DNO_LIB</span><span class="operator">=</span><span class="literal number integer">1</span>        <span class="comment single">// disable the opensubdiv libs build (caveat emptor)
+</span><span class="operator">-</span><span class="name">DNO_EXAMPLES</span><span class="operator">=</span><span class="literal number integer">1</span>   <span class="comment single">// disable examples build
+</span><span class="operator">-</span><span class="name">DNO_TUTORIALS</span><span class="operator">=</span><span class="literal number integer">1</span>  <span class="comment single">// disable tutorials build
+</span><span class="operator">-</span><span class="name">DNO_REGRESSION</span><span class="operator">=</span><span class="literal number integer">1</span> <span class="comment single">// disable regression tests build
+</span><span class="operator">-</span><span class="name">DNO_MAYA</span><span class="operator">=</span><span class="literal number integer">1</span>       <span class="comment single">// disable Maya plugin build
+</span><span class="operator">-</span><span class="name">DNO_PTEX</span><span class="operator">=</span><span class="literal number integer">1</span>       <span class="comment single">// disable PTex support
+</span><span class="operator">-</span><span class="name">DNO_DOC</span><span class="operator">=</span><span class="literal number integer">1</span>        <span class="comment single">// disable documentation build
+</span><span class="operator">-</span><span class="name">DNO_OMP</span><span class="operator">=</span><span class="literal number integer">1</span>        <span class="comment single">// disable OpenMP
+</span><span class="operator">-</span><span class="name">DNO_TBB</span><span class="operator">=</span><span class="literal number integer">1</span>        <span class="comment single">// disable TBB
+</span><span class="operator">-</span><span class="name">DNO_CUDA</span><span class="operator">=</span><span class="literal number integer">1</span>       <span class="comment single">// disable CUDA
+</span><span class="operator">-</span><span class="name">DNO_OPENCL</span><span class="operator">=</span><span class="literal number integer">1</span>     <span class="comment single">// disable OpenCL
+</span><span class="operator">-</span><span class="name">DNO_OPENGL</span><span class="operator">=</span><span class="literal number integer">1</span>     <span class="comment single">// disable OpenGL
+</span><span class="operator">-</span><span class="name">DNO_CLEW</span><span class="operator">=</span><span class="literal number integer">1</span>       <span class="comment single">// disable CLEW wrapper library</span>
 </pre>
-</div>
 </div>
 <div class="section" id="environment-variables">
 <h4>Environment Variables</h4>
 <p>The paths to Maya, Ptex, GLFW, GLEW and other dependencies can also be specified
 through the following environment variables:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 136)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-   MAYA_LOCATION, PTEX_LOCATION, GLFW_LOCATION, GLEW_LOCATION
-
+<pre class="code c++ literal-block">
+<span class="name">MAYA_LOCATION</span><span class="punctuation">,</span> <span class="name">PTEX_LOCATION</span><span class="punctuation">,</span> <span class="name">GLFW_LOCATION</span><span class="punctuation">,</span> <span class="name">GLEW_LOCATION</span>
 </pre>
-</div>
 </div>
 <div class="section" id="automated-script">
 <h4>Automated Script</h4>
 <p>The GUI solution will probably become a burden for active developpers who tend to
 re-run the configuration step fairly often. A scripted solution can save a lot of
 time. Here is a typical workflow:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 147)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    git clone https://github.com/PixarAnimationStudios/OpenSubdiv.git &lt;folder&gt;
-    cd &lt;folder&gt;
-    mkdir build
-    cd build
-    source ../../cmake_setup
-
-
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">clone</span> <span class="name label">https</span><span class="punctuation">:</span><span class="comment single">//github.com/PixarAnimationStudios/OpenSubdiv.git &lt;folder&gt;
+</span><span class="name">cd</span> <span class="operator">&lt;</span><span class="name">folder</span><span class="operator">&gt;</span>
+<span class="name">mkdir</span> <span class="name">build</span>
+<span class="name">cd</span> <span class="name">build</span>
+<span class="name">source</span> <span class="punctuation">..</span><span class="operator">/</span><span class="punctuation">..</span><span class="operator">/</span><span class="name">cmake_setup</span>
 </pre>
-</div>
 <p>Where <em>cmake_setup</em> is a configuration script.</p>
 <p>Here is an example CMake configuration script for a full typical windows-based
 build that can be run in GitShell :</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 161)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
+<pre class="code c++ literal-block">
+<span class="comment preproc">#/bin/tcsh
+</span>
+<span class="comment preproc"># Replace the &quot;..&quot; with a full path to the root of the OpenSubdiv source tree if necessary
+</span><span class="literal string">&quot;c:/Program Files (x86)/CMake 2.8/bin/cmake.exe&quot;</span> \
+    <span class="operator">-</span><span class="name">G</span> <span class="literal string">&quot;Visual Studio 10 Win64&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;GLEW_LOCATION:string=c:/Program Files/glew-1.9.0&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;GLFW_LOCATION:string=c:/Program Files/glfw-2.7.7.bin.WIN64&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;OPENCL_INCLUDE_DIRS:string=c:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/OpenCL/common/inc&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;_OPENCL_CPP_INCLUDE_DIRS:string=c:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/OpenCL/common/inc&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;OPENCL_LIBRARIES:string=c:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/OpenCL/common/lib/x64/OpenCL.lib&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;MAYA_LOCATION:string=c:/Program Files/Autodesk/Maya2013.5&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;PTEX_LOCATION:string=c:/Users/opensubdiv/demo/src/ptex/x64&quot;</span> \
+    <span class="punctuation">..</span>
 
-    #/bin/tcsh
-
-    # Replace the &quot;..&quot; with a full path to the root of the OpenSubdiv source tree if necessary
-    &quot;c:/Program Files (x86)/CMake 2.8/bin/cmake.exe&quot; \
-        -G &quot;Visual Studio 10 Win64&quot; \
-        -D &quot;GLEW_LOCATION:string=c:/Program Files/glew-1.9.0&quot; \
-        -D &quot;GLFW_LOCATION:string=c:/Program Files/glfw-2.7.7.bin.WIN64&quot; \
-        -D &quot;OPENCL_INCLUDE_DIRS:string=c:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/OpenCL/common/inc&quot; \
-        -D &quot;_OPENCL_CPP_INCLUDE_DIRS:string=c:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/OpenCL/common/inc&quot; \
-        -D &quot;OPENCL_LIBRARIES:string=c:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/OpenCL/common/lib/x64/OpenCL.lib&quot; \
-        -D &quot;MAYA_LOCATION:string=c:/Program Files/Autodesk/Maya2013.5&quot; \
-        -D &quot;PTEX_LOCATION:string=c:/Users/opensubdiv/demo/src/ptex/x64&quot; \
-        ..
-
-    # copy Ptex dependencies (Windows only)
-    mkdir -p bin/{Debug,Release}
-    \cp -f c:/Users/opensubdiv/demo/src/zlib-1.2.7/contrib/vstudio/vc10/x64/ZlibDllRelease/zlibwapi.dll bin/Debug/
-    \cp -f c:/Users/opensubdiv/demo/src/zlib-1.2.7/contrib/vstudio/vc10/x64/ZlibDllRelease/zlibwapi.dll bin/Release/
-    \cp -f c:/Users/opensubdiv/demo/src/ptex/x64/lib/Ptex.dll bin/Debug/
-    \cp -f c:/Users/opensubdiv/demo/src/ptex/x64/lib/Ptex.dll bin/Release/
-
+<span class="comment preproc"># copy Ptex dependencies (Windows only)
+</span><span class="name">mkdir</span> <span class="operator">-</span><span class="name">p</span> <span class="name">bin</span><span class="operator">/</span><span class="punctuation">{</span><span class="name">Debug</span><span class="punctuation">,</span><span class="name">Release</span><span class="punctuation">}</span>
+<span class="error">\</span><span class="name">cp</span> <span class="operator">-</span><span class="name">f</span> <span class="name label">c</span><span class="punctuation">:</span><span class="operator">/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">demo</span><span class="operator">/</span><span class="name">src</span><span class="operator">/</span><span class="name">zlib</span><span class="operator">-</span><span class="literal number float">1.2.7</span><span class="operator">/</span><span class="name">contrib</span><span class="operator">/</span><span class="name">vstudio</span><span class="operator">/</span><span class="name">vc10</span><span class="operator">/</span><span class="name">x64</span><span class="operator">/</span><span class="name">ZlibDllRelease</span><span class="operator">/</span><span class="name">zlibwapi</span><span class="punctuation">.</span><span class="name">dll</span> <span class="name">bin</span><span class="operator">/</span><span class="name">Debug</span><span class="operator">/</span>
+<span class="error">\</span><span class="name">cp</span> <span class="operator">-</span><span class="name">f</span> <span class="name label">c</span><span class="punctuation">:</span><span class="operator">/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">demo</span><span class="operator">/</span><span class="name">src</span><span class="operator">/</span><span class="name">zlib</span><span class="operator">-</span><span class="literal number float">1.2.7</span><span class="operator">/</span><span class="name">contrib</span><span class="operator">/</span><span class="name">vstudio</span><span class="operator">/</span><span class="name">vc10</span><span class="operator">/</span><span class="name">x64</span><span class="operator">/</span><span class="name">ZlibDllRelease</span><span class="operator">/</span><span class="name">zlibwapi</span><span class="punctuation">.</span><span class="name">dll</span> <span class="name">bin</span><span class="operator">/</span><span class="name">Release</span><span class="operator">/</span>
+<span class="error">\</span><span class="name">cp</span> <span class="operator">-</span><span class="name">f</span> <span class="name label">c</span><span class="punctuation">:</span><span class="operator">/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">demo</span><span class="operator">/</span><span class="name">src</span><span class="operator">/</span><span class="name">ptex</span><span class="operator">/</span><span class="name">x64</span><span class="operator">/</span><span class="name">lib</span><span class="operator">/</span><span class="name">Ptex</span><span class="punctuation">.</span><span class="name">dll</span> <span class="name">bin</span><span class="operator">/</span><span class="name">Debug</span><span class="operator">/</span>
+<span class="error">\</span><span class="name">cp</span> <span class="operator">-</span><span class="name">f</span> <span class="name label">c</span><span class="punctuation">:</span><span class="operator">/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">demo</span><span class="operator">/</span><span class="name">src</span><span class="operator">/</span><span class="name">ptex</span><span class="operator">/</span><span class="name">x64</span><span class="operator">/</span><span class="name">lib</span><span class="operator">/</span><span class="name">Ptex</span><span class="punctuation">.</span><span class="name">dll</span> <span class="name">bin</span><span class="operator">/</span><span class="name">Release</span><span class="operator">/</span>
 </pre>
-</div>
 <div class="impnotip container">
 <p><strong>Important</strong></p>
 <blockquote>
@@ -368,104 +339,60 @@ Notice that the following scripts start by <strong>recursively removing</strong>
 <em>../inst/</em> directories. Make sure you modify them to suit your build workflow.</blockquote>
 </div>
 <p>Here is a similar script for *Nix-based platforms:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 193)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    echo &quot;*** Removing build&quot;
-    cd ..; rm -rf build/ inst/; mkdir build; cd build;
-    echo &quot;*** Running cmake&quot;
-    cmake -DPTEX_LOCATION=/home/opensubdiv/dev/opensource/ptex/install \
-          -DGLEW_LOCATION=/home/opensubdiv/dev/opensource/glew/glew-1.9.0 \
-          -DGLFW_LOCATION=/home/opensubdiv/dev/opensource/glfw/build \
-          -DDOXYGEN_EXECUTABLE=/home/opensubdiv/dev/opensource/doxygen/inst/bin/doxygen \
-          -DCMAKE_INSTALL_PREFIX=../inst \
-          -DCMAKE_BUILD_TYPE=Debug \
-          ..
-
+<pre class="code c++ literal-block">
+<span class="name">echo</span> <span class="literal string">&quot;*** Removing build&quot;</span>
+<span class="name">cd</span> <span class="punctuation">..;</span> <span class="name">rm</span> <span class="operator">-</span><span class="name">rf</span> <span class="name">build</span><span class="operator">/</span> <span class="name">inst</span><span class="operator">/</span><span class="punctuation">;</span> <span class="name">mkdir</span> <span class="name">build</span><span class="punctuation">;</span> <span class="name">cd</span> <span class="name">build</span><span class="punctuation">;</span>
+<span class="name">echo</span> <span class="literal string">&quot;*** Running cmake&quot;</span>
+<span class="name">cmake</span> <span class="operator">-</span><span class="name">DPTEX_LOCATION</span><span class="operator">=/</span><span class="name">home</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">ptex</span><span class="operator">/</span><span class="name">install</span> \
+      <span class="operator">-</span><span class="name">DGLEW_LOCATION</span><span class="operator">=/</span><span class="name">home</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">glew</span><span class="operator">/</span><span class="name">glew</span><span class="operator">-</span><span class="literal number float">1.9.0</span> \
+      <span class="operator">-</span><span class="name">DGLFW_LOCATION</span><span class="operator">=/</span><span class="name">home</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">glfw</span><span class="operator">/</span><span class="name">build</span> \
+      <span class="operator">-</span><span class="name">DDOXYGEN_EXECUTABLE</span><span class="operator">=/</span><span class="name">home</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">doxygen</span><span class="operator">/</span><span class="name">inst</span><span class="operator">/</span><span class="name">bin</span><span class="operator">/</span><span class="name">doxygen</span> \
+      <span class="operator">-</span><span class="name">DCMAKE_INSTALL_PREFIX</span><span class="operator">=</span><span class="punctuation">..</span><span class="operator">/</span><span class="name">inst</span> \
+      <span class="operator">-</span><span class="name">DCMAKE_BUILD_TYPE</span><span class="operator">=</span><span class="name">Debug</span> \
+      <span class="punctuation">..</span>
 </pre>
-</div>
 <p>Here is a similar script for OSX:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 208)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    echo &quot;*** Removing build&quot;
-    cd ..; rm -rf build/ inst/; mkdir build; cd build;
-    echo &quot;*** Running cmake&quot;
-    cmake -DOPENGL_INCLUDE_DIR=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/OpenGL.framework/Headers \
-          -DGLFW_LOCATION=/Users/opensubdiv/dev/opensource/glfw/inst \
-          -DNO_OMP=1 -DNO_REGRESSION=0 \
-          -DCMAKE_INSTALL_PREFIX=../inst \
-          -DCMAKE_BUILD_TYPE=Debug \
-           ..&quot;
-
+<pre class="code c++ literal-block">
+<span class="name">echo</span> <span class="literal string">&quot;*** Removing build&quot;</span>
+<span class="name">cd</span> <span class="punctuation">..;</span> <span class="name">rm</span> <span class="operator">-</span><span class="name">rf</span> <span class="name">build</span><span class="operator">/</span> <span class="name">inst</span><span class="operator">/</span><span class="punctuation">;</span> <span class="name">mkdir</span> <span class="name">build</span><span class="punctuation">;</span> <span class="name">cd</span> <span class="name">build</span><span class="punctuation">;</span>
+<span class="name">echo</span> <span class="literal string">&quot;*** Running cmake&quot;</span>
+<span class="name">cmake</span> <span class="operator">-</span><span class="name">DOPENGL_INCLUDE_DIR</span><span class="operator">=/</span><span class="name">Applications</span><span class="operator">/</span><span class="name">Xcode</span><span class="punctuation">.</span><span class="name">app</span><span class="operator">/</span><span class="name">Contents</span><span class="operator">/</span><span class="name">Developer</span><span class="operator">/</span><span class="name">Platforms</span><span class="operator">/</span><span class="name">MacOSX</span><span class="punctuation">.</span><span class="name">platform</span><span class="operator">/</span><span class="name">Developer</span><span class="operator">/</span><span class="name">SDKs</span><span class="operator">/</span><span class="name">MacOSX10</span><span class="literal number float">.9</span><span class="punctuation">.</span><span class="name">sdk</span><span class="operator">/</span><span class="name">System</span><span class="operator">/</span><span class="name">Library</span><span class="operator">/</span><span class="name">Frameworks</span><span class="operator">/</span><span class="name">OpenGL</span><span class="punctuation">.</span><span class="name">framework</span><span class="operator">/</span><span class="name">Headers</span> \
+      <span class="operator">-</span><span class="name">DGLFW_LOCATION</span><span class="operator">=/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">glfw</span><span class="operator">/</span><span class="name">inst</span> \
+      <span class="operator">-</span><span class="name">DNO_OMP</span><span class="operator">=</span><span class="literal number integer">1</span> <span class="operator">-</span><span class="name">DNO_REGRESSION</span><span class="operator">=</span><span class="literal number integer">0</span> \
+      <span class="operator">-</span><span class="name">DCMAKE_INSTALL_PREFIX</span><span class="operator">=</span><span class="punctuation">..</span><span class="operator">/</span><span class="name">inst</span> \
+      <span class="operator">-</span><span class="name">DCMAKE_BUILD_TYPE</span><span class="operator">=</span><span class="name">Debug</span> \
+       <span class="punctuation">..</span><span class="literal string">&quot;</span>
 </pre>
-</div>
 </div>
 <div class="section" id="using-intel-s-c-studio-xe">
 <h4>Using Intel's C++ Studio XE</h4>
 <p>OpenSubdiv can be also be built with <a class="reference external" href="http://software.intel.com/en-us/intel-compilers">Intel's C++ compiler</a>
 (icc). The default compiler can be overriden in CMake with the following configuration options:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 226)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    -DCMAKE_CXX_COMPILER=[path to icc executable]
-    -DCMAKE_C_COMPILER=[path to icc executable]
-
+<pre class="code c++ literal-block">
+<span class="operator">-</span><span class="name">DCMAKE_CXX_COMPILER</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">icc</span> <span class="name">executable</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DCMAKE_C_COMPILER</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">icc</span> <span class="name">executable</span><span class="punctuation">]</span>
 </pre>
-</div>
 <p>The installation location of the C++ Studio XE can be overriden with:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 233)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    -DICC_LOCATION=[path to Intel's C++ Studio XE]
-
-
+<pre class="code c++ literal-block">
+<span class="operator">-</span><span class="name">DICC_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Intel</span><span class="error">'</span><span class="name">s</span> <span class="name">C</span><span class="operator">++</span> <span class="name">Studio</span> <span class="name">XE</span><span class="punctuation">]</span>
 </pre>
-</div>
 </div>
 <div class="section" id="using-clang">
 <h4>Using Clang</h4>
 <p>CMake can also be overriden to use the <a class="reference external" href="http://clang.llvm.org/">clang</a> compilers by configuring the following options:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 243)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    -DCMAKE_CXX_COMPILER=clang++ \
-    -DCMAKE_C_COMPILER=clang \
-
-
+<pre class="code c++ literal-block">
+<span class="operator">-</span><span class="name">DCMAKE_CXX_COMPILER</span><span class="operator">=</span><span class="name">clang</span><span class="operator">++</span> \
+<span class="operator">-</span><span class="name">DCMAKE_C_COMPILER</span><span class="operator">=</span><span class="name">clang</span> \
 </pre>
-</div>
 </div>
 </div>
 <hr class="docutils" />
 <div class="section" id="step-3-building">
 <h3>Step 3: Building</h3>
 <p>CMake provides a cross-platform command-line build:</p>
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/documentation/cmake_build.rst</tt>, line 256)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c++
-
-    cmake --build . --target install --config Release
-
+<pre class="code c++ literal-block">
+<span class="name">cmake</span> <span class="operator">--</span><span class="name">build</span> <span class="punctuation">.</span> <span class="operator">--</span><span class="name">target</span> <span class="name">install</span> <span class="operator">--</span><span class="name">config</span> <span class="name">Release</span>
 </pre>
-</div>
 <p>Alternatively, you can use native toolkits to launch the build. The steps differ for each OS:</p>
 <blockquote>
 <ul>
@@ -574,7 +501,7 @@ warning in both gcc and Clang. It is recommended to turn the warning off with th
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 20:59 UTC.
 
 </div>
 </body>

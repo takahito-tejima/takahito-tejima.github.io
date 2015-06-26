@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -171,180 +171,173 @@ ul.creatorMainNav li a {
           <div class="topicLeftData-MainData">
 <p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_4/far_tutorial_4.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_4/far_tutorial_4.cpp</a></p>
 <hr class="docutils" />
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/far_tutorial_4.rst</tt>, line 9)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c
+<pre class="code c literal-block">
+<span class="comment single">//------------------------------------------------------------------------------
+// Tutorial description:
+//
+// This tutorial shows how to create and manipulate FarStencilTable. We use the
+// factorized stencils to interpolate vertex primvar data buffers.
+//
+</span>
+<span class="comment preproc">#include &lt;opensubdiv/far/topologyDescriptor.h&gt;
+#include &lt;opensubdiv/far/stencilTable.h&gt;
+#include &lt;opensubdiv/far/stencilTableFactory.h&gt;
+</span>
+<span class="comment preproc">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+</span>
+<span class="comment single">//------------------------------------------------------------------------------
+// Vertex container implementation.
+//
+</span><span class="keyword">struct</span> <span class="name">Vertex</span> <span class="punctuation">{</span>
 
-    //------------------------------------------------------------------------------
-    // Tutorial description:
-    //
-    // This tutorial shows how to create and manipulate FarStencilTable. We use the
-    // factorized stencils to interpolate vertex primvar data buffers.
-    //
+    <span class="comment single">// Minimal required interface ----------------------
+</span>    <span class="name">Vertex</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-    #include &lt;opensubdiv/far/topologyDescriptor.h&gt;
-    #include &lt;opensubdiv/far/stencilTable.h&gt;
-    #include &lt;opensubdiv/far/stencilTableFactory.h&gt;
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
 
-    #include &lt;cstdio&gt;
-    #include &lt;cstring&gt;
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="literal number float">0.0f</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-    //------------------------------------------------------------------------------
-    // Vertex container implementation.
-    //
-    struct Vertex {
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
 
-        // Minimal required interface ----------------------
-        Vertex() { }
+    <span class="keyword type">void</span> <span class="name">AddVaryingWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="punctuation">,</span> <span class="keyword type">float</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        Vertex(Vertex const &amp; src) {
-            _position[0] = src._position[0];
-            _position[1] = src._position[1];
-            _position[2] = src._position[2];
-        }
+    <span class="comment single">// Public interface ------------------------------------
+</span>    <span class="keyword type">void</span> <span class="name">SetPosition</span><span class="punctuation">(</span><span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">y</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">z</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">x</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">y</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">z</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void Clear( void * =0 ) {
-            _position[0]=_position[1]=_position[2]=0.0f;
-        }
+    <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">GetPosition</span><span class="punctuation">()</span> <span class="keyword">const</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="name">_position</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void AddWithWeight(Vertex const &amp; src, float weight) {
-            _position[0]+=weight*src._position[0];
-            _position[1]+=weight*src._position[1];
-            _position[2]+=weight*src._position[2];
-        }
+<span class="name label">private</span><span class="punctuation">:</span>
+    <span class="keyword type">float</span> <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+<span class="punctuation">};</span>
 
-        void AddVaryingWithWeight(Vertex const &amp;, float) { }
+<span class="comment single">//------------------------------------------------------------------------------
+// Cube geometry from catmark_cube.h
+</span>
+<span class="keyword">static</span> <span class="keyword type">float</span> <span class="name">g_verts</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span><span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                             <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                            <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                             <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                            <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                             <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                            <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                             <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span> <span class="punctuation">};</span>
 
-        // Public interface ------------------------------------
-        void SetPosition(float x, float y, float z) {
-            _position[0]=x;
-            _position[1]=y;
-            _position[2]=z;
-        }
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_nverts</span> <span class="operator">=</span> <span class="literal number integer">8</span><span class="punctuation">,</span>
+           <span class="name">g_nfaces</span> <span class="operator">=</span> <span class="literal number integer">6</span><span class="punctuation">;</span>
 
-        float const * GetPosition() const {
-            return _position;
-        }
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_vertsperface</span><span class="punctuation">[</span><span class="literal number integer">6</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span> <span class="punctuation">};</span>
 
-    private:
-        float _position[3];
-    };
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_vertIndices</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">6</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">4</span>  <span class="punctuation">};</span>
 
-    //------------------------------------------------------------------------------
-    // Cube geometry from catmark_cube.h
+<span class="name">using</span> <span class="name">namespace</span> <span class="name">OpenSubdiv</span><span class="punctuation">;</span>
 
-    static float g_verts[24] = {-0.5f, -0.5f,  0.5f,
-                                 0.5f, -0.5f,  0.5f,
-                                -0.5f,  0.5f,  0.5f,
-                                 0.5f,  0.5f,  0.5f,
-                                -0.5f,  0.5f, -0.5f,
-                                 0.5f,  0.5f, -0.5f,
-                                -0.5f, -0.5f, -0.5f,
-                                 0.5f, -0.5f, -0.5f };
+<span class="keyword">static</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span> <span class="name">createTopologyRefiner</span><span class="punctuation">();</span>
 
-    static int g_nverts = 8,
-               g_nfaces = 6;
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword type">int</span> <span class="name function">main</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">,</span> <span class="keyword type">char</span> <span class="operator">**</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-    static int g_vertsperface[6] = { 4, 4, 4, 4, 4, 4 };
-
-    static int g_vertIndices[24] = { 0, 1, 3, 2,
-                                     2, 3, 5, 4,
-                                     4, 5, 7, 6,
-                                     6, 7, 1, 0,
-                                     1, 7, 5, 3,
-                                     6, 0, 2, 4  };
-
-    using namespace OpenSubdiv;
-
-    static Far::TopologyRefiner * createTopologyRefiner();
-
-    //------------------------------------------------------------------------------
-    int main(int, char **) {
-
-        // Generate some FarTopologyRefiner (see far_tutorial_0 for details).
-        Far::TopologyRefiner * refiner = createTopologyRefiner();
+    <span class="comment single">// Generate some FarTopologyRefiner (see far_tutorial_0 for details).
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span> <span class="name">refiner</span> <span class="operator">=</span> <span class="name">createTopologyRefiner</span><span class="punctuation">();</span>
 
 
-        // Uniformly refine the topolgy up to 'maxlevel'.
-        int maxlevel = 3;
-        refiner-&gt;RefineUniform(Far::TopologyRefiner::UniformOptions(maxlevel));
+    <span class="comment single">// Uniformly refine the topolgy up to 'maxlevel'.
+</span>    <span class="keyword type">int</span> <span class="name">maxlevel</span> <span class="operator">=</span> <span class="literal number integer">3</span><span class="punctuation">;</span>
+    <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">RefineUniform</span><span class="punctuation">(</span><span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span><span class="operator">::</span><span class="name">UniformOptions</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="punctuation">));</span>
 
 
-        // Use the FarStencilTable factory to create discrete stencil table
-        // note: we only want stencils for the highest refinement level.
-        Far::StencilTableFactory::Options options;
-        options.generateIntermediateLevels=false;
-        options.generateOffsets=true;
+    <span class="comment single">// Use the FarStencilTable factory to create discrete stencil table
+</span>    <span class="comment single">// note: we only want stencils for the highest refinement level.
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">StencilTableFactory</span><span class="operator">::</span><span class="name">Options</span> <span class="name">options</span><span class="punctuation">;</span>
+    <span class="name">options</span><span class="punctuation">.</span><span class="name">generateIntermediateLevels</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
+    <span class="name">options</span><span class="punctuation">.</span><span class="name">generateOffsets</span><span class="operator">=</span><span class="name builtin">true</span><span class="punctuation">;</span>
 
-        Far::StencilTable const * stencilTable =
-            Far::StencilTableFactory::Create(*refiner, options);
+    <span class="name">Far</span><span class="operator">::</span><span class="name">StencilTable</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">stencilTable</span> <span class="operator">=</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">StencilTableFactory</span><span class="operator">::</span><span class="name">Create</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">refiner</span><span class="punctuation">,</span> <span class="name">options</span><span class="punctuation">);</span>
 
-        // Allocate vertex primvar buffer (1 stencil for each vertex)
-        int nstencils = stencilTable-&gt;GetNumStencils();
-        std::vector&lt;Vertex&gt; vertexBuffer(nstencils);
+    <span class="comment single">// Allocate vertex primvar buffer (1 stencil for each vertex)
+</span>    <span class="keyword type">int</span> <span class="name">nstencils</span> <span class="operator">=</span> <span class="name">stencilTable</span><span class="operator">-&gt;</span><span class="name">GetNumStencils</span><span class="punctuation">();</span>
+    <span class="name">std</span><span class="operator">::</span><span class="name">vector</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="name">vertexBuffer</span><span class="punctuation">(</span><span class="name">nstencils</span><span class="punctuation">);</span>
 
 
-        // Quick &amp; dirty re-cast of the primvar data from our cube
-        // (this is where you would drive shape deformations every frame)
-        Vertex * controlValues = reinterpret_cast&lt;Vertex *&gt;(g_verts);
+    <span class="comment single">// Quick &amp; dirty re-cast of the primvar data from our cube
+</span>    <span class="comment single">// (this is where you would drive shape deformations every frame)
+</span>    <span class="name">Vertex</span> <span class="operator">*</span> <span class="name">controlValues</span> <span class="operator">=</span> <span class="name">reinterpret_cast</span><span class="operator">&lt;</span><span class="name">Vertex</span> <span class="operator">*&gt;</span><span class="punctuation">(</span><span class="name">g_verts</span><span class="punctuation">);</span>
 
-        { // This section would be applied every frame after control vertices have
-          // been moved.
+    <span class="punctuation">{</span> <span class="comment single">// This section would be applied every frame after control vertices have
+</span>      <span class="comment single">// been moved.
+</span>
+        <span class="comment single">// Apply stencils on the control vertex data to update the primvar data
+</span>        <span class="comment single">// of the refined vertices.
+</span>        <span class="name">stencilTable</span><span class="operator">-&gt;</span><span class="name">UpdateValues</span><span class="punctuation">(</span><span class="name">controlValues</span><span class="punctuation">,</span> <span class="operator">&amp;</span><span class="name">vertexBuffer</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]);</span>
+    <span class="punctuation">}</span>
 
-            // Apply stencils on the control vertex data to update the primvar data
-            // of the refined vertices.
-            stencilTable-&gt;UpdateValues(controlValues, &amp;vertexBuffer[0]);
-        }
+    <span class="punctuation">{</span> <span class="comment single">// Visualization with Maya : print a MEL script that generates particles
+</span>      <span class="comment single">// at the location of the refined vertices
+</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;particle &quot;</span><span class="punctuation">);</span>
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">)</span><span class="name">vertexBuffer</span><span class="punctuation">.</span><span class="name">size</span><span class="punctuation">();</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">pos</span> <span class="operator">=</span> <span class="name">vertexBuffer</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">].</span><span class="name">GetPosition</span><span class="punctuation">();</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;-p %f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;-c 1;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
 
-        { // Visualization with Maya : print a MEL script that generates particles
-          // at the location of the refined vertices
+    <span class="name">delete</span> <span class="name">refiner</span><span class="punctuation">;</span>
+    <span class="name">delete</span> <span class="name">stencilTable</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
 
-            printf(&quot;particle &quot;);
-            for (int i=0; i&lt;(int)vertexBuffer.size(); ++i) {
-                float const * pos = vertexBuffer[i].GetPosition();
-                printf(&quot;-p %f %f %f\n&quot;, pos[0], pos[1], pos[2]);
-            }
-            printf(&quot;-c 1;\n&quot;);
-        }
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword">static</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span>
+<span class="name">createTopologyRefiner</span><span class="punctuation">()</span> <span class="punctuation">{</span>
 
-        delete refiner;
-        delete stencilTable;
-    }
+    <span class="comment single">// Populate a topology descriptor with our raw data.
+</span>    <span class="keyword">typedef</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyDescriptor</span> <span class="name">Descriptor</span><span class="punctuation">;</span>
 
-    //------------------------------------------------------------------------------
-    static Far::TopologyRefiner *
-    createTopologyRefiner() {
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">SchemeType</span> <span class="name">type</span> <span class="operator">=</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">SCHEME_CATMARK</span><span class="punctuation">;</span>
 
-        // Populate a topology descriptor with our raw data.
-        typedef Far::TopologyDescriptor Descriptor;
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span> <span class="name">options</span><span class="punctuation">;</span>
+    <span class="name">options</span><span class="punctuation">.</span><span class="name">SetVtxBoundaryInterpolation</span><span class="punctuation">(</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span><span class="operator">::</span><span class="name">VTX_BOUNDARY_EDGE_ONLY</span><span class="punctuation">);</span>
 
-        Sdc::SchemeType type = OpenSubdiv::Sdc::SCHEME_CATMARK;
+    <span class="name">Descriptor</span> <span class="name">desc</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertices</span> <span class="operator">=</span> <span class="name">g_nverts</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numFaces</span> <span class="operator">=</span> <span class="name">g_nfaces</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertsPerFace</span> <span class="operator">=</span> <span class="name">g_vertsperface</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">vertIndicesPerFace</span> <span class="operator">=</span> <span class="name">g_vertIndices</span><span class="punctuation">;</span>
 
-        Sdc::Options options;
-        options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
+    <span class="comment single">// Instantiate a FarTopologyRefiner from the descriptor.
+</span>    <span class="keyword">return</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Create</span><span class="punctuation">(</span><span class="name">desc</span><span class="punctuation">,</span>
+                <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Options</span><span class="punctuation">(</span><span class="name">type</span><span class="punctuation">,</span> <span class="name">options</span><span class="punctuation">));</span>
 
-        Descriptor desc;
-        desc.numVertices = g_nverts;
-        desc.numFaces = g_nfaces;
-        desc.numVertsPerFace = g_vertsperface;
-        desc.vertIndicesPerFace = g_vertIndices;
+<span class="punctuation">}</span>
 
-        // Instantiate a FarTopologyRefiner from the descriptor.
-        return Far::TopologyRefinerFactory&lt;Descriptor&gt;::Create(desc,
-                    Far::TopologyRefinerFactory&lt;Descriptor&gt;::Options(type, options));
-
-    }
-
-    //------------------------------------------------------------------------------
-
+<span class="comment single">//------------------------------------------------------------------------------</span>
 </pre>
-</div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

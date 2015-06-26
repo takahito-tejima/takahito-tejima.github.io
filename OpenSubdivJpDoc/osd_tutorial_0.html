@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -171,159 +171,152 @@ ul.creatorMainNav li a {
           <div class="topicLeftData-MainData">
 <p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/osd/tutorial_0/osd_tutorial_0.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/osd/tutorial_0/osd_tutorial_0.cpp</a></p>
 <hr class="docutils" />
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/osd_tutorial_0.rst</tt>, line 9)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c
+<pre class="code c literal-block">
+<span class="comment single">//------------------------------------------------------------------------------
+// Tutorial description:
+//
+// This tutorial demonstrates the manipulation of Osd Evaluator and
+// BufferDescriptor.
+//
+</span>
+<span class="comment preproc">#include &lt;opensubdiv/far/topologyDescriptor.h&gt;
+#include &lt;opensubdiv/far/stencilTableFactory.h&gt;
+#include &lt;opensubdiv/osd/cpuEvaluator.h&gt;
+#include &lt;opensubdiv/osd/cpuVertexBuffer.h&gt;
+</span>
+<span class="comment preproc">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+</span>
+<span class="comment single">//------------------------------------------------------------------------------
+// Cube geometry from catmark_cube.h
+</span><span class="keyword">static</span> <span class="keyword type">float</span> <span class="name">g_verts</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span><span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                             <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                            <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                             <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                            <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                             <span class="literal number float">0.5f</span><span class="punctuation">,</span>  <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                            <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span>
+                             <span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">0.5f</span><span class="punctuation">};</span>
 
-    //------------------------------------------------------------------------------
-    // Tutorial description:
-    //
-    // This tutorial demonstrates the manipulation of Osd Evaluator and
-    // BufferDescriptor.
-    //
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_nverts</span> <span class="operator">=</span> <span class="literal number integer">8</span><span class="punctuation">,</span>
+           <span class="name">g_nfaces</span> <span class="operator">=</span> <span class="literal number integer">6</span><span class="punctuation">;</span>
 
-    #include &lt;opensubdiv/far/topologyDescriptor.h&gt;
-    #include &lt;opensubdiv/far/stencilTableFactory.h&gt;
-    #include &lt;opensubdiv/osd/cpuEvaluator.h&gt;
-    #include &lt;opensubdiv/osd/cpuVertexBuffer.h&gt;
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_vertsperface</span><span class="punctuation">[</span><span class="literal number integer">6</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">4</span> <span class="punctuation">};</span>
 
-    #include &lt;cstdio&gt;
-    #include &lt;cstring&gt;
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">g_vertIndices</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">6</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">7</span><span class="punctuation">,</span> <span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">4</span>  <span class="punctuation">};</span>
 
-    //------------------------------------------------------------------------------
-    // Cube geometry from catmark_cube.h
-    static float g_verts[24] = {-0.5f, -0.5f,  0.5f,
-                                 0.5f, -0.5f,  0.5f,
-                                -0.5f,  0.5f,  0.5f,
-                                 0.5f,  0.5f,  0.5f,
-                                -0.5f,  0.5f, -0.5f,
-                                 0.5f,  0.5f, -0.5f,
-                                -0.5f, -0.5f, -0.5f,
-                                 0.5f, -0.5f, -0.5f};
+<span class="name">using</span> <span class="name">namespace</span> <span class="name">OpenSubdiv</span><span class="punctuation">;</span>
 
-    static int g_nverts = 8,
-               g_nfaces = 6;
+<span class="keyword">static</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">createTopologyRefiner</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">maxlevel</span><span class="punctuation">);</span>
 
-    static int g_vertsperface[6] = { 4, 4, 4, 4, 4, 4 };
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword type">int</span> <span class="name function">main</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">,</span> <span class="keyword type">char</span> <span class="operator">**</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-    static int g_vertIndices[24] = { 0, 1, 3, 2,
-                                     2, 3, 5, 4,
-                                     4, 5, 7, 6,
-                                     6, 7, 1, 0,
-                                     1, 7, 5, 3,
-                                     6, 0, 2, 4  };
+    <span class="keyword type">int</span> <span class="name">maxlevel</span><span class="operator">=</span><span class="literal number integer">2</span><span class="punctuation">,</span>
+        <span class="name">nCoarseVerts</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">,</span>
+        <span class="name">nRefinedVerts</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span>
 
-    using namespace OpenSubdiv;
+    <span class="comment single">//
+</span>    <span class="comment single">// Setup phase
+</span>    <span class="comment single">//
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">StencilTable</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">stencilTable</span> <span class="operator">=</span> <span class="name builtin">NULL</span><span class="punctuation">;</span>
+    <span class="punctuation">{</span> <span class="comment single">// Setup Far::StencilTable
+</span>        <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">refiner</span> <span class="operator">=</span> <span class="name">createTopologyRefiner</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="punctuation">);</span>
 
-    static Far::TopologyRefiner const * createTopologyRefiner(int maxlevel);
+        <span class="comment single">// Setup a factory to create FarStencilTable (for more details see
+</span>        <span class="comment single">// Far tutorials)
+</span>        <span class="name">Far</span><span class="operator">::</span><span class="name">StencilTableFactory</span><span class="operator">::</span><span class="name">Options</span> <span class="name">options</span><span class="punctuation">;</span>
+        <span class="name">options</span><span class="punctuation">.</span><span class="name">generateOffsets</span><span class="operator">=</span><span class="name builtin">true</span><span class="punctuation">;</span>
+        <span class="name">options</span><span class="punctuation">.</span><span class="name">generateIntermediateLevels</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
 
-    //------------------------------------------------------------------------------
-    int main(int, char **) {
+        <span class="name">stencilTable</span> <span class="operator">=</span> <span class="name">Far</span><span class="operator">::</span><span class="name">StencilTableFactory</span><span class="operator">::</span><span class="name">Create</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">refiner</span><span class="punctuation">,</span> <span class="name">options</span><span class="punctuation">);</span>
 
-        int maxlevel=2,
-            nCoarseVerts=0,
-            nRefinedVerts=0;
+        <span class="name">nCoarseVerts</span> <span class="operator">=</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetLevel</span><span class="punctuation">(</span><span class="literal number integer">0</span><span class="punctuation">).</span><span class="name">GetNumVertices</span><span class="punctuation">();</span>
+        <span class="name">nRefinedVerts</span> <span class="operator">=</span> <span class="name">stencilTable</span><span class="operator">-&gt;</span><span class="name">GetNumStencils</span><span class="punctuation">();</span>
 
-        //
-        // Setup phase
-        //
-        Far::StencilTable const * stencilTable = NULL;
-        { // Setup Far::StencilTable
-            Far::TopologyRefiner const * refiner = createTopologyRefiner(maxlevel);
+        <span class="comment single">// We are done with Far: cleanup table
+</span>        <span class="name">delete</span> <span class="name">refiner</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-            // Setup a factory to create FarStencilTable (for more details see
-            // Far tutorials)
-            Far::StencilTableFactory::Options options;
-            options.generateOffsets=true;
-            options.generateIntermediateLevels=false;
+    <span class="comment single">// Setup a buffer for vertex primvar data:
+</span>    <span class="name">Osd</span><span class="operator">::</span><span class="name">CpuVertexBuffer</span> <span class="operator">*</span> <span class="name">vbuffer</span> <span class="operator">=</span>
+        <span class="name">Osd</span><span class="operator">::</span><span class="name">CpuVertexBuffer</span><span class="operator">::</span><span class="name">Create</span><span class="punctuation">(</span><span class="literal number integer">3</span><span class="punctuation">,</span> <span class="name">nCoarseVerts</span> <span class="operator">+</span> <span class="name">nRefinedVerts</span><span class="punctuation">);</span>
 
-            stencilTable = Far::StencilTableFactory::Create(*refiner, options);
-
-            nCoarseVerts = refiner-&gt;GetLevel(0).GetNumVertices();
-            nRefinedVerts = stencilTable-&gt;GetNumStencils();
-
-            // We are done with Far: cleanup table
-            delete refiner;
-        }
-
-        // Setup a buffer for vertex primvar data:
-        Osd::CpuVertexBuffer * vbuffer =
-            Osd::CpuVertexBuffer::Create(3, nCoarseVerts + nRefinedVerts);
-
-        //
-        // Execution phase (every frame)
-        //
-        {
-            // Pack the control vertex data at the start of the vertex buffer
-            // and update every time control data changes
-            vbuffer-&gt;UpdateData(g_verts, 0, nCoarseVerts);
+    <span class="comment single">//
+</span>    <span class="comment single">// Execution phase (every frame)
+</span>    <span class="comment single">//
+</span>    <span class="punctuation">{</span>
+        <span class="comment single">// Pack the control vertex data at the start of the vertex buffer
+</span>        <span class="comment single">// and update every time control data changes
+</span>        <span class="name">vbuffer</span><span class="operator">-&gt;</span><span class="name">UpdateData</span><span class="punctuation">(</span><span class="name">g_verts</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="name">nCoarseVerts</span><span class="punctuation">);</span>
 
 
-            Osd::BufferDescriptor srcDesc(0, 3, 3);
-            Osd::BufferDescriptor dstDesc(nCoarseVerts*3, 3, 3);
+        <span class="name">Osd</span><span class="operator">::</span><span class="name">BufferDescriptor</span> <span class="name">srcDesc</span><span class="punctuation">(</span><span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">);</span>
+        <span class="name">Osd</span><span class="operator">::</span><span class="name">BufferDescriptor</span> <span class="name">dstDesc</span><span class="punctuation">(</span><span class="name">nCoarseVerts</span><span class="operator">*</span><span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">);</span>
 
-            // Launch the computation
-            Osd::CpuEvaluator::EvalStencils(vbuffer, srcDesc,
-                                            vbuffer, dstDesc,
-                                            stencilTable);
-        }
+        <span class="comment single">// Launch the computation
+</span>        <span class="name">Osd</span><span class="operator">::</span><span class="name">CpuEvaluator</span><span class="operator">::</span><span class="name">EvalStencils</span><span class="punctuation">(</span><span class="name">vbuffer</span><span class="punctuation">,</span> <span class="name">srcDesc</span><span class="punctuation">,</span>
+                                        <span class="name">vbuffer</span><span class="punctuation">,</span> <span class="name">dstDesc</span><span class="punctuation">,</span>
+                                        <span class="name">stencilTable</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
 
-        { // Visualization with Maya : print a MEL script that generates particles
-          // at the location of the refined vertices
+    <span class="punctuation">{</span> <span class="comment single">// Visualization with Maya : print a MEL script that generates particles
+</span>      <span class="comment single">// at the location of the refined vertices
+</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;particle &quot;</span><span class="punctuation">);</span>
+        <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">refinedVerts</span> <span class="operator">=</span> <span class="name">vbuffer</span><span class="operator">-&gt;</span><span class="name">BindCpuBuffer</span><span class="punctuation">()</span> <span class="operator">+</span> <span class="literal number integer">3</span><span class="operator">*</span><span class="name">nCoarseVerts</span><span class="punctuation">;</span>
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">nRefinedVerts</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">vert</span> <span class="operator">=</span> <span class="name">refinedVerts</span> <span class="operator">+</span> <span class="literal number integer">3</span><span class="operator">*</span><span class="name">i</span><span class="punctuation">;</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;-p %f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">vert</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">vert</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">vert</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;-c 1;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
 
-            printf(&quot;particle &quot;);
-            float const * refinedVerts = vbuffer-&gt;BindCpuBuffer() + 3*nCoarseVerts;
-            for (int i=0; i&lt;nRefinedVerts; ++i) {
-                float const * vert = refinedVerts + 3*i;
-                printf(&quot;-p %f %f %f\n&quot;, vert[0], vert[1], vert[2]);
-            }
-            printf(&quot;-c 1;\n&quot;);
-        }
+    <span class="name">delete</span> <span class="name">stencilTable</span><span class="punctuation">;</span>
+    <span class="name">delete</span> <span class="name">vbuffer</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
 
-        delete stencilTable;
-        delete vbuffer;
-    }
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword">static</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="keyword">const</span> <span class="operator">*</span>
+<span class="name">createTopologyRefiner</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">maxlevel</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-    //------------------------------------------------------------------------------
-    static Far::TopologyRefiner const *
-    createTopologyRefiner(int maxlevel) {
+    <span class="comment single">// Populate a topology descriptor with our raw data
+</span>
+    <span class="keyword">typedef</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyDescriptor</span> <span class="name">Descriptor</span><span class="punctuation">;</span>
 
-        // Populate a topology descriptor with our raw data
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">SchemeType</span> <span class="name">type</span> <span class="operator">=</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">SCHEME_CATMARK</span><span class="punctuation">;</span>
 
-        typedef Far::TopologyDescriptor Descriptor;
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span> <span class="name">options</span><span class="punctuation">;</span>
+    <span class="name">options</span><span class="punctuation">.</span><span class="name">SetVtxBoundaryInterpolation</span><span class="punctuation">(</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span><span class="operator">::</span><span class="name">VTX_BOUNDARY_EDGE_ONLY</span><span class="punctuation">);</span>
 
-        Sdc::SchemeType type = OpenSubdiv::Sdc::SCHEME_CATMARK;
+    <span class="name">Descriptor</span> <span class="name">desc</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertices</span> <span class="operator">=</span> <span class="name">g_nverts</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numFaces</span> <span class="operator">=</span> <span class="name">g_nfaces</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertsPerFace</span> <span class="operator">=</span> <span class="name">g_vertsperface</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">vertIndicesPerFace</span> <span class="operator">=</span> <span class="name">g_vertIndices</span><span class="punctuation">;</span>
 
-        Sdc::Options options;
-        options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
+    <span class="comment single">// Instantiate a FarTopologyRefiner from the descriptor
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span> <span class="name">refiner</span> <span class="operator">=</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Create</span><span class="punctuation">(</span><span class="name">desc</span><span class="punctuation">,</span>
+            <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Options</span><span class="punctuation">(</span><span class="name">type</span><span class="punctuation">,</span> <span class="name">options</span><span class="punctuation">));</span>
 
-        Descriptor desc;
-        desc.numVertices = g_nverts;
-        desc.numFaces = g_nfaces;
-        desc.numVertsPerFace = g_vertsperface;
-        desc.vertIndicesPerFace = g_vertIndices;
+    <span class="comment single">// Uniformly refine the topolgy up to 'maxlevel'
+</span>    <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">RefineUniform</span><span class="punctuation">(</span><span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span><span class="operator">::</span><span class="name">UniformOptions</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="punctuation">));</span>
 
-        // Instantiate a FarTopologyRefiner from the descriptor
-        Far::TopologyRefiner * refiner =
-            Far::TopologyRefinerFactory&lt;Descriptor&gt;::Create(desc,
-                Far::TopologyRefinerFactory&lt;Descriptor&gt;::Options(type, options));
+    <span class="keyword">return</span> <span class="name">refiner</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
 
-        // Uniformly refine the topolgy up to 'maxlevel'
-        refiner-&gt;RefineUniform(Far::TopologyRefiner::UniformOptions(maxlevel));
-
-        return refiner;
-    }
-
-    //------------------------------------------------------------------------------
-
+<span class="comment single">//------------------------------------------------------------------------------</span>
 </pre>
-</div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>

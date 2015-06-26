@@ -70,9 +70,9 @@ ul.creatorMainNav li a {
                 </ul>
             </li>
             <p></p>
-            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド (en)</a>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
                 <ul>
-                    <li><a href="api_overview.html">API概要 (en)</a>
+                    <li><a href="api_overview.html">API概要</a>
                         <li><a href="sdc_overview.html">Sdc (en)</a></li>
                         <li><a href="vtr_overview.html">Vtr (en)</a></li>
                         <li><a href="far_overview.html">Far (en)</a></li>
@@ -171,291 +171,284 @@ ul.creatorMainNav li a {
           <div class="topicLeftData-MainData">
 <p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_6/far_tutorial_6.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/far/tutorial_6/far_tutorial_6.cpp</a></p>
 <hr class="docutils" />
-<div class="system-message">
-<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">/Users/tejima/dev/OpenSubdiv.jpdoc/build/documentation/far_tutorial_6.rst</tt>, line 9)</p>
-<p>Cannot analyze code. Pygments package not found.</p>
-<pre class="literal-block">
-.. code:: c
+<pre class="code c literal-block">
+<span class="comment single">//------------------------------------------------------------------------------
+// Tutorial description:
+//
+// This tutorial shows how to interpolate surface limits at arbitrary
+// parametric locations using feature adaptive Far::PatchTables.
+//
+// The evaluation of the limit surface at arbitrary locations requires the
+// adaptive isolation of topological features. This process converts the
+// input polygonal control cage into a collection of bi-cubic patches.
+//
+// We can then evaluate the patches at random parametric locations and
+// obtain analytical positions and tangents on the limit surface.
+//
+// The results are dumped into a MEL script that draws 'streak' particle
+// systems that show the tangent and bi-tangent at the random samples locations.
+//
+</span>
+<span class="comment preproc">#include &lt;opensubdiv/far/topologyDescriptor.h&gt;
+#include &lt;opensubdiv/far/primvarRefiner.h&gt;
+#include &lt;opensubdiv/far/patchTableFactory.h&gt;
+#include &lt;opensubdiv/far/patchMap.h&gt;
+#include &lt;opensubdiv/far/ptexIndices.h&gt;
+</span>
+<span class="comment preproc">#include &lt;cassert&gt;
+#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;cfloat&gt;
+</span>
+<span class="name">using</span> <span class="name">namespace</span> <span class="name">OpenSubdiv</span><span class="punctuation">;</span>
 
-    //------------------------------------------------------------------------------
-    // Tutorial description:
-    //
-    // This tutorial shows how to interpolate surface limits at arbitrary
-    // parametric locations using feature adaptive Far::PatchTables.
-    //
-    // The evaluation of the limit surface at arbitrary locations requires the
-    // adaptive isolation of topological features. This process converts the
-    // input polygonal control cage into a collection of bi-cubic patches.
-    //
-    // We can then evaluate the patches at random parametric locations and
-    // obtain analytical positions and tangents on the limit surface.
-    //
-    // The results are dumped into a MEL script that draws 'streak' particle
-    // systems that show the tangent and bi-tangent at the random samples locations.
-    //
-
-    #include &lt;opensubdiv/far/topologyDescriptor.h&gt;
-    #include &lt;opensubdiv/far/primvarRefiner.h&gt;
-    #include &lt;opensubdiv/far/patchTableFactory.h&gt;
-    #include &lt;opensubdiv/far/patchMap.h&gt;
-    #include &lt;opensubdiv/far/ptexIndices.h&gt;
-
-    #include &lt;cassert&gt;
-    #include &lt;cstdio&gt;
-    #include &lt;cstring&gt;
-    #include &lt;cfloat&gt;
-
-    using namespace OpenSubdiv;
-
-    // pyramid geometry from catmark_pyramid_crease0.h
-    static int const g_nverts = 5;
-    static float const g_verts[24] = { 0.0f,  0.0f, 2.0f,
-                                       0.0f, -2.0f, 0.0f,
-                                       2.0f,  0.0f, 0.0f,
-                                       0.0f,  2.0f, 0.0f,
-                                      -2.0f,  0.0f, 0.0f, };
+<span class="comment single">// pyramid geometry from catmark_pyramid_crease0.h
+</span><span class="keyword">static</span> <span class="keyword type">int</span> <span class="keyword">const</span> <span class="name">g_nverts</span> <span class="operator">=</span> <span class="literal number integer">5</span><span class="punctuation">;</span>
+<span class="keyword">static</span> <span class="keyword type">float</span> <span class="keyword">const</span> <span class="name">g_verts</span><span class="punctuation">[</span><span class="literal number integer">24</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">,</span> <span class="literal number float">2.0f</span><span class="punctuation">,</span>
+                                   <span class="literal number float">0.0f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">2.0f</span><span class="punctuation">,</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span>
+                                   <span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">,</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span>
+                                   <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">2.0f</span><span class="punctuation">,</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span>
+                                  <span class="operator">-</span><span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">,</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span> <span class="punctuation">};</span>
 
 
-    static int const g_vertsperface[5] = { 3, 3, 3, 3, 4 };
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="keyword">const</span> <span class="name">g_vertsperface</span><span class="punctuation">[</span><span class="literal number integer">5</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">4</span> <span class="punctuation">};</span>
 
-    static int const g_nfaces = 5;
-    static int const g_faceverts[16] = { 0, 1, 2,
-                                         0, 2, 3,
-                                         0, 3, 4,
-                                         0, 4, 1,
-                                         4, 3, 2, 1 };
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="keyword">const</span> <span class="name">g_nfaces</span> <span class="operator">=</span> <span class="literal number integer">5</span><span class="punctuation">;</span>
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="keyword">const</span> <span class="name">g_faceverts</span><span class="punctuation">[</span><span class="literal number integer">16</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span>
+                                     <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span>
+                                     <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span>
+                                     <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span>
+                                     <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">1</span> <span class="punctuation">};</span>
 
-    static int const g_ncreases = 4;
-    static int const g_creaseverts[8] = { 4, 3, 3, 2, 2, 1, 1, 4 };
-    static float const g_creaseweights[4] = { 3.0f, 3.0f, 3.0f, 3.0f };
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="keyword">const</span> <span class="name">g_ncreases</span> <span class="operator">=</span> <span class="literal number integer">4</span><span class="punctuation">;</span>
+<span class="keyword">static</span> <span class="keyword type">int</span> <span class="keyword">const</span> <span class="name">g_creaseverts</span><span class="punctuation">[</span><span class="literal number integer">8</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">4</span> <span class="punctuation">};</span>
+<span class="keyword">static</span> <span class="keyword type">float</span> <span class="keyword">const</span> <span class="name">g_creaseweights</span><span class="punctuation">[</span><span class="literal number integer">4</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number float">3.0f</span><span class="punctuation">,</span> <span class="literal number float">3.0f</span><span class="punctuation">,</span> <span class="literal number float">3.0f</span><span class="punctuation">,</span> <span class="literal number float">3.0f</span> <span class="punctuation">};</span>
 
-    // Creates a Far::TopologyRefiner from the pyramid shape above
-    static Far::TopologyRefiner * createTopologyRefiner();
+<span class="comment single">// Creates a Far::TopologyRefiner from the pyramid shape above
+</span><span class="keyword">static</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span> <span class="name">createTopologyRefiner</span><span class="punctuation">();</span>
 
-    //------------------------------------------------------------------------------
-    // Vertex container implementation.
-    //
-    struct Vertex {
+<span class="comment single">//------------------------------------------------------------------------------
+// Vertex container implementation.
+//
+</span><span class="keyword">struct</span> <span class="name">Vertex</span> <span class="punctuation">{</span>
 
-        // Minimal required interface ----------------------
-        Vertex() { }
+    <span class="comment single">// Minimal required interface ----------------------
+</span>    <span class="name">Vertex</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        void Clear( void * =0 ) {
-             point[0] = point[1] = point[2] = 0.0f;
-        }
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+         <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="literal number float">0.0f</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void AddWithWeight(Vertex const &amp; src, float weight) {
-            point[0] += weight * src.point[0];
-            point[1] += weight * src.point[1];
-            point[2] += weight * src.point[2];
-        }
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
 
-        void AddVaryingWithWeight(Vertex const &amp;, float) { }
+    <span class="keyword type">void</span> <span class="name">AddVaryingWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="punctuation">,</span> <span class="keyword type">float</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
 
-        float point[3];
-    };
+    <span class="keyword type">float</span> <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+<span class="punctuation">};</span>
 
-    //------------------------------------------------------------------------------
-    // Limit frame container implementation -- this interface is not strictly
-    // required but follows a similar pattern to Vertex.
-    //
-    struct LimitFrame {
+<span class="comment single">//------------------------------------------------------------------------------
+// Limit frame container implementation -- this interface is not strictly
+// required but follows a similar pattern to Vertex.
+//
+</span><span class="keyword">struct</span> <span class="name">LimitFrame</span> <span class="punctuation">{</span>
 
-        void Clear( void * =0 ) {
-             point[0] =  point[1] =  point[2] = 0.0f;
-            deriv1[0] = deriv1[1] = deriv1[2] = 0.0f;
-            deriv2[0] = deriv2[1] = deriv2[2] = 0.0f;
-        }
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+         <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span>  <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span>  <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="literal number float">0.0f</span><span class="punctuation">;</span>
+        <span class="name">deriv1</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">deriv1</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">deriv1</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="literal number float">0.0f</span><span class="punctuation">;</span>
+        <span class="name">deriv2</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">deriv2</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">deriv2</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="literal number float">0.0f</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        void AddWithWeight(Vertex const &amp; src,
-            float weight, float d1Weight, float d2Weight) {
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">,</span>
+        <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">d1Weight</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">d2Weight</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-            point[0] += weight * src.point[0];
-            point[1] += weight * src.point[1];
-            point[2] += weight * src.point[2];
+        <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
 
-            deriv1[0] += d1Weight * src.point[0];
-            deriv1[1] += d1Weight * src.point[1];
-            deriv1[2] += d1Weight * src.point[2];
+        <span class="name">deriv1</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">d1Weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">deriv1</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">d1Weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">deriv1</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">d1Weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
 
-            deriv2[0] += d2Weight * src.point[0];
-            deriv2[1] += d2Weight * src.point[1];
-            deriv2[2] += d2Weight * src.point[2];
-        }
+        <span class="name">deriv2</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">d2Weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">deriv2</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">d2Weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">deriv2</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">+=</span> <span class="name">d2Weight</span> <span class="operator">*</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
 
-        float point[3],
-              deriv1[3],
-              deriv2[3];
-    };
+    <span class="keyword type">float</span> <span class="name">point</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">],</span>
+          <span class="name">deriv1</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">],</span>
+          <span class="name">deriv2</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+<span class="punctuation">};</span>
 
-    //------------------------------------------------------------------------------
-    int main(int, char **) {
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword type">int</span> <span class="name function">main</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">,</span> <span class="keyword type">char</span> <span class="operator">**</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-        // Generate a FarTopologyRefiner (see far_tutorial_0 for details).
-        Far::TopologyRefiner * refiner = createTopologyRefiner();
+    <span class="comment single">// Generate a FarTopologyRefiner (see far_tutorial_0 for details).
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span> <span class="name">refiner</span> <span class="operator">=</span> <span class="name">createTopologyRefiner</span><span class="punctuation">();</span>
 
-        // Adaptively refine the topology with an isolation level capped at 3
-        // because the sharpest crease in the shape is 3.0f (in g_creaseweights[])
-        int maxIsolation = 3;
-        refiner-&gt;RefineAdaptive(
-            Far::TopologyRefiner::AdaptiveOptions(maxIsolation));
+    <span class="comment single">// Adaptively refine the topology with an isolation level capped at 3
+</span>    <span class="comment single">// because the sharpest crease in the shape is 3.0f (in g_creaseweights[])
+</span>    <span class="keyword type">int</span> <span class="name">maxIsolation</span> <span class="operator">=</span> <span class="literal number integer">3</span><span class="punctuation">;</span>
+    <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">RefineAdaptive</span><span class="punctuation">(</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span><span class="operator">::</span><span class="name">AdaptiveOptions</span><span class="punctuation">(</span><span class="name">maxIsolation</span><span class="punctuation">));</span>
 
-        // Generate a set of Far::PatchTable that we will use to evaluate the
-        // surface limit
-        Far::PatchTableFactory::Options patchOptions;
-        patchOptions.endCapType =
-            Far::PatchTableFactory::Options::ENDCAP_GREGORY_BASIS;
+    <span class="comment single">// Generate a set of Far::PatchTable that we will use to evaluate the
+</span>    <span class="comment single">// surface limit
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">PatchTableFactory</span><span class="operator">::</span><span class="name">Options</span> <span class="name">patchOptions</span><span class="punctuation">;</span>
+    <span class="name">patchOptions</span><span class="punctuation">.</span><span class="name">endCapType</span> <span class="operator">=</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">PatchTableFactory</span><span class="operator">::</span><span class="name">Options</span><span class="operator">::</span><span class="name">ENDCAP_GREGORY_BASIS</span><span class="punctuation">;</span>
 
-        Far::PatchTable const * patchTable =
-            Far::PatchTableFactory::Create(*refiner, patchOptions);
+    <span class="name">Far</span><span class="operator">::</span><span class="name">PatchTable</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">patchTable</span> <span class="operator">=</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">PatchTableFactory</span><span class="operator">::</span><span class="name">Create</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">refiner</span><span class="punctuation">,</span> <span class="name">patchOptions</span><span class="punctuation">);</span>
 
-        // Compute the total number of points we need to evaluate patchtable.
-        // we use local points around extraordinary features.
-        int nRefinerVertices = refiner-&gt;GetNumVerticesTotal();
-        int nLocalPoints = patchTable-&gt;GetNumLocalPoints();
+    <span class="comment single">// Compute the total number of points we need to evaluate patchtable.
+</span>    <span class="comment single">// we use local points around extraordinary features.
+</span>    <span class="keyword type">int</span> <span class="name">nRefinerVertices</span> <span class="operator">=</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetNumVerticesTotal</span><span class="punctuation">();</span>
+    <span class="keyword type">int</span> <span class="name">nLocalPoints</span> <span class="operator">=</span> <span class="name">patchTable</span><span class="operator">-&gt;</span><span class="name">GetNumLocalPoints</span><span class="punctuation">();</span>
 
-        // Create a buffer to hold the position of the refined verts and
-        // local points, then copy the coarse positions at the beginning.
-        std::vector&lt;Vertex&gt; verts(nRefinerVertices + nLocalPoints);
-        memcpy(&amp;verts[0], g_verts, g_nverts*3*sizeof(float));
+    <span class="comment single">// Create a buffer to hold the position of the refined verts and
+</span>    <span class="comment single">// local points, then copy the coarse positions at the beginning.
+</span>    <span class="name">std</span><span class="operator">::</span><span class="name">vector</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="name">verts</span><span class="punctuation">(</span><span class="name">nRefinerVertices</span> <span class="operator">+</span> <span class="name">nLocalPoints</span><span class="punctuation">);</span>
+    <span class="name">memcpy</span><span class="punctuation">(</span><span class="operator">&amp;</span><span class="name">verts</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">g_verts</span><span class="punctuation">,</span> <span class="name">g_nverts</span><span class="operator">*</span><span class="literal number integer">3</span><span class="operator">*</span><span class="keyword">sizeof</span><span class="punctuation">(</span><span class="keyword type">float</span><span class="punctuation">));</span>
 
-        // Interpolate vertex primvar data : they are the control vertices
-        // of the limit patches (see far_tutorial_0 for details)
-        Vertex * src = &amp;verts[0];
-        for (int level = 1; level &lt;= maxIsolation; ++level) {
-            Vertex * dst = src + refiner-&gt;GetLevel(level-1).GetNumVertices();
-            Far::PrimvarRefiner(*refiner).Interpolate(level, src, dst);
-            src = dst;
-        }
+    <span class="comment single">// Interpolate vertex primvar data : they are the control vertices
+</span>    <span class="comment single">// of the limit patches (see far_tutorial_0 for details)
+</span>    <span class="name">Vertex</span> <span class="operator">*</span> <span class="name">src</span> <span class="operator">=</span> <span class="operator">&amp;</span><span class="name">verts</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">level</span> <span class="operator">=</span> <span class="literal number integer">1</span><span class="punctuation">;</span> <span class="name">level</span> <span class="operator">&lt;=</span> <span class="name">maxIsolation</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">level</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">Vertex</span> <span class="operator">*</span> <span class="name">dst</span> <span class="operator">=</span> <span class="name">src</span> <span class="operator">+</span> <span class="name">refiner</span><span class="operator">-&gt;</span><span class="name">GetLevel</span><span class="punctuation">(</span><span class="name">level</span><span class="operator">-</span><span class="literal number integer">1</span><span class="punctuation">).</span><span class="name">GetNumVertices</span><span class="punctuation">();</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">PrimvarRefiner</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">refiner</span><span class="punctuation">).</span><span class="name">Interpolate</span><span class="punctuation">(</span><span class="name">level</span><span class="punctuation">,</span> <span class="name">src</span><span class="punctuation">,</span> <span class="name">dst</span><span class="punctuation">);</span>
+        <span class="name">src</span> <span class="operator">=</span> <span class="name">dst</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
 
-        // Evaluate local points from interpolated vertex primvars.
-        patchTable-&gt;ComputeLocalPointValues(&amp;verts[0], &amp;verts[nRefinerVertices]);
+    <span class="comment single">// Evaluate local points from interpolated vertex primvars.
+</span>    <span class="name">patchTable</span><span class="operator">-&gt;</span><span class="name">ComputeLocalPointValues</span><span class="punctuation">(</span><span class="operator">&amp;</span><span class="name">verts</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="operator">&amp;</span><span class="name">verts</span><span class="punctuation">[</span><span class="name">nRefinerVertices</span><span class="punctuation">]);</span>
 
-        // Create a Far::PatchMap to help locating patches in the table
-        Far::PatchMap patchmap(*patchTable);
+    <span class="comment single">// Create a Far::PatchMap to help locating patches in the table
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">PatchMap</span> <span class="name">patchmap</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">patchTable</span><span class="punctuation">);</span>
 
-        // Create a Far::PtexIndices to help find indices of ptex faces.
-        Far::PtexIndices ptexIndices(*refiner);
+    <span class="comment single">// Create a Far::PtexIndices to help find indices of ptex faces.
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">PtexIndices</span> <span class="name">ptexIndices</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">refiner</span><span class="punctuation">);</span>
 
-        // Generate random samples on each ptex face
-        int nsamples = 200,
-            nfaces = ptexIndices.GetNumFaces();
+    <span class="comment single">// Generate random samples on each ptex face
+</span>    <span class="keyword type">int</span> <span class="name">nsamples</span> <span class="operator">=</span> <span class="literal number integer">200</span><span class="punctuation">,</span>
+        <span class="name">nfaces</span> <span class="operator">=</span> <span class="name">ptexIndices</span><span class="punctuation">.</span><span class="name">GetNumFaces</span><span class="punctuation">();</span>
 
-        std::vector&lt;LimitFrame&gt; samples(nsamples * nfaces);
+    <span class="name">std</span><span class="operator">::</span><span class="name">vector</span><span class="operator">&lt;</span><span class="name">LimitFrame</span><span class="operator">&gt;</span> <span class="name">samples</span><span class="punctuation">(</span><span class="name">nsamples</span> <span class="operator">*</span> <span class="name">nfaces</span><span class="punctuation">);</span>
 
-        srand( static_cast&lt;int&gt;(2147483647) );
+    <span class="name">srand</span><span class="punctuation">(</span> <span class="name">static_cast</span><span class="operator">&lt;</span><span class="keyword type">int</span><span class="operator">&gt;</span><span class="punctuation">(</span><span class="literal number integer">2147483647</span><span class="punctuation">)</span> <span class="punctuation">);</span>
 
-        float pWeights[20], dsWeights[20], dtWeights[20];
+    <span class="keyword type">float</span> <span class="name">pWeights</span><span class="punctuation">[</span><span class="literal number integer">20</span><span class="punctuation">],</span> <span class="name">dsWeights</span><span class="punctuation">[</span><span class="literal number integer">20</span><span class="punctuation">],</span> <span class="name">dtWeights</span><span class="punctuation">[</span><span class="literal number integer">20</span><span class="punctuation">];</span>
 
-        for (int face=0, count=0; face&lt;nfaces; ++face) {
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">face</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">,</span> <span class="name">count</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">face</span><span class="operator">&lt;</span><span class="name">nfaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">face</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-            for (int sample=0; sample&lt;nsamples; ++sample, ++count) {
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">sample</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">sample</span><span class="operator">&lt;</span><span class="name">nsamples</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">sample</span><span class="punctuation">,</span> <span class="operator">++</span><span class="name">count</span><span class="punctuation">)</span> <span class="punctuation">{</span>
 
-                float s = (float)rand()/(float)RAND_MAX,
-                      t = (float)rand()/(float)RAND_MAX;
+            <span class="keyword type">float</span> <span class="name">s</span> <span class="operator">=</span> <span class="punctuation">(</span><span class="keyword type">float</span><span class="punctuation">)</span><span class="name">rand</span><span class="punctuation">()</span><span class="operator">/</span><span class="punctuation">(</span><span class="keyword type">float</span><span class="punctuation">)</span><span class="name">RAND_MAX</span><span class="punctuation">,</span>
+                  <span class="name">t</span> <span class="operator">=</span> <span class="punctuation">(</span><span class="keyword type">float</span><span class="punctuation">)</span><span class="name">rand</span><span class="punctuation">()</span><span class="operator">/</span><span class="punctuation">(</span><span class="keyword type">float</span><span class="punctuation">)</span><span class="name">RAND_MAX</span><span class="punctuation">;</span>
 
-                // Locate the patch corresponding to the face ptex idx and (s,t)
-                Far::PatchTable::PatchHandle const * handle =
-                    patchmap.FindPatch(face, s, t);
-                assert(handle);
+            <span class="comment single">// Locate the patch corresponding to the face ptex idx and (s,t)
+</span>            <span class="name">Far</span><span class="operator">::</span><span class="name">PatchTable</span><span class="operator">::</span><span class="name">PatchHandle</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">handle</span> <span class="operator">=</span>
+                <span class="name">patchmap</span><span class="punctuation">.</span><span class="name">FindPatch</span><span class="punctuation">(</span><span class="name">face</span><span class="punctuation">,</span> <span class="name">s</span><span class="punctuation">,</span> <span class="name">t</span><span class="punctuation">);</span>
+            <span class="name">assert</span><span class="punctuation">(</span><span class="name">handle</span><span class="punctuation">);</span>
 
-                // Evaluate the patch weights, identify the CVs and compute the limit frame:
-                patchTable-&gt;EvaluateBasis(*handle, s, t, pWeights, dsWeights, dtWeights);
+            <span class="comment single">// Evaluate the patch weights, identify the CVs and compute the limit frame:
+</span>            <span class="name">patchTable</span><span class="operator">-&gt;</span><span class="name">EvaluateBasis</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">handle</span><span class="punctuation">,</span> <span class="name">s</span><span class="punctuation">,</span> <span class="name">t</span><span class="punctuation">,</span> <span class="name">pWeights</span><span class="punctuation">,</span> <span class="name">dsWeights</span><span class="punctuation">,</span> <span class="name">dtWeights</span><span class="punctuation">);</span>
 
-                Far::ConstIndexArray cvs = patchTable-&gt;GetPatchVertices(*handle);
+            <span class="name">Far</span><span class="operator">::</span><span class="name">ConstIndexArray</span> <span class="name">cvs</span> <span class="operator">=</span> <span class="name">patchTable</span><span class="operator">-&gt;</span><span class="name">GetPatchVertices</span><span class="punctuation">(</span><span class="operator">*</span><span class="name">handle</span><span class="punctuation">);</span>
 
-                LimitFrame &amp; dst = samples[count];
-                dst.Clear();
-                for (int cv=0; cv &lt; cvs.size(); ++cv) {
-                    dst.AddWithWeight(verts[cvs[cv]], pWeights[cv], dsWeights[cv], dtWeights[cv]);
-                }
+            <span class="name">LimitFrame</span> <span class="operator">&amp;</span> <span class="name">dst</span> <span class="operator">=</span> <span class="name">samples</span><span class="punctuation">[</span><span class="name">count</span><span class="punctuation">];</span>
+            <span class="name">dst</span><span class="punctuation">.</span><span class="name">Clear</span><span class="punctuation">();</span>
+            <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">cv</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">cv</span> <span class="operator">&lt;</span> <span class="name">cvs</span><span class="punctuation">.</span><span class="name">size</span><span class="punctuation">();</span> <span class="operator">++</span><span class="name">cv</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="name">dst</span><span class="punctuation">.</span><span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">verts</span><span class="punctuation">[</span><span class="name">cvs</span><span class="punctuation">[</span><span class="name">cv</span><span class="punctuation">]],</span> <span class="name">pWeights</span><span class="punctuation">[</span><span class="name">cv</span><span class="punctuation">],</span> <span class="name">dsWeights</span><span class="punctuation">[</span><span class="name">cv</span><span class="punctuation">],</span> <span class="name">dtWeights</span><span class="punctuation">[</span><span class="name">cv</span><span class="punctuation">]);</span>
+            <span class="punctuation">}</span>
 
-            }
-        }
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
 
-        { // Visualization with Maya : print a MEL script that generates particles
-          // at the location of the limit vertices
+    <span class="punctuation">{</span> <span class="comment single">// Visualization with Maya : print a MEL script that generates particles
+</span>      <span class="comment single">// at the location of the limit vertices
+</span>
+        <span class="keyword type">int</span> <span class="name">nsamples</span> <span class="operator">=</span> <span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">)</span><span class="name">samples</span><span class="punctuation">.</span><span class="name">size</span><span class="punctuation">();</span>
 
-            int nsamples = (int)samples.size();
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;file -f -new;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
 
-            printf(&quot;file -f -new;\n&quot;);
+        <span class="comment single">// Output particle positions for the tangent
+</span>        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;particle -n deriv1 &quot;</span><span class="punctuation">);</span>
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">sample</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">sample</span><span class="operator">&lt;</span><span class="name">nsamples</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">sample</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">pos</span> <span class="operator">=</span> <span class="name">samples</span><span class="punctuation">[</span><span class="name">sample</span><span class="punctuation">].</span><span class="name">point</span><span class="punctuation">;</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;-p %f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+        <span class="comment single">// Set per-particle direction using the limit tangent (display as 'Streak')
+</span>        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;setAttr </span><span class="literal string escape">\&quot;</span><span class="literal string">deriv1.particleRenderType</span><span class="literal string escape">\&quot;</span><span class="literal string"> 6;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;setAttr </span><span class="literal string escape">\&quot;</span><span class="literal string">deriv1.velocity</span><span class="literal string escape">\&quot;</span><span class="literal string"> -type </span><span class="literal string escape">\&quot;</span><span class="literal string">vectorArray</span><span class="literal string escape">\&quot;</span><span class="literal string"> %d &quot;</span><span class="punctuation">,</span><span class="name">nsamples</span><span class="punctuation">);</span>
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">sample</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">sample</span><span class="operator">&lt;</span><span class="name">nsamples</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">sample</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">tan1</span> <span class="operator">=</span> <span class="name">samples</span><span class="punctuation">[</span><span class="name">sample</span><span class="punctuation">].</span><span class="name">deriv1</span><span class="punctuation">;</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;%f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">tan1</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">tan1</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">tan1</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
 
-            // Output particle positions for the tangent
-            printf(&quot;particle -n deriv1 &quot;);
-            for (int sample=0; sample&lt;nsamples; ++sample) {
-                float const * pos = samples[sample].point;
-                printf(&quot;-p %f %f %f\n&quot;, pos[0], pos[1], pos[2]);
-            }
-            printf(&quot;;\n&quot;);
-            // Set per-particle direction using the limit tangent (display as 'Streak')
-            printf(&quot;setAttr \&quot;deriv1.particleRenderType\&quot; 6;\n&quot;);
-            printf(&quot;setAttr \&quot;deriv1.velocity\&quot; -type \&quot;vectorArray\&quot; %d &quot;,nsamples);
-            for (int sample=0; sample&lt;nsamples; ++sample) {
-                float const * tan1 = samples[sample].deriv1;
-                printf(&quot;%f %f %f\n&quot;, tan1[0], tan1[1], tan1[2]);
-            }
-            printf(&quot;;\n&quot;);
+        <span class="comment single">// Output particle positions for the bi-tangent
+</span>        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;particle -n deriv2 &quot;</span><span class="punctuation">);</span>
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">sample</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">sample</span><span class="operator">&lt;</span><span class="name">nsamples</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">sample</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">pos</span> <span class="operator">=</span> <span class="name">samples</span><span class="punctuation">[</span><span class="name">sample</span><span class="punctuation">].</span><span class="name">point</span><span class="punctuation">;</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;-p %f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;setAttr </span><span class="literal string escape">\&quot;</span><span class="literal string">deriv2.particleRenderType</span><span class="literal string escape">\&quot;</span><span class="literal string"> 6;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;setAttr </span><span class="literal string escape">\&quot;</span><span class="literal string">deriv2.velocity</span><span class="literal string escape">\&quot;</span><span class="literal string"> -type </span><span class="literal string escape">\&quot;</span><span class="literal string">vectorArray</span><span class="literal string escape">\&quot;</span><span class="literal string"> %d &quot;</span><span class="punctuation">,</span><span class="name">nsamples</span><span class="punctuation">);</span>
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">sample</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">sample</span><span class="operator">&lt;</span><span class="name">nsamples</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">sample</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">tan2</span> <span class="operator">=</span> <span class="name">samples</span><span class="punctuation">[</span><span class="name">sample</span><span class="punctuation">].</span><span class="name">deriv2</span><span class="punctuation">;</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;%f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">tan2</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">tan2</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">tan2</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
 
-            // Output particle positions for the bi-tangent
-            printf(&quot;particle -n deriv2 &quot;);
-            for (int sample=0; sample&lt;nsamples; ++sample) {
-                float const * pos = samples[sample].point;
-                printf(&quot;-p %f %f %f\n&quot;, pos[0], pos[1], pos[2]);
-            }
-            printf(&quot;;\n&quot;);
-            printf(&quot;setAttr \&quot;deriv2.particleRenderType\&quot; 6;\n&quot;);
-            printf(&quot;setAttr \&quot;deriv2.velocity\&quot; -type \&quot;vectorArray\&quot; %d &quot;,nsamples);
-            for (int sample=0; sample&lt;nsamples; ++sample) {
-                float const * tan2 = samples[sample].deriv2;
-                printf(&quot;%f %f %f\n&quot;, tan2[0], tan2[1], tan2[2]);
-            }
-            printf(&quot;;\n&quot;);
+        <span class="comment single">// Exercise to the reader : cross tangent &amp; bi-tangent for limit
+</span>        <span class="comment single">// surface normal...
+</span>
+        <span class="comment single">// Force Maya DAG update to see the result in the viewport
+</span>        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;currentTime -edit `currentTime -q`;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+        <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;select deriv1Shape deriv2Shape;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
 
-            // Exercise to the reader : cross tangent &amp; bi-tangent for limit
-            // surface normal...
+<span class="punctuation">}</span>
 
-            // Force Maya DAG update to see the result in the viewport
-            printf(&quot;currentTime -edit `currentTime -q`;\n&quot;);
-            printf(&quot;select deriv1Shape deriv2Shape;\n&quot;);
-        }
-
-    }
-
-    //------------------------------------------------------------------------------
-    static Far::TopologyRefiner *
-    createTopologyRefiner() {
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword">static</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span>
+<span class="name">createTopologyRefiner</span><span class="punctuation">()</span> <span class="punctuation">{</span>
 
 
-        typedef Far::TopologyDescriptor Descriptor;
+    <span class="keyword">typedef</span> <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyDescriptor</span> <span class="name">Descriptor</span><span class="punctuation">;</span>
 
-        Sdc::SchemeType type = OpenSubdiv::Sdc::SCHEME_CATMARK;
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">SchemeType</span> <span class="name">type</span> <span class="operator">=</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">SCHEME_CATMARK</span><span class="punctuation">;</span>
 
-        Sdc::Options options;
-        options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
+    <span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span> <span class="name">options</span><span class="punctuation">;</span>
+    <span class="name">options</span><span class="punctuation">.</span><span class="name">SetVtxBoundaryInterpolation</span><span class="punctuation">(</span><span class="name">Sdc</span><span class="operator">::</span><span class="name">Options</span><span class="operator">::</span><span class="name">VTX_BOUNDARY_EDGE_ONLY</span><span class="punctuation">);</span>
 
-        Descriptor desc;
-        desc.numVertices = g_nverts;
-        desc.numFaces = g_nfaces;
-        desc.numVertsPerFace = g_vertsperface;
-        desc.vertIndicesPerFace = g_faceverts;
-        desc.numCreases = g_ncreases;
-        desc.creaseVertexIndexPairs = g_creaseverts;
-        desc.creaseWeights = g_creaseweights;
+    <span class="name">Descriptor</span> <span class="name">desc</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertices</span> <span class="operator">=</span> <span class="name">g_nverts</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numFaces</span> <span class="operator">=</span> <span class="name">g_nfaces</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numVertsPerFace</span> <span class="operator">=</span> <span class="name">g_vertsperface</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">vertIndicesPerFace</span> <span class="operator">=</span> <span class="name">g_faceverts</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">numCreases</span> <span class="operator">=</span> <span class="name">g_ncreases</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">creaseVertexIndexPairs</span> <span class="operator">=</span> <span class="name">g_creaseverts</span><span class="punctuation">;</span>
+    <span class="name">desc</span><span class="punctuation">.</span><span class="name">creaseWeights</span> <span class="operator">=</span> <span class="name">g_creaseweights</span><span class="punctuation">;</span>
 
-        // Instantiate a FarTopologyRefiner from the descriptor.
-        Far::TopologyRefiner * refiner =
-            Far::TopologyRefinerFactory&lt;Descriptor&gt;::Create(desc,
-                Far::TopologyRefinerFactory&lt;Descriptor&gt;::Options(type, options));
+    <span class="comment single">// Instantiate a FarTopologyRefiner from the descriptor.
+</span>    <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefiner</span> <span class="operator">*</span> <span class="name">refiner</span> <span class="operator">=</span>
+        <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Create</span><span class="punctuation">(</span><span class="name">desc</span><span class="punctuation">,</span>
+            <span class="name">Far</span><span class="operator">::</span><span class="name">TopologyRefinerFactory</span><span class="operator">&lt;</span><span class="name">Descriptor</span><span class="operator">&gt;::</span><span class="name">Options</span><span class="punctuation">(</span><span class="name">type</span><span class="punctuation">,</span> <span class="name">options</span><span class="punctuation">));</span>
 
-        return refiner;
-    }
-
+    <span class="keyword">return</span> <span class="name">refiner</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
 </pre>
-</div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2015-06-24 04:40 UTC.
+Generated on: 2015-06-24 21:00 UTC.
 
 </div>
 </body>
