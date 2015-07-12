@@ -9,12 +9,12 @@ attribute vec4 inUV;     // 0
 attribute vec3 inColor;  // 1
 attribute vec3 position; // 2
 attribute vec3 inNormal; // 3
-attribute vec4 inPtexCoord; // 4
+attribute vec2 inTexUV;  // 4
 varying vec3 normal;
 varying vec4 uv;
 varying vec3 color;
 varying vec3 Peye;
-varying vec4 ptexCoord;
+varying vec2 texUV;
 
 void main()
 {
@@ -22,13 +22,11 @@ void main()
     vec3 WorldNormal = normalize(inNormal.xyz);
     normal = (modelViewMatrix * vec4(WorldNormal, 0)).xyz;
 
-    ptexCoord = inPtexCoord;
+    texUV = inTexUV;
+
     // apply displacement
 #ifdef DISPLACEMENT
-#ifndef PTEX_DISPLACE
-    ptexCoord.zw = WorldPos.xz*4.0;
-#endif
-    float d = displacement(ptexCoord.zw);
+    float d = displacement(texUV);
     WorldPos.xyz += d*WorldNormal;
 #endif
     vec3 p = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
@@ -37,10 +35,10 @@ void main()
     Peye = p;
 #if defined(PAINT)
     uv = projMatrix * vec4(p, 1);
-    gl_Position = vec4(ptexCoord.x*2.0-1.0, ptexCoord.y*2.0-1.0, 0, 1);
+    gl_Position = vec4(texUV.x*2.0-1.0, texUV.y*2.0-1.0, 0, 1);
 #elif defined(SCULPT)
     uv = projMatrix * vec4(p, 1);
-    gl_Position = vec4(ptexCoord.z*2.0-1.0, ptexCoord.w*2.0-1.0, 0, 1);
+    gl_Position = vec4(texUV.x*2.0-1.0, texUV.y*2.0-1.0, 0, 1);
 #else
     uv = inUV;
     gl_Position = projMatrix * vec4(p, 1);
@@ -49,13 +47,14 @@ void main()
 
 #endif
 
+// --------------------------------------------------------------------------
 #ifdef FRAGMENT_SHADER
 
 varying vec3 normal;
 varying vec4 uv;
 varying vec3 color;
 varying vec3 Peye;
-varying vec4 ptexCoord;
+varying vec2 texUV;
 
 void main()
 {
@@ -64,7 +63,7 @@ void main()
 #elif defined(SCULPT)
     gl_FragColor = sculpt(uv.xy/uv.w);
 #else
-    gl_FragColor = lighting(Peye, normal, uv, color, ptexCoord);
+    gl_FragColor = lighting(Peye, normal, uv, color, texUV);
 #endif
 }
 

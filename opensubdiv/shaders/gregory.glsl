@@ -186,7 +186,7 @@ void main()
 #elif defined(SCULPT)
     gl_FragColor = sculpt(uv.xy/uv.w);
 #else
-    gl_FragColor = lighting(Peye, normal, uv, color, ptexCoord);
+    //    gl_FragColor = lighting(Peye, normal, uv, color, ptexCoord);
 #endif
 }
 

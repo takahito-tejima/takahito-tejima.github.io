@@ -31,55 +31,18 @@ void evalCubicBezier(in float u, out float B[4], out float D[4]) {
 
 #endif
 
-uniform sampler2D texPtexColor;
-uniform sampler2D texPtexColorL;
-uniform sampler2D texPtexDisplace;
-uniform sampler2D texPtexDisplaceL;
-uniform vec2 dimPtexColorL;
-uniform vec2 dimPtexDisplaceL;
+uniform sampler2D uvColor;
+uniform sampler2D uvDisplacement;
 
-vec4 getPtexColor(vec4 ptexCoord) {
-    return vec4(texture2D(texPtexColor, ptexCoord.xy).xyz, 1);
+vec4 getUVColor(vec2 uv) {
+    return texture2D(uvColor, vec2(uv.x, uv.y));
 }
-vec2 getPtexColorCoord(float ptexIndex, vec2 uv)
-{
-    //vec4 ptexPacking = texture2D(texPtexColorL, vec2(ptexIndex/numPtexColorFace, 0.5));;
-    return vec2(ptexIndex/638.0);
-    vec4 ptexPacking = texture2D(texPtexColorL, vec2(ptexIndex/638.0, 0.5));;
-    return ptexPacking.xy + ptexPacking.zw*uv;
-}
-
-vec2 computePtexCoord(sampler2D ptexLayout, vec2 ptexLayoutDim, vec4 ptexParam, float depth, vec2 uv)
-{
-    float lv = pow(2.0, depth);
-    vec2 p = ptexParam.yz;
-    float rot = ptexParam.w;
-
-    uv.xy = float(rot==0.0)*uv.xy
-       + float(rot==1.0)*vec2(1.0-uv.y, uv.x)
-        + float(rot==2.0)*vec2(1.0-uv.x, 1.0-uv.y)
-        + float(rot==3.0)*vec2(uv.y, 1.0-uv.x);
-
-    vec2 puv = vec2(uv*vec2(1)/lv) + p/lv;
-
-#if defined(PAINT) || defined(SCULPT)
-    //    puv = puv + (puv - 0.5)*0.01;
-#else
-    // puv = puv - (puv - 0.5)*0.01;
-#endif
-
-    vec2 face = vec2(fract((ptexParam.x+0.5)/ptexLayoutDim.x),
-                     (floor(ptexParam.x/ptexLayoutDim.x)+0.5)/ptexLayoutDim.y);
-    vec4 ptexPacking = texture2D(ptexLayout, face);
-    return ptexPacking.xy + ptexPacking.zw*puv;
-}
-
 
 uniform float displaceScale;
 
 float displacement(vec2 uv) {
-#ifdef PTEX_DISPLACE
-    return displaceScale*texture2D(texPtexDisplace, uv).x;
+#ifdef DISPLACEMENT
+    return displaceScale*texture2D(uvDisplacement, uv).x;
 #else
     return 0.0;
 #endif
@@ -123,7 +86,7 @@ perturbNormalFromDisplacement(vec3 position, vec3 normal, vec2 uv)
 #endif
 }
 
-vec4 lighting(vec3 Peye, vec3 normal, vec4 uv, vec3 color, vec4 ptexCoord)
+vec4 lighting(vec3 Peye, vec3 normal, vec4 uv, vec3 color, vec2 texUV)
 {
     vec3 fnormal = normal;
 #ifdef DISPLACEMENT
@@ -134,7 +97,7 @@ vec4 lighting(vec3 Peye, vec3 normal, vec4 uv, vec3 color, vec4 ptexCoord)
         fnormal = normalize( cross(X, Y) );
 #else
         fnormal = perturbNormalFromDisplacement(Peye,
-                                                fnormal, ptexCoord.zw);
+                                                fnormal, texUV);
 #endif
     }
 #endif
@@ -145,8 +108,8 @@ vec4 lighting(vec3 Peye, vec3 normal, vec4 uv, vec3 color, vec4 ptexCoord)
     vec4 c = vec4(color, 1);
 
 #if DISPLAY_MODE == 0
-#ifdef PTEX_COLOR
-    c = getPtexColor(ptexCoord);
+#ifdef COLOR_TEXTURE
+    c = getUVColor(texUV);
     //XXX: should fix ptex.
     c.rgb = vec3(pow(c.r, 0.4545),
                  pow(c.g, 0.4545),

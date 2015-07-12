@@ -23,7 +23,7 @@ void evalCubicBSpline(in float u, out float B[4], out float BU[4])
 }
 
 attribute vec4 inUV;
-attribute vec4 patchData; // patchIndex, tess, depth
+attribute vec4 patchData; // patchIndex, tess, depth, boundary
 attribute vec4 tessLevel;
 attribute vec4 inColor;
 attribute vec4 ptexParam; // ptexFaceID, u, v, rotation
@@ -32,12 +32,14 @@ varying vec3 normal;
 varying vec4 uv;
 varying vec3 color;
 varying vec3 Peye;
-varying vec4 ptexCoord;
+varying vec2 texUV;
 
 uniform sampler2D texCP;
 uniform sampler2D texPatch;
+uniform sampler2D texUVBuffer;
 uniform float patchRes; // square, *16
 uniform float pointRes; // squre
+uniform float uvBufferRes; // square
 
 vec2 getVertexIndex(float patchIndex, float cpIndex) {
     float u = fract(patchIndex*16.0/patchRes) + (cpIndex+0.5)/patchRes;
@@ -45,98 +47,54 @@ vec2 getVertexIndex(float patchIndex, float cpIndex) {
     return texture2D(texPatch, vec2(u,v)).xy;
 }
 
+vec4 getPatchUV(float patchIndex, float index) {
+    float u = fract(patchIndex*2.0/uvBufferRes) + (index+0.5)/uvBufferRes;
+    float v = (floor(patchIndex*2.0/uvBufferRes)+0.5)/uvBufferRes;
+    return texture2D(texUVBuffer, vec2(u,v));
+}
+
 void main() {
     float B[4], D[4];
     vec3 cp[16];
     vec2 vids[16];
-#ifndef ANDROID  // seemingly Android chrome crashes with this kind of loop....
     for (int i = 0; i < 16; ++i) {
         vids[i] = getVertexIndex(patchData.x, float(i));
     }
-#else
-    vids[ 0] = getVertexIndex(patchData.x, 0.0);
-    vids[ 1] = getVertexIndex(patchData.x, 1.0);
-    vids[ 2] = getVertexIndex(patchData.x, 2.0);
-    vids[ 3] = getVertexIndex(patchData.x, 3.0);
-    vids[ 4] = getVertexIndex(patchData.x, 4.0);
-    vids[ 5] = getVertexIndex(patchData.x, 5.0);
-    vids[ 6] = getVertexIndex(patchData.x, 6.0);
-    vids[ 7] = getVertexIndex(patchData.x, 7.0);
-    vids[ 8] = getVertexIndex(patchData.x, 8.0);
-    vids[ 9] = getVertexIndex(patchData.x, 9.0);
-    vids[10] = getVertexIndex(patchData.x, 10.0);
-    vids[11] = getVertexIndex(patchData.x, 11.0);
-    vids[12] = getVertexIndex(patchData.x, 12.0);
-    vids[13] = getVertexIndex(patchData.x, 13.0);
-    vids[14] = getVertexIndex(patchData.x, 14.0);
-    vids[15] = getVertexIndex(patchData.x, 15.0);
-#endif
 
-    if (vids[9].x == -1.0) {
-        // corner
-#ifndef ANDROID
-        cp[ 4] = texture2D(texCP, vids[ 0]).xyz;
-        cp[ 5] = texture2D(texCP, vids[ 1]).xyz;
-        cp[ 6] = texture2D(texCP, vids[ 2]).xyz;
-        cp[ 7] = texture2D(texCP, vids[ 3]).xyz;
-        cp[ 8] = texture2D(texCP, vids[ 4]).xyz;
-        cp[ 9] = texture2D(texCP, vids[ 5]).xyz;
-        cp[10] = texture2D(texCP, vids[ 6]).xyz;
-        cp[11] = texture2D(texCP, vids[ 7]).xyz;
-        cp[12] = texture2D(texCP, vids[ 8]).xyz;
+    float boundary = patchData.w;
 
-        cp[14] = cp[12];
-        cp[13] = cp[11];
-        cp[12] = cp[10];
-        cp[10] = cp[9];
-        cp[9] = cp[8];
-        cp[8] = cp[7];
-        cp[0] = cp[4]*2.0 - cp[8];
-        cp[1] = cp[5]*2.0 - cp[9];
-        cp[2] = cp[6]*2.0 - cp[10];
-        cp[3] = cp[6]*2.0 - cp[9];
-        cp[7] = cp[6]*2.0 - cp[5];
-        cp[11] = cp[10]*2.0 - cp[9];
-        cp[15] = cp[14]*2.0 - cp[13];
-#endif
-    } else if (vids[15].x < 0.0) {
-#ifndef ANDROID
-        // boundary
-        cp[ 4] = texture2D(texCP, vids[ 0]).xyz;
-        cp[ 5] = texture2D(texCP, vids[ 1]).xyz;
-        cp[ 6] = texture2D(texCP, vids[ 2]).xyz;
-        cp[ 7] = texture2D(texCP, vids[ 3]).xyz;
-        cp[ 8] = texture2D(texCP, vids[ 4]).xyz;
-        cp[ 9] = texture2D(texCP, vids[ 5]).xyz;
-        cp[10] = texture2D(texCP, vids[ 6]).xyz;
-        cp[11] = texture2D(texCP, vids[ 7]).xyz;
-        cp[12] = texture2D(texCP, vids[ 8]).xyz;
-        cp[13] = texture2D(texCP, vids[ 9]).xyz;
-        cp[14] = texture2D(texCP, vids[10]).xyz;
-        cp[15] = texture2D(texCP, vids[11]).xyz;
-        cp[0] = cp[4]*2.0 - cp[8];
-        cp[1] = cp[5]*2.0 - cp[9];
-        cp[2] = cp[6]*2.0 - cp[10];
-        cp[3] = cp[7]*2.0 - cp[11];
-#endif
-    } else {
-        // regular
-        cp[ 0] = texture2D(texCP, vids[ 0]).xyz;
-        cp[ 1] = texture2D(texCP, vids[ 1]).xyz;
-        cp[ 2] = texture2D(texCP, vids[ 2]).xyz;
-        cp[ 3] = texture2D(texCP, vids[ 3]).xyz;
-        cp[ 4] = texture2D(texCP, vids[ 4]).xyz;
-        cp[ 5] = texture2D(texCP, vids[ 5]).xyz;
-        cp[ 6] = texture2D(texCP, vids[ 6]).xyz;
-        cp[ 7] = texture2D(texCP, vids[ 7]).xyz;
-        cp[ 8] = texture2D(texCP, vids[ 8]).xyz;
-        cp[ 9] = texture2D(texCP, vids[ 9]).xyz;
-        cp[10] = texture2D(texCP, vids[10]).xyz;
-        cp[11] = texture2D(texCP, vids[11]).xyz;
-        cp[12] = texture2D(texCP, vids[12]).xyz;
-        cp[13] = texture2D(texCP, vids[13]).xyz;
-        cp[14] = texture2D(texCP, vids[14]).xyz;
-        cp[15] = texture2D(texCP, vids[15]).xyz;
+    // fetch verts
+    for (int i = 0; i < 16; ++i) {
+        cp[i] = texture2D(texCP, vids[i]).xyz;
+    }
+
+    if (mod(boundary, 2.0) >= 1.0)
+    {
+        cp[0] = 2.0*cp[4] - cp[8];
+        cp[1] = 2.0*cp[5] - cp[9];
+        cp[2] = 2.0*cp[6] - cp[10];
+        cp[3] = 2.0*cp[7] - cp[11];
+    }
+    if (mod(boundary, 4.0) >= 2.0)
+    {
+        cp[3] = 2.0*cp[2] - cp[1];
+        cp[7] = 2.0*cp[6] - cp[5];
+        cp[11] = 2.0*cp[10] - cp[9];
+        cp[15] = 2.0*cp[14] - cp[13];
+    }
+    if (mod(boundary, 8.0) >= 4.0)
+    {
+        cp[12] = 2.0*cp[8] - cp[4];
+        cp[13] = 2.0*cp[9] - cp[5];
+        cp[14] = 2.0*cp[10] - cp[6];
+        cp[15] = 2.0*cp[11] - cp[7];
+    }
+    if (mod(boundary, 16.0) >= 8.0)
+    {
+        cp[0] = 2.0*cp[1] - cp[2];
+        cp[4] = 2.0*cp[5] - cp[6];
+        cp[8] = 2.0*cp[9] - cp[10];
+        cp[12] = 2.0*cp[13] - cp[14];
     }
 
     color = inColor.xyz;
@@ -144,7 +102,7 @@ void main() {
     // adaptive stitch
     float pu = inUV.x;
     float pv = inUV.y;
-#if 1
+#if 0
     float pv_u0 = floor(inUV.w / tessLevel.w)/(patchData.y/tessLevel.w);
     float pv_u1 = floor(inUV.w / tessLevel.y)/(patchData.y/tessLevel.y);
     float pu_v0 = floor(inUV.z / tessLevel.x)/(patchData.y/tessLevel.x);
@@ -186,36 +144,32 @@ void main() {
 
     vec3 n = normalize(cross(BiTangent, Tangent));
 
-    ptexCoord.xy = computePtexCoord(texPtexColorL,
-                                    dimPtexColorL,
-                                    ptexParam, patchData.z, vec2(pv,pu));
-    ptexCoord.zw = computePtexCoord(texPtexDisplaceL,
-                                    dimPtexDisplaceL,
-                                    ptexParam, patchData.z, vec2(pv,pu));
+    // fetch UVs
+    vec2 patchUV0 = getPatchUV(patchData.x, 0.0).xy;
+    vec2 patchUV1 = getPatchUV(patchData.x, 0.0).zw;
+    vec2 patchUV2 = getPatchUV(patchData.x, 1.0).xy;
+    vec2 patchUV3 = getPatchUV(patchData.x, 1.0).zw;
+    texUV = mix(mix(patchUV0, patchUV1, pv),
+                mix(patchUV3, patchUV2, pv), pu);
 
     // apply displacement
 #ifdef DISPLACEMENT
-#ifndef PTEX_DISPLACE
-    ptexCoord.zw = WorldPos.xz*4.0;
-#endif
-    float d = displacement(ptexCoord.zw);
+    float d = displacement(texUV);
     WorldPos.xyz += d*n;
 #endif
 
     vec3 p = (modelViewMatrix * vec4(WorldPos.xyz, 1)).xyz;
     normal = (modelViewMatrix * vec4(n, 0)).xyz;
+    Peye = p;
 
 #if defined(PAINT)
     uv = projMatrix * vec4(p, 1);
-    Peye = p;
-    gl_Position = vec4(ptexCoord.x*2.0-1.0, ptexCoord.y*2.0-1.0, 0, 1);
+    gl_Position = vec4(texUV.x*2.0-1.0, texUV.y*2.0-1.0, 0, 1);
 #elif defined(SCULPT)
     uv = projMatrix * vec4(p, 1);
-    Peye = p;
-    gl_Position = vec4(ptexCoord.z*2.0-1.0, ptexCoord.w*2.0-1.0, 0, 1);
+    gl_Position = vec4(texUV.x*2.0-1.0, texUV.y*2.0-1.0, 0, 1);
 #else
     uv = inUV;
-    Peye = p;
     gl_Position = projMatrix * vec4(p, 1);
 #endif
 }
@@ -228,7 +182,7 @@ varying vec3 normal;
 varying vec4 uv;
 varying vec3 color;
 varying vec3 Peye;
-varying vec4 ptexCoord;
+varying vec2 texUV;
 
 void main()
 {
@@ -237,7 +191,7 @@ void main()
 #elif defined(SCULPT)
     gl_FragColor = sculpt(uv.xy/uv.w);
 #else
-    gl_FragColor = lighting(Peye, normal, uv, color, ptexCoord);
+    gl_FragColor = lighting(Peye, normal, uv, color, texUV);
 #endif
 }
 

@@ -578,6 +578,8 @@ PatchEvaluator.prototype.evalBSplineP =
     else if (vertsIndices[patchIndex*16+9] == -1) ncp = 9;
     else if (vertsIndices[patchIndex*16+12] == -1) ncp = 12;
 
+    model.patchPara
+
     var border = (ncp == 12);
     var corner = (ncp == 9);
     var vofs = (border || corner) ? 4 : 0;
@@ -638,7 +640,7 @@ PatchEvaluator.prototype.evalBSplineP =
 }
 
 PatchEvaluator.prototype.evalBSpline =
-    function(vertsIndices, patchIndex, u, v)
+    function(vertsIndices, patchIndex, u, v, boundary)
 {
     vec3.set(this.BU[0],0,0,0);
     vec3.set(this.BU[1],0,0,0);
@@ -649,23 +651,15 @@ PatchEvaluator.prototype.evalBSpline =
     vec3.set(this.DU[2],0,0,0);
     vec3.set(this.DU[3],0,0,0);
 
-    var ncp = 16;
-    if (vertsIndices[patchIndex*16+4] == -1) ncp = 4;
-    else if (vertsIndices[patchIndex*16+9] == -1) ncp = 9;
-    else if (vertsIndices[patchIndex*16+12] == -1) ncp = 12;
-
-    var border = (ncp == 12);
-    var corner = (ncp == 9);
-    var vofs = (border || corner) ? 4 : 0;
-    for (var i = 0; i < ncp; ++i) {
+    for (var i = 0; i < 16; ++i) {
         var x = model.patchVerts[vertsIndices[patchIndex*16+i]*3+0];
         var y = model.patchVerts[vertsIndices[patchIndex*16+i]*3+1];
         var z = model.patchVerts[vertsIndices[patchIndex*16+i]*3+2];
-        vec3.set(this.verts[i+vofs], x, y, z);
+        vec3.set(this.verts[i], x, y, z);
     }
 
     // mirroring boundary vertices.
-    if (border) {
+    if ((boundary & 1) != 0) {
         vec3.scale(this.verts[0], this.verts[4], 2);
         vec3.scale(this.verts[1], this.verts[5], 2);
         vec3.scale(this.verts[2], this.verts[6], 2);
@@ -674,28 +668,36 @@ PatchEvaluator.prototype.evalBSpline =
         vec3.sub(this.verts[1], this.verts[1], this.verts[9]);
         vec3.sub(this.verts[2], this.verts[2], this.verts[10]);
         vec3.sub(this.verts[3], this.verts[3], this.verts[11]);
-    } else if (corner) {
-        vec3.copy(this.verts[14], this.verts[12]);
-        vec3.copy(this.verts[13], this.verts[11]);
-        vec3.copy(this.verts[12], this.verts[10]);
-        vec3.copy(this.verts[10], this.verts[9]);
-        vec3.copy(this.verts[9], this.verts[8]);
-        vec3.copy(this.verts[8], this.verts[7]);
-
-        vec3.scale(this.verts[0], this.verts[4], 2);
-        vec3.scale(this.verts[1], this.verts[5], 2);
-        vec3.scale(this.verts[2], this.verts[6], 2);
-        vec3.scale(this.verts[3], this.verts[6], 2);
+    }
+    if ((boundary & 2) != 0) {
+        vec3.scale(this.verts[3], this.verts[2], 2);
         vec3.scale(this.verts[7], this.verts[6], 2);
         vec3.scale(this.verts[11], this.verts[10], 2);
         vec3.scale(this.verts[15], this.verts[14], 2);
-        vec3.sub(this.verts[0], this.verts[0], this.verts[8]);
-        vec3.sub(this.verts[1], this.verts[1], this.verts[9]);
-        vec3.sub(this.verts[2], this.verts[2], this.verts[10]);
-        vec3.sub(this.verts[3], this.verts[3], this.verts[9]);
+        vec3.sub(this.verts[3], this.verts[3], this.verts[1]);
         vec3.sub(this.verts[7], this.verts[7], this.verts[5]);
         vec3.sub(this.verts[11], this.verts[11], this.verts[9]);
         vec3.sub(this.verts[15], this.verts[15], this.verts[13]);
+    }
+    if ((boundary & 4) != 0) {
+        vec3.scale(this.verts[12], this.verts[8], 2);
+        vec3.scale(this.verts[13], this.verts[9], 2);
+        vec3.scale(this.verts[14], this.verts[10], 2);
+        vec3.scale(this.verts[15], this.verts[11], 2);
+        vec3.sub(this.verts[12], this.verts[12], this.verts[4]);
+        vec3.sub(this.verts[13], this.verts[13], this.verts[5]);
+        vec3.sub(this.verts[14], this.verts[14], this.verts[6]);
+        vec3.sub(this.verts[15], this.verts[15], this.verts[7]);
+    }
+    if ((boundary & 8) != 0) {
+        vec3.scale(this.verts[0], this.verts[1], 2);
+        vec3.scale(this.verts[4], this.verts[5], 2);
+        vec3.scale(this.verts[8], this.verts[9], 2);
+        vec3.scale(this.verts[12], this.verts[13], 2);
+        vec3.sub(this.verts[0], this.verts[0], this.verts[2]);
+        vec3.sub(this.verts[4], this.verts[4], this.verts[6]);
+        vec3.sub(this.verts[8], this.verts[8], this.verts[10]);
+        vec3.sub(this.verts[12], this.verts[12], this.verts[14]);
     }
 
     evalCubicBSpline(u, this.B, this.D);
