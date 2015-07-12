@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui">
+    <meta name="format-detection" content="telephone=no">
+
+    <title>OpenSubdiv 3.0 WebGL viewer</title>
+
+    <link media="only screen and (max-device-width:480px)"
+          href="smartstyle.css" type="text/css" rel="stylesheet" />
+    <link media="screen and (min-device-width:481px)" href="fullstyle.css"
+          type="text/css" rel="stylesheet" />
+    <!--[if IE]>
+        <link href="fullstyle.css" type="text/css" rel="stylesheet" />
+    <![endif]-->
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="../lib/glUtil.js?013101" type="text/javascript" ></script>
+    <script src="../lib/gl-matrix-min.js" type="text/javascript"></script>
+    <script src="../lib/camera.js?012501" type="text/javascript" ></script>
+    <script src="../lib/dat.gui.min.js"></script>
+
+    <script src="osd.js?20150710"></script>
+    <script src="./common.js?20150710" type="text/javascript" ></script>
+    <script src="./eval.js?20150710" type="text/javascript" ></script>
+    <script src="./view.js?20150710" type="text/javascript" ></script>
+
+  </head>
+
+  <body>
+    <canvas id="main"></canvas>
+    <div id="header">
+      <span id="title">OpenSubdiv 3.0 WebGL viewer</span>
+      </br>
+      <span id="status"></span>
+    </div>
+
+    <div id="credit"></div>
+    <div id="version">version</div>
+    <div id="footer">
+      <span id="triangles"></span> triangles /
+      <span id="fps">--</span> fps
+      <span id="repolink">
+        <a href="https://github.com/takahito-tejima/takahito-tejima.github.io">Repository</a>
+        <a href="LICENSE">License</a>
+      </span>
+    </div>
+  </body>
+</html>

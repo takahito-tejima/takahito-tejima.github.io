@@ -1,0 +1,62 @@
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+    color:white;
+    font-size: 10pt;
+    margin:0;
+    padding:0;
+}
+
+#header {
+    position:absolute;
+    top: 0;
+    left: 1em;
+}
+#header #title {
+    color: #00ff00;
+}
+
+#version {
+    position:absolute;
+    bottom:0;
+    left:1em;
+    font-size: 5pt;
+}
+
+#credit {
+    position:absolute;
+    bottom:1em;
+    left:1em;
+    font-size: 9pt;
+}
+
+#footer {
+    position: absolute;
+    clear: left;
+    bottom: 0;
+    right: 3em;
+    font-size: 9pt;
+}
+
+canvas#main
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: default;
+    background-color: #020208;
+}
+
+#loading
+{
+    position:absolute;
+    top: 100px;
+    left:100px;
+}
+
+a:link { color: #ffff00; }
+a:visited { color: #ffff80; }
