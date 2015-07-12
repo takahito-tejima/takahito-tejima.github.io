@@ -125,16 +125,19 @@ vec4 lighting(vec3 Peye, vec3 normal, vec4 uv, vec3 color, vec2 texUV)
 #elif DISPLAY_MODE == 2
     c = vec4(d*c.rgb,1);
     vec2 vRel = fract(uv.zw);
-    float edge = max(1.0-vRel.x, max(1.0-vRel.y, max(vRel.x, vRel.y)));
+    float edge = 1.0 - max(1.0-vRel.x, max(1.0-vRel.y, max(vRel.x, vRel.y)));
 
 #if defined(HAS_OES_STANDARD_DERIVATIVES)
-    vec2 dist = fwidth(vRel);
+    vec2 dist = fwidth(uv.zw);
 #else
-    vec2 dist = vec2(0);
+    vec2 dist = vec2(0.05);
 #endif
-    vec2 a2 = smoothstep(vec2(0), dist*1.0, vRel);
-    edge = 1.0 -(a2.x + a2.y)*0.5;
-    c = mix(c, vec4(0,0,0,1), edge);
+    float sc = min(dist.x, dist.y);
+    edge = clamp(edge / sc, 0.0, 1.0);
+
+    c = mix(vec4(0,0,0,1), c, edge);
+    return c;
+
 #elif DISPLAY_MODE == 3
     c = vec4(fnormal, 1);
 #elif DISPLAY_MODE == 4
