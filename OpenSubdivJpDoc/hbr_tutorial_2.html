@@ -1,0 +1,454 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>hbr_tutorial_2.cpp</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="hbr-tutorial-2-cpp">
+<h1 class="title">hbr_tutorial_2.cpp</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">hbr_tutorial_2.cpp</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<p><a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/hbr/tutorial_2/hbr_tutorial_2.cpp">https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/tutorials/hbr/tutorial_2/hbr_tutorial_2.cpp</a></p>
+<hr class="docutils" />
+<pre class="code c literal-block">
+<span class="comment single">//------------------------------------------------------------------------------
+// Tutorial description:
+//
+// This tutorial shows how to subdivide uniformly a simple Hbr mesh. We are
+// building upon previous turtorials and assuming a fully instantiated mesh:
+// we start with an HbrMesh pointer initialized from the same pyramid shape
+// used in hbr_tutorial_0.
+//
+// We then apply the Refine() function sequentially to all the faces in the
+// mesh to generate several levels of uniform subdivision. The resulting data
+// is then dumped to the terminal in Wavefront OBJ format for inspection.
+//
+</span>
+<span class="comment preproc">#include &lt;opensubdiv/hbr/mesh.h&gt;
+#include &lt;opensubdiv/hbr/catmark.h&gt;
+</span>
+<span class="comment preproc">#include &lt;cassert&gt;
+#include &lt;cstdio&gt;
+</span>
+
+<span class="comment single">//------------------------------------------------------------------------------
+//
+// For this tutorial, we have to flesh the Vertex class further. Note that now
+// the copy constructor, Clear() and AddwithWeight() methods have been
+// implemented to interpolate our float3 position data.
+//
+// This vertex specialization pattern leaves client-code free to implement
+// arbitrary vertex primvar data schemes (or none at all to conserve efficiency)
+//
+</span><span class="keyword">struct</span> <span class="name">Vertex</span> <span class="punctuation">{</span>
+
+    <span class="comment single">// Hbr minimal required interface ----------------------
+</span>    <span class="name">Vertex</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
+
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="comment multiline">/*i*/</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
+
+    <span class="name">Vertex</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword type">void</span> <span class="name">Clear</span><span class="punctuation">(</span> <span class="keyword type">void</span> <span class="operator">*</span> <span class="operator">=</span><span class="literal number integer">0</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="literal number float">0.0f</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword type">void</span> <span class="name">AddWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span> <span class="name">src</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">weight</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">+=</span><span class="name">weight</span><span class="operator">*</span><span class="name">src</span><span class="punctuation">.</span><span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword type">void</span> <span class="name">AddVaryingWithWeight</span><span class="punctuation">(</span><span class="name">Vertex</span> <span class="keyword">const</span> <span class="operator">&amp;</span><span class="punctuation">,</span> <span class="keyword type">float</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">}</span>
+
+    <span class="comment single">// Public interface ------------------------------------
+</span>    <span class="keyword type">void</span> <span class="name">SetPosition</span><span class="punctuation">(</span><span class="keyword type">float</span> <span class="name">x</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">y</span><span class="punctuation">,</span> <span class="keyword type">float</span> <span class="name">z</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">x</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">y</span><span class="punctuation">;</span>
+        <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span><span class="operator">=</span><span class="name">z</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">const</span> <span class="keyword type">float</span> <span class="operator">*</span> <span class="name">GetPosition</span><span class="punctuation">()</span> <span class="keyword">const</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="name">_position</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+<span class="name label">private</span><span class="punctuation">:</span>
+    <span class="keyword type">float</span> <span class="name">_position</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+<span class="punctuation">};</span>
+
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrMesh</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>      <span class="name">Hmesh</span><span class="punctuation">;</span>
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrFace</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>      <span class="name">Hface</span><span class="punctuation">;</span>
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrVertex</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>    <span class="name">Hvertex</span><span class="punctuation">;</span>
+<span class="keyword">typedef</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrHalfedge</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span>  <span class="name">Hhalfedge</span><span class="punctuation">;</span>
+
+<span class="name">Hmesh</span> <span class="operator">*</span> <span class="name function">createMesh</span><span class="punctuation">();</span>
+
+<span class="comment single">//------------------------------------------------------------------------------
+</span><span class="keyword type">int</span> <span class="name function">main</span><span class="punctuation">(</span><span class="keyword type">int</span><span class="punctuation">,</span> <span class="keyword type">char</span> <span class="operator">**</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+
+    <span class="name">Hmesh</span> <span class="operator">*</span> <span class="name">hmesh</span> <span class="operator">=</span> <span class="name">createMesh</span><span class="punctuation">();</span>
+
+    <span class="keyword type">int</span> <span class="name">maxlevel</span><span class="operator">=</span><span class="literal number integer">2</span><span class="punctuation">,</span>    <span class="comment single">// 2 levels of subdivision
+</span>        <span class="name">firstface</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">,</span>   <span class="comment single">// marker to the first face index of level 2
+</span>        <span class="name">firstvertex</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="comment single">// marker to the first vertex index of level 2
+</span>
+    <span class="comment single">// Refine the mesh to 'maxlevel'
+</span>    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">level</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">level</span><span class="operator">&lt;</span><span class="name">maxlevel</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">level</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+
+        <span class="comment single">// Total number of faces in the mesh, across all levels
+</span>        <span class="comment single">//
+</span>        <span class="comment single">// Mote: this function iterates over the list of faces and can be slow
+</span>        <span class="keyword type">int</span> <span class="name">nfaces</span> <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetNumFaces</span><span class="punctuation">();</span>
+
+        <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">level</span><span class="operator">==</span><span class="punctuation">(</span><span class="name">maxlevel</span><span class="operator">-</span><span class="literal number integer">1</span><span class="punctuation">))</span> <span class="punctuation">{</span>
+            <span class="comment single">// Save our vertex marker
+</span>            <span class="name">firstvertex</span> <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetNumVertices</span><span class="punctuation">();</span>
+        <span class="punctuation">}</span>
+
+        <span class="comment single">// Iterate over the faces of the current level of subdivision
+</span>        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">face</span><span class="operator">=</span><span class="name">firstface</span><span class="punctuation">;</span> <span class="name">face</span><span class="operator">&lt;</span><span class="name">nfaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">face</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+
+            <span class="name">Hface</span> <span class="operator">*</span> <span class="name">f</span> <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetFace</span><span class="punctuation">(</span><span class="name">face</span><span class="punctuation">);</span>
+
+            <span class="comment single">// Mote : hole tags would have to be dealt with here.
+</span>            <span class="name">f</span><span class="operator">-&gt;</span><span class="name">Refine</span><span class="punctuation">();</span>
+        <span class="punctuation">}</span>
+
+        <span class="comment single">// Save our face index marker for the next level
+</span>        <span class="name">firstface</span> <span class="operator">=</span> <span class="name">nfaces</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="punctuation">{</span> <span class="comment single">// Output OBJ of the highest level refined -----------
+</span>
+        <span class="comment single">// Print vertex positions
+</span>        <span class="keyword type">int</span> <span class="name">nverts</span> <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetNumVertices</span><span class="punctuation">();</span>
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">vert</span><span class="operator">=</span><span class="name">firstvertex</span><span class="punctuation">;</span> <span class="name">vert</span><span class="operator">&lt;</span><span class="name">nverts</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">vert</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword type">float</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">pos</span> <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span><span class="name">vert</span><span class="punctuation">)</span><span class="operator">-&gt;</span><span class="name">GetData</span><span class="punctuation">().</span><span class="name">GetPosition</span><span class="punctuation">();</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;v %f %f %f</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">pos</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
+
+        <span class="comment single">// Print faces
+</span>        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">face</span><span class="operator">=</span><span class="name">firstface</span><span class="punctuation">;</span> <span class="name">face</span><span class="operator">&lt;</span><span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetNumFaces</span><span class="punctuation">();</span> <span class="operator">++</span><span class="name">face</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+
+            <span class="name">Hface</span> <span class="operator">*</span> <span class="name">f</span> <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetFace</span><span class="punctuation">(</span><span class="name">face</span><span class="punctuation">);</span>
+
+            <span class="name">assert</span><span class="punctuation">(</span><span class="name">f</span><span class="operator">-&gt;</span><span class="name">GetNumVertices</span><span class="punctuation">()</span><span class="operator">==</span><span class="literal number integer">4</span> <span class="punctuation">);</span>
+
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;f &quot;</span><span class="punctuation">);</span>
+            <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">vert</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">vert</span><span class="operator">&lt;</span><span class="literal number integer">4</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">vert</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+
+                <span class="comment single">// OBJ uses 1-based arrays
+</span>                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;%d &quot;</span><span class="punctuation">,</span> <span class="name">f</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span><span class="name">vert</span><span class="punctuation">)</span><span class="operator">-&gt;</span><span class="name">GetID</span><span class="punctuation">()</span> <span class="operator">-</span> <span class="name">firstvertex</span> <span class="operator">+</span> <span class="literal number integer">1</span><span class="punctuation">);</span>
+            <span class="punctuation">}</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+
+<span class="punctuation">}</span>
+
+<span class="comment single">//------------------------------------------------------------------------------
+// Creates an Hbr mesh
+//
+// see hbr_tutorial_0 and hbr_tutorial_1 for more details
+//
+</span><span class="name">Hmesh</span> <span class="operator">*</span>
+<span class="name function">createMesh</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+
+    <span class="comment single">// Pyramid geometry from catmark_pyramid.h
+</span>    <span class="keyword">static</span> <span class="keyword type">float</span> <span class="name">verts</span><span class="punctuation">[</span><span class="literal number integer">5</span><span class="punctuation">][</span><span class="literal number integer">3</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{{</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">2.0f</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span> <span class="operator">-</span><span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span> <span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span> <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">},</span>
+                                <span class="punctuation">{</span><span class="operator">-</span><span class="literal number float">2.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">,</span>  <span class="literal number float">0.0f</span><span class="punctuation">}};</span>
+
+    <span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">nverts</span> <span class="operator">=</span> <span class="literal number integer">5</span><span class="punctuation">,</span>
+               <span class="name">nfaces</span> <span class="operator">=</span> <span class="literal number integer">5</span><span class="punctuation">;</span>
+
+    <span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">facenverts</span><span class="punctuation">[</span><span class="literal number integer">5</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">4</span> <span class="punctuation">};</span>
+
+    <span class="keyword">static</span> <span class="keyword type">int</span> <span class="name">faceverts</span><span class="punctuation">[</span><span class="literal number integer">16</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span> <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">0</span><span class="punctuation">,</span> <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">,</span>
+                                 <span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal number integer">3</span><span class="punctuation">,</span> <span class="literal number integer">2</span><span class="punctuation">,</span> <span class="literal number integer">1</span> <span class="punctuation">};</span>
+
+    <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrCatmarkSubdivision</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span> <span class="operator">*</span> <span class="name">catmark</span> <span class="operator">=</span>
+        <span class="name">new</span> <span class="name">OpenSubdiv</span><span class="operator">::</span><span class="name">HbrCatmarkSubdivision</span><span class="operator">&lt;</span><span class="name">Vertex</span><span class="operator">&gt;</span><span class="punctuation">();</span>
+
+    <span class="name">Hmesh</span> <span class="operator">*</span> <span class="name">hmesh</span> <span class="operator">=</span> <span class="name">new</span> <span class="name">Hmesh</span><span class="punctuation">(</span><span class="name">catmark</span><span class="punctuation">);</span>
+
+    <span class="comment single">// Populate the vertices
+</span>    <span class="name">Vertex</span> <span class="name">v</span><span class="punctuation">;</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">nverts</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="name">v</span><span class="punctuation">.</span><span class="name">SetPosition</span><span class="punctuation">(</span><span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">0</span><span class="punctuation">],</span> <span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">1</span><span class="punctuation">],</span> <span class="name">verts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">][</span><span class="literal number integer">2</span><span class="punctuation">]);</span>
+        <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">NewVertex</span><span class="punctuation">(</span><span class="name">i</span><span class="punctuation">,</span> <span class="name">v</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment single">// Create the topology
+</span>    <span class="keyword type">int</span> <span class="operator">*</span> <span class="name">fv</span> <span class="operator">=</span> <span class="name">faceverts</span><span class="punctuation">;</span>
+    <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">i</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span> <span class="name">i</span><span class="operator">&lt;</span><span class="name">nfaces</span><span class="punctuation">;</span> <span class="operator">++</span><span class="name">i</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+
+        <span class="keyword type">int</span> <span class="name">nv</span> <span class="operator">=</span> <span class="name">facenverts</span><span class="punctuation">[</span><span class="name">i</span><span class="punctuation">];</span>
+
+        <span class="keyword type">bool</span> <span class="name">valid</span> <span class="operator">=</span> <span class="name builtin">true</span><span class="punctuation">;</span>
+
+        <span class="keyword">for</span><span class="punctuation">(</span><span class="keyword type">int</span> <span class="name">j</span><span class="operator">=</span><span class="literal number integer">0</span><span class="punctuation">;</span><span class="name">j</span><span class="operator">&lt;</span><span class="name">nv</span><span class="punctuation">;</span><span class="name">j</span><span class="operator">++</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+
+            <span class="name">Hvertex</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">origin</span>      <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span><span class="name">fv</span><span class="punctuation">[</span><span class="name">j</span><span class="punctuation">]),</span>
+                          <span class="operator">*</span> <span class="name">destination</span> <span class="operator">=</span> <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">GetVertex</span><span class="punctuation">(</span><span class="name">fv</span><span class="punctuation">[(</span><span class="name">j</span><span class="operator">+</span><span class="literal number integer">1</span><span class="punctuation">)</span><span class="operator">%</span><span class="name">nv</span><span class="punctuation">]);</span>
+            <span class="name">Hhalfedge</span> <span class="keyword">const</span> <span class="operator">*</span> <span class="name">opposite</span> <span class="operator">=</span> <span class="name">destination</span><span class="operator">-&gt;</span><span class="name">GetEdge</span><span class="punctuation">(</span><span class="name">origin</span><span class="punctuation">);</span>
+
+            <span class="comment single">// Make sure that the vertices exist in the mesh
+</span>            <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">origin</span><span class="operator">==</span><span class="name builtin">NULL</span> <span class="name">or</span> <span class="name">destination</span><span class="operator">==</span><span class="name builtin">NULL</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; An edge was specified that connected a nonexistent vertex</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+                <span class="name">valid</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
+                <span class="keyword">break</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
+
+            <span class="comment single">// Check for a degenerate edge
+</span>            <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">origin</span> <span class="operator">==</span> <span class="name">destination</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; An edge was specified that connected a vertex to itself</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+                <span class="name">valid</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
+                <span class="keyword">break</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
+
+            <span class="comment single">// Check that no more than 2 faces are adjacent to the edge
+</span>            <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">opposite</span> <span class="name">and</span> <span class="name">opposite</span><span class="operator">-&gt;</span><span class="name">GetOpposite</span><span class="punctuation">()</span> <span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; A non-manifold edge incident to more than 2 faces was found</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+                <span class="name">valid</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
+                <span class="keyword">break</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
+
+            <span class="comment single">// Check that the edge is unique and oriented properly
+</span>            <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">origin</span><span class="operator">-&gt;</span><span class="name">GetEdge</span><span class="punctuation">(</span><span class="name">destination</span><span class="punctuation">))</span> <span class="punctuation">{</span>
+                <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; An edge connecting two vertices was specified more than once.&quot;</span>
+                       <span class="literal string">&quot; It's likely that an incident face was flipped</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">);</span>
+                <span class="name">valid</span><span class="operator">=</span><span class="name builtin">false</span><span class="punctuation">;</span>
+                <span class="keyword">break</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
+        <span class="punctuation">}</span>
+
+        <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">valid</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">NewFace</span><span class="punctuation">(</span><span class="name">nv</span><span class="punctuation">,</span> <span class="name">fv</span><span class="punctuation">,</span> <span class="literal number integer">0</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+            <span class="name">printf</span><span class="punctuation">(</span><span class="literal string">&quot; Skipped face %d</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span><span class="punctuation">,</span> <span class="name">i</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+
+        <span class="name">fv</span><span class="operator">+=</span><span class="name">nv</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">SetInterpolateBoundaryMethod</span><span class="punctuation">(</span><span class="name">Hmesh</span><span class="operator">::</span><span class="name">k_InterpolateBoundaryEdgeOnly</span><span class="punctuation">);</span>
+
+    <span class="name">hmesh</span><span class="operator">-&gt;</span><span class="name">Finish</span><span class="punctuation">();</span>
+
+    <span class="keyword">return</span> <span class="name">hmesh</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+
+<span class="comment single">//------------------------------------------------------------------------------</span>
+</pre>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 21:00 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>HBR Overview</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="hbr-overview">
+<h1 class="title">HBR Overview</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">HBR Overview</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#hierarchical-boundary-representation-hbr" id="id1">Hierarchical Boundary Representation (Hbr)</a></li>
+<li><a class="reference internal" href="#half-edge-data-structure" id="id2">Half-edge Data Structure</a></li>
+<li><a class="reference internal" href="#half-edge-cycles-and-manifold-topology" id="id3">Half-edge cycles and Manifold Topology</a></li>
+<li><a class="reference internal" href="#templated-vertex-class" id="id4">Templated Vertex Class</a></li>
+<li><a class="reference internal" href="#boundary-interpolation-rules" id="id5">Boundary Interpolation Rules</a></li>
+</ul>
+</div>
+<div class="section" id="hierarchical-boundary-representation-hbr">
+<h3>Hierarchical Boundary Representation (Hbr)</h3>
+<p>Hbr is an interconnected topological data representation. The high level of vertex
+connectivity information makes this representation well suited for creation and
+editing purposes. It is however inefficient for interactive refinement operations:
+Separate objects are allocated for each vertex and edge with pointers to neighboring
+vertices and edges.</p>
+<p>Hbr is also the lowest-level subdivision library in Pixar's <cite>Photorealistic RenderMan</cite>.</p>
+<div class="notebox container">
+<p><strong>Note</strong></p>
+<blockquote>
+As of OpenSubdiv 3.0, all <strong>Hbr</strong> dependencies have been removed from the
+core APIs (<strong>Sdc</strong>, <strong>Vtr</strong>, <strong>Far</strong>, <strong>Osd</strong>). The legacy source code of
+<strong>Hbr</strong> is provided purely for regression and legacy purposes. If your code
+is currently depending on Hbr functionality, we recommend migrating to the
+newer APIs as we cannot guarantee that this code will be maintained in
+future releases.
+For more information see the <a class="reference external" href="release_notes.html">3.0 release notes</a></blockquote>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="half-edge-data-structure">
+<h3>Half-edge Data Structure</h3>
+<p>The current implementation is based on a half-edge data structure.</p>
+<img alt="images/half_edge.png" class="align-center" src="images/half_edge.png" />
+</div>
+<hr class="docutils" />
+<div class="section" id="half-edge-cycles-and-manifold-topology">
+<h3>Half-edge cycles and Manifold Topology</h3>
+<p>Because half-edges only carry a reference to their opposite half-edge, a given
+edge can only access a single neighboring edge cycle.</p>
+<img alt="images/half_edge_cycle.png" class="align-center" src="images/half_edge_cycle.png" />
+<p>This is a fundamental limitation of the half-edge data structure, in that it
+cannot represent non-manifold geometry, in particular fan-type topologies. A
+different approach to topology will probably be necessary in order to accommodate
+non-manifold geometry.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="templated-vertex-class">
+<h3>Templated Vertex Class</h3>
+<p>The vertex class has been abstracted into a set of templated function accesses.
+Providing Hbr with a template vertex class that does not implement these functions
+allows client-code to use Hbr as a pure topological analysis tool without having
+to pay any costs for data interpolation. It also allows client-code to remain in
+complete control of the layout of the vertex data : interleaved or non-interleaved.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="boundary-interpolation-rules">
+<h3>Boundary Interpolation Rules</h3>
+<p><strong>Hbr</strong> recognizes 4 rule-sets of boundary interpolation:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Interpolation Rule-Sets</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>k_InterpolateBoundaryNone</td>
+</tr>
+<tr><td>k_InterpolateBoundaryEdgeOnly</td>
+</tr>
+<tr><td>k_InterpolateBoundaryEdgeAndCorner</td>
+</tr>
+<tr><td>k_InterpolateBoundaryAlwaysSharp</td>
+</tr>
+</tbody>
+</table>
+<p>This enum is shared for both <a class="reference external" href="subdivision_surfaces.html#boundary-interpolation-rules">vertex and face-varying interpolation</a>, with the following
+distinctions:</p>
+<blockquote>
+<ul>
+<li><dl class="first docutils">
+<dt>vertex boundaries:</dt>
+<dd><ul class="first last simple">
+<li>the <em>BoundaryNone</em> rule skips all boundary vertices (results are ''undefined'')</li>
+<li>the <em>AlwaysSharp</em> rule does not apply</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>face-varying boundaries:</dt>
+<dd><ul class="first last simple">
+<li>the <em>BoundaryNone</em> rule selects bilinear face-varying interpolation</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</blockquote>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 21:00 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

@@ -1,0 +1,540 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Building with CMake</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="building-with-cmake">
+<h1 class="title">Building with CMake</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Building with CMake</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id1">Overview</a></li>
+<li><a class="reference internal" href="#step-1-dependencies" id="id2">Step 1: Dependencies</a><ul>
+<li><a class="reference internal" href="#required" id="id3">Required</a></li>
+<li><a class="reference internal" href="#optional" id="id4">Optional</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#step-2-configuring-cmake" id="id5">Step 2: Configuring CMake</a><ul>
+<li><a class="reference internal" href="#useful-build-options" id="id6">Useful Build Options</a></li>
+<li><a class="reference internal" href="#environment-variables" id="id7">Environment Variables</a></li>
+<li><a class="reference internal" href="#automated-script" id="id8">Automated Script</a></li>
+<li><a class="reference internal" href="#using-intel-s-c-studio-xe" id="id9">Using Intel's C++ Studio XE</a></li>
+<li><a class="reference internal" href="#using-clang" id="id10">Using Clang</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#step-3-building" id="id11">Step 3: Building</a><ul>
+<li><a class="reference internal" href="#build-targets" id="id12">Build Targets</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#compiling-linking-an-opensubdiv-application" id="id13">Compiling &amp; Linking an OpenSubdiv Application</a></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="overview">
+<h3>Overview</h3>
+<p>Assuming that you have <a class="reference external" href="getting_started.html">cloned</a> the source repository
+and selected an appropriate release branch, the following instructions will
+walk you through the CMake and configuration and build process.</p>
+<p>CMake is a cross-platform, open-source build system. CMake controls the compilation
+process using platform independent configuration files in order to generate
+Makefiles and workspaces that are native to the platform of choice.</p>
+<p>The process involves the following steps:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>Locate &amp; build the requisite dependencies</li>
+<li>Configure &amp; run CMake to generate Makefiles / MSVC solution / XCode project</li>
+<li>Run the build from make / MSVC / XCode</li>
+</ol>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="step-1-dependencies">
+<h3>Step 1: Dependencies</h3>
+<p>CMake will adapt the build based on which dependencies have been successfully
+discovered and will disable certain features and code examples accordingly.</p>
+<p>Please refer to the documentation of each of the dependency packages for specific
+build and installation instructions.</p>
+<div class="section" id="required">
+<h4>Required</h4>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="http://www.cmake.org/">CMake</a> version 2.8</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="optional">
+<h4>Optional</h4>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="http://ptex.us/">Ptex</a> (support features for ptex textures and the
+ptexViewer example)</li>
+<li><a class="reference external" href="http://www.zlib.net/">Zlib</a> (required for Ptex under Windows)</li>
+<li><a class="reference external" href="http://glew.sourceforge.net/">GLEW</a></li>
+<li><a class="reference external" href="http://www.nvidia.com/object/cuda_home_new.html">CUDA</a></li>
+<li><a class="reference external" href="http://www.threadingbuildingblocks.org/">TBB</a></li>
+<li><a class="reference external" href="http://www.khronos.org/opencl/">OpenCL</a></li>
+<li><a class="reference external" href="http://www.microsoft.com/">DX11 SDK</a></li>
+<li><a class="reference external" href="https://github.com/glfw/glfw">GLFW</a> (required for standalone examples
+and some regression tests)</li>
+<li><a class="reference external" href="http://docutils.sourceforge.net/">Docutils</a> (required for reST-based documentation)</li>
+<li><a class="reference external" href="http://pygments.org/">Python Pygments</a> (required for Docutils reST styling)</li>
+<li><a class="reference external" href="http://www.doxygen.org/">Doxygen</a></li>
+</ul>
+</blockquote>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="step-2-configuring-cmake">
+<h3>Step 2: Configuring CMake</h3>
+<p>One way to configure CMake is to use the <a class="reference external" href="http://www.cmake.org/cmake/help/runningcmake.html">CMake GUI</a>.
+In many cases CMake can fall back on default standard paths in order to find the
+packages that OpenSubdiv depends on. For non-standard installations however, a
+complete set of override variables is available. The following sub-section lists
+some of these variables. For more specific details, please consult the source of
+the custom CMake modules in the OpenSubdiv/cmake/ folder.</p>
+<div class="section" id="useful-build-options">
+<h4>Useful Build Options</h4>
+<p>The following configuration arguments can be passed to the CMake command line.</p>
+<pre class="code c++ literal-block">
+<span class="operator">-</span><span class="name">DCMAKE_BUILD_TYPE</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">Debug</span><span class="operator">|</span><span class="name">Release</span><span class="punctuation">]</span>
+
+<span class="operator">-</span><span class="name">DCMAKE_INSTALL_PREFIX</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">base</span> <span class="name">path</span> <span class="name">to</span> <span class="name">install</span> <span class="name">OpenSubdiv</span> <span class="punctuation">(</span><span class="keyword">default</span><span class="operator">:</span> <span class="name">Current</span> <span class="name">directory</span><span class="punctuation">)]</span>
+<span class="operator">-</span><span class="name">DCMAKE_LIBDIR_BASE</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">library</span> <span class="name">directory</span> <span class="name">basename</span> <span class="punctuation">(</span><span class="keyword">default</span><span class="operator">:</span> <span class="name">lib</span><span class="punctuation">)]</span>
+
+<span class="operator">-</span><span class="name">DCUDA_TOOLKIT_ROOT_DIR</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">CUDA</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DPTEX_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Ptex</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DGLEW_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">GLEW</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DGLFW_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">GLFW</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DMAYA_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Maya</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DTBB_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Intel</span><span class="error">'</span><span class="name">s</span> <span class="name">TBB</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DICC_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Intel</span><span class="error">'</span><span class="name">s</span> <span class="name">C</span><span class="operator">++</span> <span class="name">Studio</span> <span class="name">XE</span><span class="punctuation">]</span>
+
+<span class="operator">-</span><span class="name">DNO_LIB</span><span class="operator">=</span><span class="literal number integer">1</span>        <span class="comment single">// disable the opensubdiv libs build (caveat emptor)
+</span><span class="operator">-</span><span class="name">DNO_EXAMPLES</span><span class="operator">=</span><span class="literal number integer">1</span>   <span class="comment single">// disable examples build
+</span><span class="operator">-</span><span class="name">DNO_TUTORIALS</span><span class="operator">=</span><span class="literal number integer">1</span>  <span class="comment single">// disable tutorials build
+</span><span class="operator">-</span><span class="name">DNO_REGRESSION</span><span class="operator">=</span><span class="literal number integer">1</span> <span class="comment single">// disable regression tests build
+</span><span class="operator">-</span><span class="name">DNO_MAYA</span><span class="operator">=</span><span class="literal number integer">1</span>       <span class="comment single">// disable Maya plugin build
+</span><span class="operator">-</span><span class="name">DNO_PTEX</span><span class="operator">=</span><span class="literal number integer">1</span>       <span class="comment single">// disable PTex support
+</span><span class="operator">-</span><span class="name">DNO_DOC</span><span class="operator">=</span><span class="literal number integer">1</span>        <span class="comment single">// disable documentation build
+</span><span class="operator">-</span><span class="name">DNO_OMP</span><span class="operator">=</span><span class="literal number integer">1</span>        <span class="comment single">// disable OpenMP
+</span><span class="operator">-</span><span class="name">DNO_TBB</span><span class="operator">=</span><span class="literal number integer">1</span>        <span class="comment single">// disable TBB
+</span><span class="operator">-</span><span class="name">DNO_CUDA</span><span class="operator">=</span><span class="literal number integer">1</span>       <span class="comment single">// disable CUDA
+</span><span class="operator">-</span><span class="name">DNO_OPENCL</span><span class="operator">=</span><span class="literal number integer">1</span>     <span class="comment single">// disable OpenCL
+</span><span class="operator">-</span><span class="name">DNO_OPENGL</span><span class="operator">=</span><span class="literal number integer">1</span>     <span class="comment single">// disable OpenGL
+</span><span class="operator">-</span><span class="name">DNO_CLEW</span><span class="operator">=</span><span class="literal number integer">1</span>       <span class="comment single">// disable CLEW wrapper library</span>
+</pre>
+</div>
+<div class="section" id="environment-variables">
+<h4>Environment Variables</h4>
+<p>The paths to Maya, Ptex, GLFW, GLEW and other dependencies can also be specified
+through the following environment variables:</p>
+<pre class="code c++ literal-block">
+<span class="name">MAYA_LOCATION</span><span class="punctuation">,</span> <span class="name">PTEX_LOCATION</span><span class="punctuation">,</span> <span class="name">GLFW_LOCATION</span><span class="punctuation">,</span> <span class="name">GLEW_LOCATION</span>
+</pre>
+</div>
+<div class="section" id="automated-script">
+<h4>Automated Script</h4>
+<p>The GUI solution will probably become a burden for active developpers who tend to
+re-run the configuration step fairly often. A scripted solution can save a lot of
+time. Here is a typical workflow:</p>
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">clone</span> <span class="name label">https</span><span class="punctuation">:</span><span class="comment single">//github.com/PixarAnimationStudios/OpenSubdiv.git &lt;folder&gt;
+</span><span class="name">cd</span> <span class="operator">&lt;</span><span class="name">folder</span><span class="operator">&gt;</span>
+<span class="name">mkdir</span> <span class="name">build</span>
+<span class="name">cd</span> <span class="name">build</span>
+<span class="name">source</span> <span class="punctuation">..</span><span class="operator">/</span><span class="punctuation">..</span><span class="operator">/</span><span class="name">cmake_setup</span>
+</pre>
+<p>Where <em>cmake_setup</em> is a configuration script.</p>
+<p>Here is an example CMake configuration script for a full typical windows-based
+build that can be run in GitShell :</p>
+<pre class="code c++ literal-block">
+<span class="comment preproc">#/bin/tcsh
+</span>
+<span class="comment preproc"># Replace the &quot;..&quot; with a full path to the root of the OpenSubdiv source tree if necessary
+</span><span class="literal string">&quot;c:/Program Files (x86)/CMake 2.8/bin/cmake.exe&quot;</span> \
+    <span class="operator">-</span><span class="name">G</span> <span class="literal string">&quot;Visual Studio 10 Win64&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;GLEW_LOCATION:string=c:/Program Files/glew-1.9.0&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;GLFW_LOCATION:string=c:/Program Files/glfw-2.7.7.bin.WIN64&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;OPENCL_INCLUDE_DIRS:string=c:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/OpenCL/common/inc&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;_OPENCL_CPP_INCLUDE_DIRS:string=c:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/OpenCL/common/inc&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;OPENCL_LIBRARIES:string=c:/ProgramData/NVIDIA Corporation/NVIDIA GPU Computing SDK 4.2/OpenCL/common/lib/x64/OpenCL.lib&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;MAYA_LOCATION:string=c:/Program Files/Autodesk/Maya2013.5&quot;</span> \
+    <span class="operator">-</span><span class="name">D</span> <span class="literal string">&quot;PTEX_LOCATION:string=c:/Users/opensubdiv/demo/src/ptex/x64&quot;</span> \
+    <span class="punctuation">..</span>
+
+<span class="comment preproc"># copy Ptex dependencies (Windows only)
+</span><span class="name">mkdir</span> <span class="operator">-</span><span class="name">p</span> <span class="name">bin</span><span class="operator">/</span><span class="punctuation">{</span><span class="name">Debug</span><span class="punctuation">,</span><span class="name">Release</span><span class="punctuation">}</span>
+<span class="error">\</span><span class="name">cp</span> <span class="operator">-</span><span class="name">f</span> <span class="name label">c</span><span class="punctuation">:</span><span class="operator">/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">demo</span><span class="operator">/</span><span class="name">src</span><span class="operator">/</span><span class="name">zlib</span><span class="operator">-</span><span class="literal number float">1.2.7</span><span class="operator">/</span><span class="name">contrib</span><span class="operator">/</span><span class="name">vstudio</span><span class="operator">/</span><span class="name">vc10</span><span class="operator">/</span><span class="name">x64</span><span class="operator">/</span><span class="name">ZlibDllRelease</span><span class="operator">/</span><span class="name">zlibwapi</span><span class="punctuation">.</span><span class="name">dll</span> <span class="name">bin</span><span class="operator">/</span><span class="name">Debug</span><span class="operator">/</span>
+<span class="error">\</span><span class="name">cp</span> <span class="operator">-</span><span class="name">f</span> <span class="name label">c</span><span class="punctuation">:</span><span class="operator">/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">demo</span><span class="operator">/</span><span class="name">src</span><span class="operator">/</span><span class="name">zlib</span><span class="operator">-</span><span class="literal number float">1.2.7</span><span class="operator">/</span><span class="name">contrib</span><span class="operator">/</span><span class="name">vstudio</span><span class="operator">/</span><span class="name">vc10</span><span class="operator">/</span><span class="name">x64</span><span class="operator">/</span><span class="name">ZlibDllRelease</span><span class="operator">/</span><span class="name">zlibwapi</span><span class="punctuation">.</span><span class="name">dll</span> <span class="name">bin</span><span class="operator">/</span><span class="name">Release</span><span class="operator">/</span>
+<span class="error">\</span><span class="name">cp</span> <span class="operator">-</span><span class="name">f</span> <span class="name label">c</span><span class="punctuation">:</span><span class="operator">/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">demo</span><span class="operator">/</span><span class="name">src</span><span class="operator">/</span><span class="name">ptex</span><span class="operator">/</span><span class="name">x64</span><span class="operator">/</span><span class="name">lib</span><span class="operator">/</span><span class="name">Ptex</span><span class="punctuation">.</span><span class="name">dll</span> <span class="name">bin</span><span class="operator">/</span><span class="name">Debug</span><span class="operator">/</span>
+<span class="error">\</span><span class="name">cp</span> <span class="operator">-</span><span class="name">f</span> <span class="name label">c</span><span class="punctuation">:</span><span class="operator">/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">demo</span><span class="operator">/</span><span class="name">src</span><span class="operator">/</span><span class="name">ptex</span><span class="operator">/</span><span class="name">x64</span><span class="operator">/</span><span class="name">lib</span><span class="operator">/</span><span class="name">Ptex</span><span class="punctuation">.</span><span class="name">dll</span> <span class="name">bin</span><span class="operator">/</span><span class="name">Release</span><span class="operator">/</span>
+</pre>
+<div class="impnotip container">
+<p><strong>Important</strong></p>
+<blockquote>
+Notice that the following scripts start by <strong>recursively removing</strong> the <em>../build/</em> and
+<em>../inst/</em> directories. Make sure you modify them to suit your build workflow.</blockquote>
+</div>
+<p>Here is a similar script for *Nix-based platforms:</p>
+<pre class="code c++ literal-block">
+<span class="name">echo</span> <span class="literal string">&quot;*** Removing build&quot;</span>
+<span class="name">cd</span> <span class="punctuation">..;</span> <span class="name">rm</span> <span class="operator">-</span><span class="name">rf</span> <span class="name">build</span><span class="operator">/</span> <span class="name">inst</span><span class="operator">/</span><span class="punctuation">;</span> <span class="name">mkdir</span> <span class="name">build</span><span class="punctuation">;</span> <span class="name">cd</span> <span class="name">build</span><span class="punctuation">;</span>
+<span class="name">echo</span> <span class="literal string">&quot;*** Running cmake&quot;</span>
+<span class="name">cmake</span> <span class="operator">-</span><span class="name">DPTEX_LOCATION</span><span class="operator">=/</span><span class="name">home</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">ptex</span><span class="operator">/</span><span class="name">install</span> \
+      <span class="operator">-</span><span class="name">DGLEW_LOCATION</span><span class="operator">=/</span><span class="name">home</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">glew</span><span class="operator">/</span><span class="name">glew</span><span class="operator">-</span><span class="literal number float">1.9.0</span> \
+      <span class="operator">-</span><span class="name">DGLFW_LOCATION</span><span class="operator">=/</span><span class="name">home</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">glfw</span><span class="operator">/</span><span class="name">build</span> \
+      <span class="operator">-</span><span class="name">DDOXYGEN_EXECUTABLE</span><span class="operator">=/</span><span class="name">home</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">doxygen</span><span class="operator">/</span><span class="name">inst</span><span class="operator">/</span><span class="name">bin</span><span class="operator">/</span><span class="name">doxygen</span> \
+      <span class="operator">-</span><span class="name">DCMAKE_INSTALL_PREFIX</span><span class="operator">=</span><span class="punctuation">..</span><span class="operator">/</span><span class="name">inst</span> \
+      <span class="operator">-</span><span class="name">DCMAKE_BUILD_TYPE</span><span class="operator">=</span><span class="name">Debug</span> \
+      <span class="punctuation">..</span>
+</pre>
+<p>Here is a similar script for OSX:</p>
+<pre class="code c++ literal-block">
+<span class="name">echo</span> <span class="literal string">&quot;*** Removing build&quot;</span>
+<span class="name">cd</span> <span class="punctuation">..;</span> <span class="name">rm</span> <span class="operator">-</span><span class="name">rf</span> <span class="name">build</span><span class="operator">/</span> <span class="name">inst</span><span class="operator">/</span><span class="punctuation">;</span> <span class="name">mkdir</span> <span class="name">build</span><span class="punctuation">;</span> <span class="name">cd</span> <span class="name">build</span><span class="punctuation">;</span>
+<span class="name">echo</span> <span class="literal string">&quot;*** Running cmake&quot;</span>
+<span class="name">cmake</span> <span class="operator">-</span><span class="name">DOPENGL_INCLUDE_DIR</span><span class="operator">=/</span><span class="name">Applications</span><span class="operator">/</span><span class="name">Xcode</span><span class="punctuation">.</span><span class="name">app</span><span class="operator">/</span><span class="name">Contents</span><span class="operator">/</span><span class="name">Developer</span><span class="operator">/</span><span class="name">Platforms</span><span class="operator">/</span><span class="name">MacOSX</span><span class="punctuation">.</span><span class="name">platform</span><span class="operator">/</span><span class="name">Developer</span><span class="operator">/</span><span class="name">SDKs</span><span class="operator">/</span><span class="name">MacOSX10</span><span class="literal number float">.9</span><span class="punctuation">.</span><span class="name">sdk</span><span class="operator">/</span><span class="name">System</span><span class="operator">/</span><span class="name">Library</span><span class="operator">/</span><span class="name">Frameworks</span><span class="operator">/</span><span class="name">OpenGL</span><span class="punctuation">.</span><span class="name">framework</span><span class="operator">/</span><span class="name">Headers</span> \
+      <span class="operator">-</span><span class="name">DGLFW_LOCATION</span><span class="operator">=/</span><span class="name">Users</span><span class="operator">/</span><span class="name">opensubdiv</span><span class="operator">/</span><span class="name">dev</span><span class="operator">/</span><span class="name">opensource</span><span class="operator">/</span><span class="name">glfw</span><span class="operator">/</span><span class="name">inst</span> \
+      <span class="operator">-</span><span class="name">DNO_OMP</span><span class="operator">=</span><span class="literal number integer">1</span> <span class="operator">-</span><span class="name">DNO_REGRESSION</span><span class="operator">=</span><span class="literal number integer">0</span> \
+      <span class="operator">-</span><span class="name">DCMAKE_INSTALL_PREFIX</span><span class="operator">=</span><span class="punctuation">..</span><span class="operator">/</span><span class="name">inst</span> \
+      <span class="operator">-</span><span class="name">DCMAKE_BUILD_TYPE</span><span class="operator">=</span><span class="name">Debug</span> \
+       <span class="punctuation">..</span><span class="literal string">&quot;</span>
+</pre>
+</div>
+<div class="section" id="using-intel-s-c-studio-xe">
+<h4>Using Intel's C++ Studio XE</h4>
+<p>OpenSubdiv can be also be built with <a class="reference external" href="http://software.intel.com/en-us/intel-compilers">Intel's C++ compiler</a>
+(icc). The default compiler can be overriden in CMake with the following configuration options:</p>
+<pre class="code c++ literal-block">
+<span class="operator">-</span><span class="name">DCMAKE_CXX_COMPILER</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">icc</span> <span class="name">executable</span><span class="punctuation">]</span>
+<span class="operator">-</span><span class="name">DCMAKE_C_COMPILER</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">icc</span> <span class="name">executable</span><span class="punctuation">]</span>
+</pre>
+<p>The installation location of the C++ Studio XE can be overriden with:</p>
+<pre class="code c++ literal-block">
+<span class="operator">-</span><span class="name">DICC_LOCATION</span><span class="operator">=</span><span class="punctuation">[</span><span class="name">path</span> <span class="name">to</span> <span class="name">Intel</span><span class="error">'</span><span class="name">s</span> <span class="name">C</span><span class="operator">++</span> <span class="name">Studio</span> <span class="name">XE</span><span class="punctuation">]</span>
+</pre>
+</div>
+<div class="section" id="using-clang">
+<h4>Using Clang</h4>
+<p>CMake can also be overriden to use the <a class="reference external" href="http://clang.llvm.org/">clang</a> compilers by configuring the following options:</p>
+<pre class="code c++ literal-block">
+<span class="operator">-</span><span class="name">DCMAKE_CXX_COMPILER</span><span class="operator">=</span><span class="name">clang</span><span class="operator">++</span> \
+<span class="operator">-</span><span class="name">DCMAKE_C_COMPILER</span><span class="operator">=</span><span class="name">clang</span> \
+</pre>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="step-3-building">
+<h3>Step 3: Building</h3>
+<p>CMake provides a cross-platform command-line build:</p>
+<pre class="code c++ literal-block">
+<span class="name">cmake</span> <span class="operator">--</span><span class="name">build</span> <span class="punctuation">.</span> <span class="operator">--</span><span class="name">target</span> <span class="name">install</span> <span class="operator">--</span><span class="name">config</span> <span class="name">Release</span>
+</pre>
+<p>Alternatively, you can use native toolkits to launch the build. The steps differ for each OS:</p>
+<blockquote>
+<ul>
+<li><dl class="first docutils">
+<dt><em>Windows</em> :</dt>
+<dd><p class="first last">launch VC++ with the solution generated by CMake in your build directory.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>OSX</em> :</dt>
+<dd><p class="first last">run <em>make</em> in the build directory</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>*Nix</em> :</dt>
+<dd><div class="first last line-block">
+<div class="line">run <em>make</em> in your build directory</div>
+<div class="line">- use the <em>clean</em> target to remove previous build results</div>
+<div class="line">- use <em>VERBOSE=1</em> for verbose build output</div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+</blockquote>
+<div class="notebox container">
+<dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>We recommend against using CMake's Xcode project generator (-G &quot;Xcode&quot;) on OSX, as it seems to
+generate some dependencies incorrectly. We recommend instead reverting to Makefiles on OSX, and
+launching <em>make</em>, instead of <em>xcodebuild</em> to execute the build (make sure to install the command
+line tools in Xcode)</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section" id="build-targets">
+<h4>Build Targets</h4>
+<p>Makefile-based builds allow the use of named target. Here are some of the more
+useful target names:</p>
+<blockquote>
+<dl class="docutils">
+<dt><em>osd_&lt;static|dynamic&gt;_&lt;CPU|GPU&gt;</em></dt>
+<dd><div class="first last line-block">
+<div class="line">The core components of the OpenSubdiv libraries</div>
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt><em>&lt;example_name&gt;</em></dt>
+<dd><div class="first last line-block">
+<div class="line">Builds specific code examples by name (glViewer, ptexViewer...)</div>
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt><em>doc</em></dt>
+<dd><div class="first last line-block">
+<div class="line">Builds ReST and doxygen documentation</div>
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt><em>doc_html</em></dt>
+<dd><div class="first last line-block">
+<div class="line">Builds ReST documentation</div>
+<div class="line"><br /></div>
+</div>
+</dd>
+<dt><em>doc_doxy</em></dt>
+<dd><div class="first last line-block">
+<div class="line">Builds Doxygen documentation</div>
+<div class="line"><br /></div>
+</div>
+</dd>
+</dl>
+</blockquote>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="compiling-linking-an-opensubdiv-application">
+<h3>Compiling &amp; Linking an OpenSubdiv Application</h3>
+<p>Here are example commands for building an OpenSubdiv application on several architectures:</p>
+<p><strong>Linux</strong></p>
+<pre class="literal-block">
+g++ -I$OPENSUBDIV/include -c myapp.cpp
+g++ myapp.o -L$OPENSUBDIV/lib -losdCPU -losdGPU -o myapp
+</pre>
+<p><strong>Mac OS-X</strong></p>
+<pre class="literal-block">
+g++ -I$OPENSUBDIV/include -c myapp.cpp
+g++ myapp.o -L$OPENSUBDIV/lib -losdCPU -losdGPU -o myapp
+install_name_tool -add_rpath $OPENSUBDIV/lib myapp
+</pre>
+<p>(On 64-bit OS-X: add <tt class="docutils literal"><span class="pre">-m64</span></tt> after each <tt class="docutils literal">g++</tt>.)</p>
+<p><strong>Windows</strong></p>
+<pre class="literal-block">
+cl /nologo /MT /TP /DWIN32 /I&quot;%OPENSUBDIV%\include&quot; -c myapp.cpp
+link /nologo /out:myapp.exe /LIBPATH:&quot;%OPENSUBDIV%\lib&quot; libosdCPU.lib libosdGPU.lib myapp.obj
+</pre>
+<div class="impnotip container">
+<p><strong>Note:</strong></p>
+<p>HBR uses the offsetof macro on a templated struct, which appears to spurriously set off a
+warning in both gcc and Clang. It is recommended to turn the warning off with the
+<em>-Wno-invalid-offsetof</em> flag.</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 20:59 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

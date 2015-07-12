@@ -1,0 +1,912 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Release Notes</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="release-notes">
+<h1 class="title">Release Notes</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Release Notes</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#release-2-6-0" id="id1">Release 2.6.0</a></li>
+<li><a class="reference internal" href="#release-2-5-1" id="id2">Release 2.5.1</a></li>
+<li><a class="reference internal" href="#release-2-5-0" id="id3">Release 2.5.0</a></li>
+<li><a class="reference internal" href="#release-2-4-1" id="id4">Release 2.4.1</a></li>
+<li><a class="reference internal" href="#release-2-4-0" id="id5">Release 2.4.0</a></li>
+<li><a class="reference internal" href="#release-2-3-5" id="id6">Release 2.3.5</a></li>
+<li><a class="reference internal" href="#release-2-3-4" id="id7">Release 2.3.4</a></li>
+<li><a class="reference internal" href="#release-2-3-3" id="id8">Release 2.3.3</a></li>
+<li><a class="reference internal" href="#release-2-3-2" id="id9">Release 2.3.2</a></li>
+<li><a class="reference internal" href="#release-2-3-1" id="id10">Release 2.3.1</a></li>
+<li><a class="reference internal" href="#release-2-3-0" id="id11">Release 2.3.0</a></li>
+<li><a class="reference internal" href="#release-2-2-0" id="id12">Release 2.2.0</a></li>
+<li><a class="reference internal" href="#release-2-1-0" id="id13">Release 2.1.0</a></li>
+<li><a class="reference internal" href="#release-2-0-1" id="id14">Release 2.0.1</a></li>
+<li><a class="reference internal" href="#release-2-0-0" id="id15">Release 2.0.0</a></li>
+<li><a class="reference internal" href="#release-1-2-4" id="id16">Release 1.2.4</a></li>
+<li><a class="reference internal" href="#release-1-2-3" id="id17">Release 1.2.3</a></li>
+<li><a class="reference internal" href="#release-1-2-2" id="id18">Release 1.2.2</a></li>
+<li><a class="reference internal" href="#release-1-2-1" id="id19">Release 1.2.1</a></li>
+<li><a class="reference internal" href="#release-1-2-0" id="id20">Release 1.2.0</a></li>
+<li><a class="reference internal" href="#release-1-1-0" id="id21">Release 1.1.0</a></li>
+<li><a class="reference internal" href="#release-1-0-0" id="id22">Release 1.0.0</a></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="release-2-6-0">
+<h3>Release 2.6.0</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Add subdivision kernels for ARM NEON</li>
+<li>Add OsdUtilVertexSplit which creates a vertex-varying data table by duplicating
+vertices in a <cite>FarMesh</cite></li>
+<li>Add basic functions to work with FV data via evaluator API</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Added Catmark restricted vertex compute kernels that optimize for vertices
+with no semi-sharp creases</li>
+<li>Fix accessor omissions in osd/mesh.h</li>
+<li>Add support for different subdivision schemes for OsdUtilMesh</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix crashes when using rather low-end cards like Intel ones</li>
+<li>Fix a bug in the creation of an edge-vertex kernel batch</li>
+<li>Fix mismatch in declaration and usage of OsdCudaComputeRestrictedVertexA</li>
+<li>Fix a bug in the vertex order for restricted Catmark vertex-vertex kernel batches</li>
+<li>Fix a bug in FarCatmarkSubdivisionTablesFactory that prevented the
+CATMARK_QUAD_FACE_VERTEX kernel from being selected for subdivision
+level 2 or greater.</li>
+<li>Fix a bug in OsdUtilVertexSplit that occurs when getting the address of
+the end of a std::vector</li>
+<li>Fix error in createCLBuffer that occurs when the buffer size is zero</li>
+<li>Fix a bug in the CUDA computeRestrictedEdge kernel</li>
+<li>Fix duplicate variables with identical name</li>
+<li>Fix osdutil build errors</li>
+<li>Fix cmake diagnostic messsage</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-5-1">
+<h3>Release 2.5.1</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Add CATMARK_QUAD_FACE_VERTEX and CATMARK_TRI_QUAD_FACE_VERTEX compute kernels
+optimization that takes advantage of all-quads or all-triange-and-quads meshes</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix a compiler error in the GLSL Transform Feedback kernels on OS X</li>
+<li>Fix boundary interpolation in osdutil</li>
+<li>Fix bilinear stencil tangent computions</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-5-0">
+<h3>Release 2.5.0</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Add ability to generate triangle patches for a uniformly subdivided mesh</li>
+<li>Add new example 'topologySharing'</li>
+<li>Add interleaved buffer mode in glViewer</li>
+<li>Add GLSL compute kernel to glBatchViewer</li>
+<li>Add TBB compute kernel to glBatchViewer</li>
+<li>Add a PullDown widget to our HUD in examples/common</li>
+<li>GUI updates &amp; cosmetic changes to GL example code</li>
+<li>Adding a programmable image shader to gl_hud</li>
+<li>Code cleanup for GLFrameBuffer in examples/common</li>
+<li>Implement C-API accessor to evaluator topology (osdutil)</li>
+<li>Add command line option to CMake's options</li>
+<li>Add a CMake option to disable OpenCL</li>
+<li>Add a FindCLEW.cmake module in anticipation of using CLEW as a dependency</li>
+<li>Integrate CLEW into osd library and examples</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Change interleaved buffer support in OsdCompute:</li>
+<li>Removed OsdVertexDescriptor and replaced with OsdVertexBufferDescriptor</li>
+<li>Reorganize ComputeContext and ComputeController.</li>
+<li>Reorganize EvalStencilContext and EvalStencilController
+Moved transient states (current vertex buffer etc) to controller</li>
+<li>Reorganize EvalLimitContext and EvalLimitController
+Moved transient states (current vertex buffer etc) to controller</li>
+<li>Fix adaptive isolation of sharp corner vertices</li>
+<li>Fix incorrect FarMeshFactory logic for isolating multiple corner vertices in corner patches</li>
+<li>Change EvalLimit Gregory patch kernels to the large weights table to accomodate higher valences</li>
+<li>Fix calculation of screen space LOD tess factors for transition corner patches.</li>
+<li>Add a public constructor to OsdMesh</li>
+<li>Decrease compiler warning thresholds and fix outstanding warnings</li>
+<li>Make PTex support optional</li>
+<li>Add a NO_MAYA flag to CMakeLists to disable all Autodesk Maya dependencies in the build</li>
+<li>Document NO_MAYA command line option</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix mistakenly deleted memory barrier in glsl OsdCompute kernel.</li>
+<li>Fix shape_utils genRIB function to use streams correctly.</li>
+<li>Temporary workaround for the synchronization bug of glsl compute kernel</li>
+<li>Fix Hud display for higher DPI (MBP retina)</li>
+<li>Fix Hud (d3d11)</li>
+<li>Fix examples to use GL timer query to measure the GPU draw timing more precisely</li>
+<li>Fix glViewer: stop updating during freeze.</li>
+<li>Fix file permissions on farPatchTablesFactory.h</li>
+<li>Fix some meory leaks in adaptive evaluator (osdutil)</li>
+<li>Fix OsdUtilAdaptiveEvaluator concurrency issue</li>
+<li>Fix OsdUtilRefiner incorrect &quot;Invalid size of patch array&quot; error reporting.</li>
+<li>Fix OsdUtilPatchPartitioner failure for triangle patches</li>
+<li>Fixes a bug that causes OsdUtilPatchPartitioner to fail to rebuild the face-varying
+data table correctly for triangle patches.</li>
+<li>Add missing third parameter to templated OsdDrawContext usage (osdutil/batch.h)</li>
+<li>Return success status from openSubdiv_finishEvaluatorDescr() (osdutil)</li>
+<li>Remove debugging std::cout calls (osdutil)</li>
+<li>Build errors &amp; warnings:</li>
+<li>Fix OSX Core Profile build (GLFrameBuffer)</li>
+<li>Fix ptexViewer build error on OSX</li>
+<li>Fix framebuffer shader compiling for OSX</li>
+<li>Reordering includes to address a compile error on OSX/glew environment</li>
+<li>Fix compilation errors with CLEW enabled</li>
+<li>Fix icc build problems</li>
+<li>Fix compiler warnings in OsdClVertexBuffer</li>
+<li>Fix compilation error on windows+msvc2013</li>
+<li>Fix build warnings/errors with VS2010 Pro</li>
+<li>Fix Windows build warning in FarPatchTablesFactory</li>
+<li>Fix doxygen generation errors</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-4-1">
+<h3>Release 2.4.1</h3>
+<dl class="docutils">
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Add correct OpenSubdiv namespace begin/end blocks.</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Compile osdutil with -fPIC for correct linking.</li>
+<li>Fix a bug of OsdUtilMeshBatch, the varying buffer isn't computed with CL kernels</li>
+<li>Fix FindGLFW.cmake to use the %GLFW_LOCATION% environment variable in Windows</li>
+<li>Fix Draw contexts do not fully initialize patch arrays</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-4-0">
+<h3>Release 2.4.0</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Adding functionality to store uniform face-varying data across multiple levels of subdivision</li>
+<li>Add OsdUtilPatchPartitioner.
+It splits patcharray into subsets so that clients can draw partial surfaces
+for both adaptive and uniform.</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Remove FarMesh dependency from Osd*Context.</li>
+<li>Use DSA APIs for GL buffer update (if available).</li>
+<li>Refactor Far API</li>
+<li>replace void- of all kernel applications with CONTEXT template parameter.
+It eliminates many static_casts from void- for both far and osd classes.</li>
+<li>move the big switch-cases of far default kernel launches out of Refine so
+that osd controllers can arbitrary mix default kernels and custom kernels.</li>
+<li>change FarKernelBatch::kernelType from enum to int, clients can add
+custom kernel types.</li>
+<li>remove a back-pointer to farmesh from subdivision table.</li>
+<li>untemplate all subdivision table classes and template their compute methods
+instead. Those methods take a typed vertex storage.</li>
+<li>remove an unused argument FarMesh from the constructor of subdivision
+table factories.</li>
+<li>Refactor FarSubdivisionTables.
+Delete scheme specialized subdivision tables. The base class FarSubdivisionTables
+already has all tables, so we just need scheme enum to identify which scheme
+the subdivision tables belong to. This brings a lot of code cleanups around far
+factory classes.</li>
+<li>Move FarMultiMeshFactory to OsdUtil.</li>
+<li>Move table splicing functions of FarMultiMeshFactory into factories</li>
+<li>Change PxOsdUtil prefix to final OsdUtil prefix.</li>
+<li>Improve error reporting in osdutil refinement classes, and fix a build issue</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix another multi mesh splicing bug of face varying data.</li>
+<li>Make CMake path variables more robust</li>
+<li>Fixing a crash on Marvericks w/glew</li>
+<li>Update dxViewer example documentation</li>
+<li>Fix wrong logic in openSubdiv_setEvaluatorCoarsePositions</li>
+<li>Remove debug print from adaptive evaluator's initialization</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-3-5">
+<h3>Release 2.3.5</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Add the ability to read obj files to the dxViewer example</li>
+<li>Add screen-capture function to ptexViewer</li>
+<li>Update documention for Xcode builds</li>
+<li>Add documentation (boundary interpolation rules and face-varying boundary interpolation rules)</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Refactoring FarPatchTables and FarPatchTablesFactory</li>
+<li>Move GL vertex buffer VBO buffer allocation out of allocate() and into BindVBO()</li>
+<li>Enable uvViewer on OS X now that Mavericks is released.</li>
+<li>Replacing un-necessary dynamic_cast with reinterpret_cast within FarDispatcher</li>
+<li>Minor code cleanup of FarMeshFactory</li>
+<li>Remove address space qualifiers from OpenCL kernel functions</li>
+<li>Fix OpenCL initialization to be slightly more robust</li>
+<li>Add OpenCL header include paths where necessary</li>
+<li>Add 'static' specifiers for non-kernel CL funcs at program scope</li>
+<li>Add stddef.h to python/osd/osdshim.i</li>
+<li>Modify ptexViewer and uvViewer shaders to address some portability issues</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix Gregory Boundary patch buffer overrun</li>
+<li>Fix black texels when the resolution of a ptex face is less than 4</li>
+<li>Fix a splicing bug in FarMultiMeshFactory</li>
+<li>Fix a build error when using older versions of GLFW</li>
+<li>Fix build warnings (optimized)</li>
+<li>Fix FindTBB.cmake</li>
+<li>Fix FindMaya.cmake</li>
+<li>Fix glViewer support for GLSL compute</li>
+<li>Fix ptexViewer: enable specular pass in both IBL and point lighting</li>
+<li>Fix Zlib include in ptexViewer</li>
+<li>Fix ptexViewer shader errors.</li>
+<li>Fix osdPolySmooth Maya plugin</li>
+<li>Fix UV merging in osdPolySmooth code example</li>
+<li>Add cleanup function to osdPolySmooth Maya plugin</li>
+<li>Fix Maya OsdPolySmooth node component output</li>
+<li>Fix GLSL array instantiation syntax for glStencilViewer</li>
+<li>Fix examples to run correctly on high DPI displays with GLFW 3</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-3-4">
+<h3>Release 2.3.4</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Adding CPU/OMP/TBB Context / Controller pairs for CPU evaluation of smooth normals</li>
+<li>Added adaptiveEvaluator class inspired by Sergey's work in blender (OsdUtil)</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Changed the HUD to ignore mouse clicks when not visible.</li>
+<li>Updates for blender development (OsdUtil)</li>
+<li>Add C compatible API to access the adaptiveEvaluator class from non-C++ (OsdUtil)</li>
+<li>Update license headers to apache (OsdUtil)</li>
+<li>CMake build improvement : make osd a cmake object library &amp; remove compiling redundancies</li>
+<li>Improve stringification of shaders &amp; kernels in CMake build</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fixed iOS build</li>
+<li>Fixed VS2010 warnings/errors.</li>
+<li>Fix OsdCpuEvalLimitKernel</li>
+<li>Fix maxvalence calculation in FarMeshFactory</li>
+<li>Fix FarStencilFactory control stencil caching</li>
+<li>Removing assert for high-valence vertices running off limit tangent pre-computed table.</li>
+<li>Fix degenerate stencil limit tangent code path.</li>
+<li>Fix unused variable build warnings (gcc 4.8.2 - Fedora 19)</li>
+<li>Fix build warning from osdutil/adaptiveEvaluator.cpp</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-3-3">
+<h3>Release 2.3.3</h3>
+<dl class="docutils">
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Modify Far remapping of singular vertices to point to their source vertex.</li>
+<li>Refactoring Ptex Mipmap and Analytic Displacement code</li>
+<li>Adding some documentation for Chaikin crease rule</li>
+<li>Misc. improvements to PxOsdUtilsMesh</li>
+<li>Adding recommended isolation output to OsdPolySmooth node</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Adding an error check on version parsing of main CMakeLists</li>
+<li>Fix regex in FindMaya.cmake that breaks with recent versions of Maya</li>
+<li>Fix crashes induced by typeid</li>
+<li>Fixed VS2010 build warning</li>
+<li>Fix build break in hbr_regression</li>
+<li>Fix incorrect capitalization in GL ptexViewer shader.glsl</li>
+<li>Fix OSX build: add stdlib.h include</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-3-2">
+<h3>Release 2.3.2</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Adding control cage drawing to ptexViewer</li>
+<li>Adding Maya osdPolySmooth plugin into OpenSubdiv examples.</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Removing some glGetError checks that are causing problems for Autodesk</li>
+<li>D3D11DrawRegistry returns the common shader config for all non-tess patcharrays.</li>
+<li>Updates to simple cpu osdutil classes</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix Hbr Chaikin crease rule</li>
+<li>Fix Chaikin tag parsing</li>
+<li>Fix return value of allocate function for OsdCPUGLVertxBuffer</li>
+<li>Fixed GLSL shader portability.</li>
+<li>Fix FindGLFW.cmake for GLFW 3.03 on OSX</li>
+<li>Fixed compiler warnings.</li>
+<li>Fixed VS2010 build errors</li>
+<li>Fixed WIN32 build error when no DXSDK installed.</li>
+<li>Fix OSX build: stdlib.h needs to be included in glPtexMipmapTexture.h</li>
+<li>Fix for crash in new mesh/refiner code in OsdUtil</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-3-1">
+<h3>Release 2.3.1</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Add DX11 version of ptex mipmap loader</li>
+<li>Add DX11 ptex viewer (work in progress)</li>
+<li>Add DX11 fractional partitioning, normal derivatives computation</li>
+<li>Add memory usage controls to Ptex loader</li>
+<li>Add face-varying boundary interpolation parsing to shape_utils</li>
+<li>Add simple HbrMesh and FarMesh wrapper classes to osdutil</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Amend language of attribution file 'NOTICE.txt'</li>
+<li>Optimize a bit of ptex mipmap lookup.</li>
+<li>Show ptex memory usage in GL and DX11 ptexViewers</li>
+<li>Improve ptex guttering</li>
+<li>Addding some video links to our collection of external resources</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix edge-only face-varying interpolation</li>
+<li>Fix Far to handle disconnected vertices in an Hbr mesh</li>
+<li>Fixed ptex cache resource release sequence</li>
+<li>Fix build symbol conflict in Far</li>
+<li>Fix patch parambuffer generation in OsdD3D11DrawContext</li>
+<li>Fix a minor osdutil build warning (seen with gcc 4.8.1)</li>
+<li>Fix VS2010 build errors</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-3-0">
+<h3>Release 2.3.0</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Added Analytical displacement mapping ('Analytic Displacement Mapping using
+Hardware Tessellation; Niessner and Loop [TOG 2013])</li>
+<li>Added a new ptex mipmap loader</li>
+<li>Added face varying macros for loop subdivision</li>
+<li>Added the uvViewer example to see how face varying interpolation rule works</li>
+<li>Added a slider component and cleanup hud code.</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Adding license &amp; attribution files, improved language of the code headers</li>
+<li>Install documentation into the Filesystem Hierarchy Standard location</li>
+<li>Set GLFW_OPENGL_FORWARD_COMPAT on Mac OS to make samples work on that platform</li>
+<li>Added surface normal mode &amp; mipmap to ptxViewer</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix a bug of bad fvar splicing for loop surface.</li>
+<li>Fix incorrect bilinear limit tangents in FarStencilTablesFactory</li>
+<li>Fix boundary interpolation rules doc</li>
+<li>Added an error check on updating cuda buffer</li>
+<li>Fix face varying rendering on loop surface</li>
+<li>Fixed glBatchViewer build for GLFW 2.x</li>
+<li>Expand search paths for FindGLFW.cmake for Debian and other Linux architectures</li>
+<li>Fix CMake executable builds for ICC</li>
+<li>Fix bhr baseline regression, so reference files are real OBJ's</li>
+<li>Fixed clKernelBundle.cpp to build on Android.</li>
+<li>Fix misc build warings</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-2-0">
+<h3>Release 2.2.0</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Added subdivision stencil functionality (Far &amp; OsdEval)</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix D3D11DrawContext to check for NULL pointers</li>
+<li>Fix cpuEvalLimitController crash bug</li>
+<li>Fixed search path suffixes for ICC libs</li>
+<li>Fixed invalid initialization of glslTransformFeedback kernel.</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-1-0">
+<h3>Release 2.1.0</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>Added TBB Compute back-end on Linux (contribution from Sheng Fu)</li>
+<li>Added support for ICC compiler (still Beta)</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Added constructor to OsdMesh with a FarMesh * as input</li>
+<li>Modify CMake to name and sym-link DSO's based on Linux ABI versioning spec</li>
+<li>Added command line input to DX11 viewer</li>
+<li>FarMultiMesh can splice uniform and adaptive meshes together.</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix FarMultiMesh splicing</li>
+<li>Removed unnecessary cudaThreadSynchronize calls.</li>
+<li>Fix glViewer overlapping HUD menus</li>
+<li>Fix facevarying rendering in glBatchViewer</li>
+<li>Fix build of GLSL transform feedback kernels</li>
+<li>Fix 'Getting Started' documentation</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-0-1">
+<h3>Release 2.0.1</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>New CLA files to reflect Apache 2.0 licensing</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>Move all public headers to include/opensubdiv/...</li>
+<li>Adding Osd documentation based on Siggraph slides</li>
+</ul>
+</dd>
+<dt><strong>Bug Fixes</strong></dt>
+<dd><ul class="first last simple">
+<li>Fix incorrect transition pattern 3 in GLSL / HLSL shaders</li>
+<li>Fix CMake build to not link GPU-based libraries into libosdCPU</li>
+<li>Fix support for GLEW on OSX</li>
+<li>Fix GLFW Xrandr &amp; xf86vmode dependency paths for X11 based systems</li>
+<li>Fix HUD display overlaps in code examples</li>
+<li>Fix FindGLEW.cmake to be aware of multiarch on linux systems</li>
+<li>Fix some hard-coded include paths in CMake build</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="release-2-0-0">
+<h3>Release 2.0.0</h3>
+<dl class="docutils">
+<dt><strong>New Features</strong></dt>
+<dd><ul class="first last simple">
+<li>New CMake build flags: NO_LIB, NO_CUDA, NO_PYTHON)</li>
+</ul>
+</dd>
+<dt><strong>Changes</strong></dt>
+<dd><ul class="first last simple">
+<li>OpenSubdiv is now under Apache 2.0 license</li>
+<li>HbrHalfedge and HbrFVarData copy constructors are now private</li>
+<li>Documentation style matched to graphics.pixar.com + new content</li>
+<li>Add an animation freeze button to ptexViewer</li>
+<li>Variable name changes for better readability across all example
+shader code</li>
+</ul>
+</dd>
+</dl>
+<p><strong>Bug Fixes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fix incorrect patch generation for patches with 2 non-consecutive boundary edges</li>
+<li>Fix &quot;undefined gl_PrimitiveID&quot; shader build errors</li>
+<li>Fix for shader macro &quot;OSD_DISPLACEMENT_CALLBACK&quot;</li>
+<li>Fix out-of-bounds std::vector access in FarPatchTablesFactory</li>
+</ul>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="release-1-2-4">
+<h3>Release 1.2.4</h3>
+<p><strong>New Features</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Adding support for fractional tessellation of patches</li>
+<li>Adding a much needed API documention system based on Docutils RST markup</li>
+<li>Adding support for face-varying interpolation in GLSL APIs</li>
+<li>Adding varying data buffers to OsdMesh</li>
+<li>Adding accessors to the vertex buffers in OsdGlMesh</li>
+<li>Adding face-varying data to regression shapes</li>
+</ul>
+</blockquote>
+<p><strong>Changes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Cleanup of common bicubic patch shader code (GLSL / HLSL) for portability
+(ATI / OSX drivers)</li>
+</ul>
+</blockquote>
+<p><strong>Bug Fixes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fix FarVertexEditTablesFactory to insert properly vertex edit batches
+(fixes incorrect hierarchical hole in regression shape)</li>
+<li>Fix FarPatchMap quadtree to not drop top-level non-quad faces</li>
+<li>Fix Gregory patches bug with incorrect max-valence</li>
+<li>Fix FarPatchTables::GetNumFaces() and FarPatchTables::GetFaceVertices()
+functions to return the correct values</li>
+<li>Fix face indexing GLSL code (ptex works on non-quads again)</li>
+<li>Fix face-varying data splicing in FarMultiMeshFactory</li>
+<li>Fix ptex face indexing in FarMultiMeshFactory</li>
+<li>Fix glew #include to not break builds</li>
+<li>Fix Clang / ICC build failures with FarPatchTables</li>
+<li>Fix build and example code to work with GFLW 3.0+</li>
+<li>Fix cmake to have ptex dynamically linked in OSX</li>
+</ul>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="release-1-2-3">
+<h3>Release 1.2.3</h3>
+<p><strong>New Features</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Adding Varying and Face-Varying data interpolation to EvalLimit</li>
+</ul>
+</blockquote>
+<p><strong>Changes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>EvalLimit API refactor : the EvalContext now has dedicated structs to track all
+the vertex, varying and face-varying data streams. Also renamed some &quot;buffers&quot;
+into &quot;tables&quot; to maintain code consistency</li>
+<li>EvalLimit optimization : switch serial indexing to a quad-tree based search</li>
+</ul>
+</blockquote>
+<p><strong>Bug Fixes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Face-varying data bug fixes : making sure the data is carried around appropriately
+Fixes for OpenCL use with the new batching APIs</li>
+<li>GLSL general shader code cleanup &amp; fixes for better portability</li>
+<li>GLSL Tranform Feedback initialization fix</li>
+<li>Critical fix for FarMultiMesh batching (indexing was incorrect)</li>
+<li>Fix osdutil CL implementation (protect #includes on systems with no OpenCL SDK
+installed)</li>
+<li>Fix face-varying interpolation on adaptive patches</li>
+<li>FarPatchTables : fix IsFeatureAdaptive() to return the correct answer</li>
+<li>Fix Far factories to handle the absence of face-varying data correctly.</li>
+<li>Many GLSL shader code style fixes which should help with ATI / OSX shader compiling</li>
+</ul>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="release-1-2-2">
+<h3>Release 1.2.2</h3>
+<p><strong>New Features</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Introducing the EvalLimit API : the Eval module aims at providing support for
+computational tasks that are not related to drawing the surfaces. The EvalLimit
+sub-module provides an API that enables client code to evaluate primitive variables
+on the limit surface.</li>
+</ul>
+<a class="reference external image-reference" href="images/evalLimit_hedit0.jpg"><img alt="images/evalLimit_hedit0.jpg" class="align-center" src="images/evalLimit_hedit0.jpg" style="height: 300px;" /></a>
+<ul class="simple">
+<li>Osd&lt;xxx&gt;ComputeController : minor optimization. Added early exit to Refine method
+to avoid unnecessary interop.</li>
+</ul>
+</blockquote>
+<p><strong>Changes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>OsdGLDawContext : minor API change. Protecting some member variables and adding
+const accessors</li>
+<li>OsdError : minor API refactor, added Warning functions.</li>
+</ul>
+</blockquote>
+<p><strong>Bug Fixes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fix Ptex bug : prevent corner texel guttering code to from going into infinite
+loops</li>
+<li>Adding the ability for a FarMeshFactory to construct patchTables starting from
+'firstLevel' in uniform subdivision mode</li>
+<li>Consolidating the color coding of bicubic patch types through all our our code
+examples (this is used mostly as a debugging tool)</li>
+<li>Fixing some MSVC++ build warnings</li>
+<li>Update to the outdated README.md</li>
+</ul>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="release-1-2-1">
+<h3>Release 1.2.1</h3>
+<p><strong>New Features</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Added CUDA runtime error checking</li>
+</ul>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="release-1-2-0">
+<h3>Release 1.2.0</h3>
+<p><strong>Changes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Major Far refactor around patchTables to introduce the draw batching API</li>
+<li>Renaming osd_util to osdutil</li>
+</ul>
+</blockquote>
+<p><strong>Bug Fixes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Fix GLSL transform feedback initialization bug in ptexViewer</li>
+<li>Minor bug &amp; typo fixes</li>
+</ul>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="release-1-1-0">
+<h3>Release 1.1.0</h3>
+<p><strong>New Features</strong></p>
+<blockquote>
+<ul class="simple">
+<li>release initiated because of the switch to Git Flow</li>
+</ul>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="release-1-0-0">
+<h3>Release 1.0.0</h3>
+<p>Oringal release:</p>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 21:00 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Contributing to OpenSubdiv</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="contributing-to-opensubdiv">
+<h1 class="title">Contributing to OpenSubdiv</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Contributing to OpenSubdiv</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#contributor-license-agreement" id="id1">Contributor License Agreement</a></li>
+<li><a class="reference internal" href="#understand-git" id="id2">Understand Git</a></li>
+<li><a class="reference internal" href="#recommended-git-workflow" id="id3">Recommended Git Workflow</a></li>
+<li><a class="reference internal" href="#sending-a-pull-request" id="id4">Sending a Pull Request</a></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="contributor-license-agreement">
+<h3>Contributor License Agreement</h3>
+<p>In order for us to accept code submissions (merge git pull-requests), contributors
+need to sign the Contributor License Agreement (CLA). There are two CLAs, one for
+individuals and one for corporations. As for the end-user license, both are based
+on Apache. They are found in the code repository (<a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/OpenSubdivCLA_individual.pdf">individual form</a>,
+<a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/OpenSubdivCLA_corporate.pdf">corporate form</a>).
+Please email the signed CLA to <a class="reference external" href="mailto:opensubdiv-cla&#64;pixar.com">opensubdiv-cla&#64;pixar.com</a>.</p>
+</div>
+<div class="section" id="understand-git">
+<h3>Understand Git</h3>
+<p>First, you should familiarize yourself with the Git data model and commands.</p>
+<p>For small changes you may not need to understand Git deeply, but for larger
+changes or working with the codebase over a long period of time, it becomes
+critical to understand more of what's going on under the hood.</p>
+<p>There are many free resources on the internet, one which we've found useful is
+the following e-book:</p>
+<p><a class="reference external" href="https://github.com/pluralsight/git-internals-pdf/releases">https://github.com/pluralsight/git-internals-pdf/releases</a></p>
+</div>
+<div class="section" id="recommended-git-workflow">
+<h3>Recommended Git Workflow</h3>
+<p>Once you have a local development tree cloned and working, you can start making
+changes. You will need to integrate changes from the source tree as you work;
+the following outlines the workflow used by core OpenSubdiv engineers at Pixar
+and DreamWorks:</p>
+<ol class="arabic">
+<li><p class="first">Fork the master repository into your own local copy. This can be done via the
+GitHub website using the &quot;fork&quot; button.</p>
+</li>
+<li><p class="first">Clone your fork locally:</p>
+<blockquote>
+<div class="line-block">
+<div class="line">git clone &lt;your_fork_url&gt; OpenSubdiv.&lt;your_name&gt;</div>
+<div class="line"><br /></div>
+<div class="line">e.g.:</div>
+<div class="line">git clone <a class="reference external" href="https://github.com/jcowles/OpenSubdiv.git">https://github.com/jcowles/OpenSubdiv.git</a> OpenSubdiv.jcowles</div>
+</div>
+</blockquote>
+</li>
+<li><p class="first">Setup two remotes, <strong>origin</strong> and <strong>upstream</strong>. Origin will be setup as a
+result of cloning your remote repository, but upstream must be setup manually:</p>
+<blockquote>
+<div class="line-block">
+<div class="line">git remote add <strong>upstream</strong> <a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv.git">https://github.com/PixarAnimationStudios/OpenSubdiv.git</a></div>
+</div>
+</blockquote>
+<p>Verify your remotes are setup correctly:</p>
+<blockquote>
+<div class="line-block">
+<div class="line">git remote -v</div>
+</div>
+</blockquote>
+<p>Which should look something like:</p>
+<blockquote>
+<div class="line-block">
+<div class="line">origin <a class="reference external" href="https://github.com/jcowles/OpenSubdiv.git">https://github.com/jcowles/OpenSubdiv.git</a> (fetch)</div>
+<div class="line">origin <a class="reference external" href="https://github.com/jcowles/OpenSubdiv.git">https://github.com/jcowles/OpenSubdiv.git</a> (push)</div>
+<div class="line">upstream <a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv.git">https://github.com/PixarAnimationStudios/OpenSubdiv.git</a> (fetch)</div>
+<div class="line">upstream <a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv.git">https://github.com/PixarAnimationStudios/OpenSubdiv.git</a> (push)</div>
+</div>
+</blockquote>
+<p>Finally, fetch the upstream content (this is required for the next step):</p>
+<blockquote>
+<div class="line-block">
+<div class="line">git fetch upstream</div>
+</div>
+</blockquote>
+</li>
+<li><p class="first">Setup a new branch for each change. Working with branches in Git is its
+greatest pleasure, we strongly suggest setting up a new branch for each
+change which you plan to pull-request.</p>
+<p>All work is done in the &quot;dev&quot; branch, so be sure to keep your change in sync
+with this upstream branch. To begin, start your new branch from the dev
+branch:</p>
+<blockquote>
+<div class="line-block">
+<div class="line">git checkout -b dev-feature upstream/dev</div>
+</div>
+</blockquote>
+</li>
+<li><p class="first">As you are working on your feature, new changes will be merged into the
+upstream repository, to sync these changes down and preserve your local
+edits, you can continually rebase your local work:</p>
+<blockquote>
+<div class="line-block">
+<div class="line">git pull --rebase upstream dev</div>
+</div>
+</blockquote>
+<p>Notice the &quot;--rebase&quot; option here. It updates the current branch to the
+upstream/dev branch and rebases all edits so they are at the head of your
+local feature branch.</p>
+<p>Alternatively, you can rebase all your work at once when your feature is
+complete.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="sending-a-pull-request">
+<h3>Sending a Pull Request</h3>
+<p>First, rebase and squash your changes appropriately to produce a clean set of
+changes at the head of your tree. We require changes to be grouped locally to
+ensure that rolling back changes can be done easily.</p>
+<p>If you've followed the steps above, your pending change should already be queued
+up as required. If you have not, you may need to rebase and squash changes at
+this point.</p>
+<p>Once the change is clean, push your changes to &quot;origin&quot; and go to the GitHub
+website to submit your pull request.</p>
+<p>Be sure to submit your request against the &quot;dev&quot; branch.</p>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 21:00 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

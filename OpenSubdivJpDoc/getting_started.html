@@ -1,0 +1,345 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Getting Started</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="getting-started">
+<h1 class="title">Getting Started</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Getting Started</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#downloading-the-code" id="id1">Downloading the code</a></li>
+<li><a class="reference internal" href="#branches-git-flow" id="id2">Branches &amp; Git Flow</a><ul>
+<li><a class="reference internal" href="#checking-out-branches" id="id3">Checking out branches</a></li>
+<li><a class="reference internal" href="#api-versions" id="id4">API Versions</a></li>
+<li><a class="reference internal" href="#making-changes" id="id5">Making Changes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#code-overview" id="id6">Code Overview</a></li>
+</ul>
+</div>
+<div class="section" id="downloading-the-code">
+<h3>Downloading the code</h3>
+<p>The code is hosted on a Github public repository. Download and setup information
+for Git tools can be found <a class="reference external" href="https://help.github.com/articles/set-up-git">here</a>.</p>
+<p>You can access the OpenSubdiv Git repository at <a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv">https://github.com/PixarAnimationStudios/OpenSubdiv</a></p>
+<p>From there, there are several ways of downloading the OpenSubdiv source code.</p>
+<blockquote>
+<ul>
+<li><p class="first">Zip archive : downloaded from <a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/archive/master.zip">here</a></p>
+</li>
+<li><p class="first">Using a GUI client : you can find a list <a class="reference external" href="http://git-scm.com/downloads/guis">here</a>
+Please refer to the documentation of your preferred application.</p>
+</li>
+<li><p class="first">From the GitShell, Cygwin or the CLI : assuming that you have the Git tools
+installed, you can clone the OpenSubdiv repository directly with the
+following command:</p>
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">clone</span> <span class="name label">https</span><span class="punctuation">:</span><span class="comment single">//github.com/PixarAnimationStudios/OpenSubdiv.git</span>
+</pre>
+</li>
+</ul>
+</blockquote>
+<p>These methods only pull static archives, which is are not under the version
+control system and therefore cannot pull updates or push changes back. If you
+intend on contributing features or fixes to the main trunk of the code, you will
+need to create a free Github account and clone a fork of the OpenSubdiv repository.</p>
+<p>Submissions to the main code trunk can be sent using Git's pull-request mechanisms.
+Please note that we are using the git flow tools so all changes should be made to
+our <em>dev</em> branch. Before we can accept submissions however, we will need a signed
+<a class="reference external" href="intro.html#contributing">Contributor's License Agreement</a>.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="branches-git-flow">
+<h3>Branches &amp; Git Flow</h3>
+<p>Since version 1.1.0, OpenSubdiv has adopted the <a class="reference external" href="http://nvie.com/posts/a-successful-git-branching-model/">Git Flow</a> branching model .</p>
+<p>Our active development branch is named <em>dev</em> : all new features and bug fixes should
+be submitted to this branch. The changes submitted to the dev branch are periodically
+patched to the 'master' branch as new versions are released.</p>
+<a class="reference external image-reference" href="images/git_flow.png"><img alt="images/git_flow.png" class="align-center" src="images/git_flow.png" /></a>
+<div class="section" id="checking-out-branches">
+<h4>Checking out branches</h4>
+<p>The Git Flow <a class="reference external" href="https://github.com/nvie/gitflow">tools</a> are not a requisite for
+working with the OpenSubdiv code base, but new work should always be performed in
+the <em>dev</em> branch, or dedicated feature-branches. By default, a cloned repository
+will be pointing to the 'master' branch. You can switch to the <em>dev</em> branch using
+the following command:</p>
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">checkout</span> <span class="name">dev</span>
+</pre>
+<p>You can check that the branch has now been switched simply with:</p>
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">branch</span>
+</pre>
+<p>Which should return:</p>
+<pre class="code c++ literal-block">
+<span class="operator">*</span> <span class="name">dev</span>
+  <span class="name">master</span>
+</pre>
+</div>
+<div class="section" id="api-versions">
+<h4>API Versions</h4>
+<p>OpenSubdiv maintains an internal API versioning system. The version number can be
+read from the file <a class="reference external" href="https://github.com/PixarAnimationStudios/OpenSubdiv/blob/master/opensubdiv/version.h">./opensubdiv/version.h</a>.
+Following the Git-Flow pattern, our releases are indexed using Git's tagging
+system.</p>
+<p>List of the existing tags:</p>
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">tag</span> <span class="operator">--</span><span class="name">list</span>
+</pre>
+<p>Checking out version 1.2.0:</p>
+<pre class="code c++ literal-block">
+<span class="name">git</span> <span class="name">checkout</span> <span class="name">v1_2_0</span>
+</pre>
+</div>
+<div class="section" id="making-changes">
+<h4>Making Changes</h4>
+<p>Direct push access to the OpenSubdiv master repository is currently limited to a
+small internal development team. External code should be submitted by sending Git
+<a class="reference external" href="https://help.github.com/articles/using-pull-requests">pull-requests</a> from
+forks of our <em>dev</em> branch.</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="code-overview">
+<h3>Code Overview</h3>
+<p>The OpenSubdiv code base contains the following main areas:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Directory</th>
+<th class="head">Contents</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><strong>./opensubdiv/</strong></td>
+<td>The main subdivision APIs : Sdc, Vtr, Far and Osd.</td>
+</tr>
+<tr><td rowspan="2"><strong>./examples/</strong></td>
+<td rowspan="2">A small collection of standalone applications that illustrate how to deploy the
+various features and optimizations of the OpenSubdiv APIs. The GL-based examples
+rely on the cross-platform GLFW API for interactive window management, while the
+DirectX ones are OS-native.</td>
+</tr>
+<tr></tr>
+<tr><td><strong>./tutorials/</strong></td>
+<td>Tutorials showing how to manipulate the APIs of OpenSubdiv.</td>
+</tr>
+<tr><td><strong>./documentation/</strong></td>
+<td>The reStructuredText source files along with python scripts that generate the HTML
+documentation site.</td>
+</tr>
+<tr><td><strong>./regression/</strong></td>
+<td>Standalone regression tests and baseline data to help maintain the integrity of
+our APIs. If GPU SDKs are detected, some tests will attempt to run computations
+on those GPUs.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 21:00 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

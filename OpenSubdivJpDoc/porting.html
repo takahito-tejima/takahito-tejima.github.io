@@ -1,0 +1,764 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Porting Guide: 2.x to 3.0</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="porting-guide-2-x-to-3-0">
+<h1 class="title">Porting Guide: 2.x to 3.0</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Porting Guide 2.x to 3.0</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#id1" id="id2">Porting Guide: 2.x to 3.0</a></li>
+<li><a class="reference internal" href="#source-code-organization" id="id3">Source Code Organization</a></li>
+<li><a class="reference internal" href="#hbr-layer-translation" id="id4">Hbr Layer Translation</a><ul>
+<li><a class="reference internal" href="#subdivision-schemes-and-options-in-sdc" id="id5">Subdivision Schemes and Options in Sdc</a></li>
+<li><a class="reference internal" href="#specifying-face-varying-topology-and-options" id="id6">Specifying Face Varying Topology and Options</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#far-layer-translation" id="id7">Far Layer Translation</a><ul>
+<li><a class="reference internal" href="#ordering-of-refined-vertices" id="id8">Ordering of Refined Vertices</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#osd-layer-translation" id="id9">Osd Layer Translation</a><ul>
+<li><a class="reference internal" href="#controller-objects" id="id10">Controller Objects</a></li>
+<li><a class="reference internal" href="#computecontext-drawcontext" id="id11">ComputeContext, DrawContext</a></li>
+<li><a class="reference internal" href="#evallimitcontext" id="id12">EvalLimitContext</a></li>
+<li><a class="reference internal" href="#osdmesh" id="id13">OsdMesh</a></li>
+<li><a class="reference internal" href="#osdkernelbatch" id="id14">OsdKernelBatch</a></li>
+<li><a class="reference internal" href="#osdvertex" id="id15">OsdVertex</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#feature-adaptive-shader-changes" id="id16">Feature Adaptive Shader Changes</a><ul>
+<li><a class="reference internal" href="#end-cap-strategies" id="id17">End Cap Strategies</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#changes-to-subdivision" id="id18">Changes to Subdivision</a></li>
+<li><a class="reference internal" href="#build-support-for-combining-2-x-and-3-0" id="id19">Build Support for Combining 2.x and 3.0</a></li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h3>Porting Guide: 2.x to 3.0</h3>
+<p>This document is a high-level description of how to port exiting OpenSubdiv 2.x
+code to use OpenSubdiv 3.0.</p>
+<p><strong>NOTE:</strong> If your questions are not answered here, please contact us on the
+OpenSubdiv forum and we will be happy to help!</p>
+</div>
+<div class="section" id="source-code-organization">
+<h3>Source Code Organization</h3>
+<p>Given the scale of functional changes that were being made to the public
+interface, we took the opportunity in 3.0 to update the coding style and
+organization -- most notably making use of namespaces for each library.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="24%" />
+<col width="56%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Subdirectory</th>
+<th class="head">Namespace</th>
+<th class="head">Relevance</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>hbr/</td>
+<td>N/A</td>
+<td>Historical, no longer used</td>
+</tr>
+<tr><td>sdc/</td>
+<td>Sdc</td>
+<td>New, low-level, public options, constants, etc.</td>
+</tr>
+<tr><td>vtr/</td>
+<td>Vtr</td>
+<td>New, internal use, topology representation</td>
+</tr>
+<tr><td>far/</td>
+<td>Far</td>
+<td>Revised, similar functionality with new API</td>
+</tr>
+<tr><td>osd/</td>
+<td>Osd</td>
+<td>Revised, similar functionality with new API</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hbr-layer-translation">
+<h3>Hbr Layer Translation</h3>
+<p>Client mesh topology is now translated into an instance of Far::TopologyRefiner
+instead of HbrMesh.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="46%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">OpenSubdiv 2.x</th>
+<th class="head">OpenSubdiv 3.0</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>HbrMesh&lt;VTX_TYPE&gt;</td>
+<td>Far::TopologyRefiner</td>
+</tr>
+</tbody>
+</table>
+<p>The Far::TopologyRefiner is now the core representation of topology from which
+all other major classes in Far and Osd are constructed.  It was designed to
+support efficient refinement (uniform or sparse) of a base mesh of arbitrary
+topology (no manifold restrictions).  Once constructed it can be directly
+refined to meet some need, or passed to other contexts that will refine it to
+meet their needs.</p>
+<p>In contrast to directly assembling an HbrMesh, the TopologyRefiner, like other
+classes in Far, requires a Factory class for its construction.  One of the
+early goals of these factories was to allow a client to convert their existing
+boundary representation -- with its full topological traversal abilities --
+directly into the TopologyRefiners representation.  While this is now possible,
+this also represents the most complex construction process and is only
+recommended for usage where this conversion process is critical.</p>
+<p>Details on how to construct a TopologyRefiner can be found in the
+<a class="reference external" href="far_overview.html#far-topologyrefinerfactory">Far overview</a> documentation.
+Additionally, documentation for Far::TopologyRefinerFactory&lt;MESH&gt; outlines the
+requirements, and a Far tutorial (tutorials/far/tutorial_1) provides an example
+of a factory for directly converting HbrMeshes to TopologyRefiners.</p>
+<p>Its worth a reminder here that Far::TopologyRefiner contains only topological
+information (which does include sharpness, since that is considered relating
+to subdivision topology) and not the positions or other data associated with
+a mesh.  While HbrMesh&lt;T&gt; required some definition of a vertex type &lt;T&gt; and
+dimensions of face-varying data, TopologyRefiner is more clearly separated
+from the data.  So the construction of the TopologyRefiner does not involve
+data specification at all.</p>
+<div class="section" id="subdivision-schemes-and-options-in-sdc">
+<h4>Subdivision Schemes and Options in Sdc</h4>
+<p>The creation of a new TopologyRefiner requires specification of a subdivision
+scheme and a set of options that are applicable to all schemes.  With HbrMesh,
+the scheme was specified by declaring a static instance of a specific subclass
+of a subdivision object, and the options were specified with a number of
+methods on the different classes.</p>
+<p>Such general information about the schemes has now been encapsulated in the
+Sdc layer for use throughout OpenSubdiv.  The subdivision scheme is now a
+simple enumerated type (Sdc::SchemeType) and the entire set of options that
+can be applied to a scheme is encapsulated in a single simple struct of
+flags and enumerated types (Sdc::Options).</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="52%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">OpenSubdiv 2.x</th>
+<th class="head">OpenSubdiv 3.0</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>HbrMesh&lt;T&gt;::SetInterpolateBoundaryMethod()</td>
+<td>Sdc::Options::SetVtxBoundaryInterpolation()</td>
+</tr>
+<tr><td>HbrMesh&lt;T&gt;::SetFVarInterpolateBoundaryMethod()</td>
+<td>Sdc::Options::SetFVarLinearInterpolation()</td>
+</tr>
+<tr><td>HbrSubdivision&lt;T&gt;::SetCreaseSubdivisionMethod()</td>
+<td>Sdc::Options::SetCreasingMethod()</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="specifying-face-varying-topology-and-options">
+<h4>Specifying Face Varying Topology and Options</h4>
+<p>Both the way in which face varying data is associated with a mesh and the
+options used to control its interpolation have changed.  The documentation on
+<a class="reference external" href="compatibility.html#compatibility-with-opensubdiv-2.x">Compatibility with OpenSubdiv 2.x</a>
+details the equivalence of interpolation options between Hbr and the new
+<em>Sdc::Options::FVarLinearInterpolation</em> enum, while the section on
+<a class="reference external" href="subdivision_surfaces.html#face-varying-interpolation-rules">Face Varying Interpolation</a>
+illustrates their effects.</p>
+<p>Face varying data is now specified by index rather than by value, or as often
+stated, it is specified topologically.  Just as vertices for faces are specified
+by indices into a potential buffer of positions, face varying values are
+specified by indices into a potential buffer of values.  Both vertices and
+face varying values (frequently referred to as <em>FVarValues</em> in the API) are
+assigned and associated with the corners of all faces.</p>
+<p>In many cases this will simplify representation as many common geometry
+container formats such as Obj or Alembic specify texture coordinates the same
+way.  For other cases, where a value per face-corner is provided with no
+indication of which values incident each vertex should be considered shared,
+it will be necessary to determine shared indices for values at each vertex if
+any non-linear interpolation is desired.</p>
+</div>
+</div>
+<div class="section" id="far-layer-translation">
+<h3>Far Layer Translation</h3>
+<p>While TopologyRefiner was introduced into Far as the new intermediate
+topology representation, several other changes were made to classes in Far
+to provide more modular building blocks for use by the Osd layer or directly.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">OpenSubdiv 2.x</th>
+<th class="head">OpenSubdiv 3.0</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>FarMesh&lt;U&gt;</td>
+<td>N/A, no longer needed</td>
+</tr>
+<tr><td>FarSubdivisionTables</td>
+<td>Far::StencilTable</td>
+</tr>
+<tr><td>FarPatchTables</td>
+<td>Far::PatchTable</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="ordering-of-refined-vertices">
+<h4>Ordering of Refined Vertices</h4>
+<p>The FarMesh was previously responsible for refining an HbrMesh -- generating
+new vertices and faces in successive levels of refinement in the
+FarSubdivisionTables.  Vertices were grouped and reordered from the native
+ordering of HbrMesh so that vertices requiring similar processing were
+consecutive.  Such grouping alleviated most of the idiosyncrasies of
+HbrMesh's native ordering but not all.</p>
+<p>Far::ToplogyRefiner is inherently a collection of refinement levels, and
+within each refined level (so excluding the base level), all components are
+still grouped for the same reasons.  There are two issues here though:</p>
+<ul class="simple">
+<li>the ordering of these groups has changed (though an option exists to
+preserve it)</li>
+<li>the ordering of components within these groups is not guaranteed to have
+been preserved</li>
+</ul>
+<p>Vertices in a refined level are grouped according to the type of component in
+the parent level from which they originated, i.e. some vertices originate
+from the center of a face (face-vertices), some from an edge (edge-vertices)
+and some from a vertex (vertex-vertices).  (Note that there is a conflict in
+terminology here -- face-vertices and edge-vertices most often refer to
+vertices incident a face or edge -- but for the sake of this discussion, we
+use them to refer to the component from which a child vertex originates.)</p>
+<p>The following table shows the ordering of these groups in 2.x and the two
+choices available in 3.0.  The option is the <em>orderVerticesFromFacesFirst</em>
+flag that can be set in the Option structs passed to the uniform and adaptive
+refinement methods of TopologyRefiner:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="49%" />
+<col width="51%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Version and option</th>
+<th class="head">Vertex group ordering</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>2.x</td>
+<td>face-vertices, edge-vertices, vertex-vertices</td>
+</tr>
+<tr><td>3.0 default</td>
+<td>vertex-vertices, face-vertices, edge-vertices</td>
+</tr>
+<tr><td>3.0 orderVerticesFromFacesFirst = true</td>
+<td>face-vertices, edge-vertices, vertex-vertices</td>
+</tr>
+</tbody>
+</table>
+<p>The decision to change the default ordering was based on common feedback;
+the rationale was to allow a trivial mapping from vertices in the cage to
+their descendants at all refinement levels.  While the grouping is
+fundamental to the refinement process, the ordering of the groups is
+internally flexible, and the full set of possible orderings can be made
+publicly available in future if there is demand for such flexibility.</p>
+<p>The ordering of vertices within these groups was never clearly defined given
+the way that HbrMesh applied its refinement.  For example, for the
+face-vertices in a level, it was never clear which face-vertices would be
+first as it depended on the order in which HbrMesh traversed the parent faces
+and generated them. Given one face, HbrMesh would often visit neighboring
+faces first before moving to the next intended face.</p>
+<p>The ordering with Far::TopologyRefiner is much clearer and predictable.  Using
+the face-vertices as an example, the order of the face-vertices in level <em>N+1</em>
+is identical to the order of the parent faces in level <em>N</em> from which they
+originated.  So if we have face-vertices <em>V'i</em>, <em>V'j</em> and <em>V'k</em> at some level,
+originating from faces <em>Fi</em>, <em>Fj</em> and <em>Fk</em> in the previous level, they will
+be ordered in increasing order of <em>i</em>, <em>j</em> and <em>k</em>.  For uniform refinement
+the ordering of face vertices <em>V'i</em> will therefore exactly match the ordering
+of the parent faces <em>Fi</em>.  For adaptive or otherwise sparse refinement, the
+subset of <em>Vi</em> will be ordered similarly, just with components missing from
+those not refined.</p>
+<p>The same is true of all vertices, i.e. edge-vertices and vertex-vertices,
+and also for other components in refined levels, i.e. the child faces and
+edges.</p>
+<p>For child faces and edges, more than one will originate from the same parent
+face or edge.  In addition to the overall ordering based on the parent faces
+or edges, another ordering is imposed on multiple children originating from
+the same face or edge.  They will be ordered based on the corner or
+end-vertex with which they are associated.</p>
+<p>In the case of refined faces, another way to view the ordering is to consider
+the way that faces are originally defined -- by specifying the set of vertices
+for the corners of each face, often aggregated into a single large array.  The
+ordering of the set of refined faces for each level will correspond directly
+to such an array of vertices per face in the previous level.</p>
+</div>
+</div>
+<div class="section" id="osd-layer-translation">
+<h3>Osd Layer Translation</h3>
+<p>Two big changes in the 3.0 API have allowed the Osd layer to be significantly
+simpler, the first is the move to stencil tables from subdivision tables and the
+second is shader simplification. With this refactoring, the focus has been to
+use more meaningful names and to make the data contained within an object more
+apparent.</p>
+<div class="section" id="controller-objects">
+<h4>Controller Objects</h4>
+<p>The API-specific ComputeController has been replaced with the <a class="reference external" href="doxy_html/a00024.html">Evaluator</a>. It
+reflects the fact that stencil compute batches are significantly simpler than
+subdivision table compute batches.</p>
+<p>The name &quot;Evaluator&quot; was chosen with the hope that is more meaningful than the
+generic &quot;ComputeController&quot; moniker: the Evaluator evaluates stencil and
+patch tables.</p>
+<p>In the 2.x code base, subdiv level buffers were always required to be allocated
+contiguously, however in 3.0 with the shift to stencil tables, this strict
+allocation scheme is no longer required. As a result, the EvalStencils() and
+EvalPatches() methods now accept both a source and a destination descriptor.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="49%" />
+<col width="51%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">OpenSubdiv 2.x</th>
+<th class="head">OpenSubdiv 3.0</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ComputeController::Refine()</td>
+<td>Osd::...Evaluator::EvalStencils()</td>
+</tr>
+<tr><td>ComputeController::Synchronize()</td>
+<td>Osd::...Evaluator::Synchronize()</td>
+</tr>
+<tr><td>EvalStencilsController::UpdateValues()</td>
+<td>Osd::...Evaluator::EvalStencils()</td>
+</tr>
+<tr><td>EvalStencilsController::UpdateDerivs()</td>
+<td>Osd::...Evaluator::EvalStencils()</td>
+</tr>
+<tr><td>EvalLimitController::EvalLimitSample()</td>
+<td>Osd::...Evaluator::EvalPatches()</td>
+</tr>
+</tbody>
+</table>
+<p>Also note that OsdVertexDescriptor has been renamed, however it's data members
+and semantic purpose remains the same:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="49%" />
+<col width="51%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">OpenSubdiv 2.x</th>
+<th class="head">OpenSubdiv 3.0</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>OsdVertexBufferDescriptor</td>
+<td>Osd::BufferDescriptor</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="computecontext-drawcontext">
+<h4>ComputeContext, DrawContext</h4>
+<p>ComputeContext and DrawContext have been replaced with API-specific StencilTable
+and PatchTable objects, for example Osd::GLStencilTableSSBO.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="46%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">OpenSubdiv 2.x</th>
+<th class="head">OpenSubdiv 3.0</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>ComputeContext</td>
+<td>Osd::...StencilTable (e.g. GLStencilTableTBO)</td>
+</tr>
+<tr><td>EvalStencilsContext</td>
+<td>Osd::...StencilTable</td>
+</tr>
+<tr><td>DrawContext</td>
+<td>Osd::...PatchTable (e.g. GLPatchTable)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="evallimitcontext">
+<h4>EvalLimitContext</h4>
+<p>The data stored in EvalLimitContext has been merged into the Evaluator class as
+well.</p>
+<p>EvalCoords have been moved into their own type, Osd::PatchCoords. The primary
+change here is that the PTex face ID is no longer part of the data structure,
+rather the client can use a Far::PatchMap to convert from PTex face ID to a
+Far::PatchTable::PatchHandle.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="49%" />
+<col width="51%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">OpenSubdiv 2.x</th>
+<th class="head">OpenSubdiv 3.0</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>EvalLimitContext</td>
+<td>PatchTable</td>
+</tr>
+<tr><td>EvalLimitContext::EvalCoords</td>
+<td>Osd::PatchCoords (types.h)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="osdmesh">
+<h4>OsdMesh</h4>
+<p>While not strictly required, OsdMesh is still supported in 3.0 as convenience
+API for allocating buffers. OsdMesh serves as a simple way to allocate all
+required data, in the location required by the API (for example, GPU buffers for
+OpenGL).</p>
+</div>
+<div class="section" id="osdkernelbatch">
+<h4>OsdKernelBatch</h4>
+<p>No translation, it is no longer part of the API.</p>
+</div>
+<div class="section" id="osdvertex">
+<h4>OsdVertex</h4>
+<p>No translation, it is no longer part of the API.</p>
+</div>
+</div>
+<div class="section" id="feature-adaptive-shader-changes">
+<h3>Feature Adaptive Shader Changes</h3>
+<p>In 3.0, the feature adaptive screen-space tessellation shaders have been
+dramatically simplified, and the client-facing API has changed dramatically as
+well. The primary shift is to reduce the total number of shader combinations, and
+as a result, some of the complexity management mechanisms are no longer
+necessary.</p>
+<p>In the discussion below, some key changes are highlighted, but deep
+integrations may require additional discussion; please feel free to send
+follow up questions to the OpenSubdiv google group.</p>
+<blockquote>
+<ul class="simple">
+<li>The number of feature adaptive shaders has been reduced from N to exactly 1
+or 2, depending on how end-caps are handled.</li>
+<li>Osd layer no longer compiles shaders, rather it returns shader source for the
+client to compile. This source is obtained via
+Osd::[GLSL|HLSL]PatchShaderSource.</li>
+<li>The API exposed in shaders to access patch-based data has been consolidated
+and formalized, see osd/glslPatchCommon.glsl and osd/hlslPatchCommon.hlsl for
+details.</li>
+<li>Patches are no longer rotated and transition patches have been eliminated,
+simplifying PatchDescriptor to a 4 bits. Additionally, FarPatchTables::Descriptor
+has been moved into its own class in the Far namespace.</li>
+</ul>
+</blockquote>
+<p>The following table outlines the API translation between 2.x and 3.0:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="49%" />
+<col width="51%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">OpenSubdiv 2.x</th>
+<th class="head">OpenSubdiv 3.0</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>OsdDrawContext::PatchDescriptor</td>
+<td>N/A, no longer needed.</td>
+</tr>
+<tr><td>OsdDrawContext::PatchArray</td>
+<td>OSd::PatchArray (types.h)</td>
+</tr>
+<tr><td>FarPatchTables::PatchDescriptor</td>
+<td>Far::PatchDescriptor (patchDescriptor.h)</td>
+</tr>
+<tr><td>FarPatchTables::PatchArray</td>
+<td>made private.</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="end-cap-strategies">
+<h4>End Cap Strategies</h4>
+<p>By default, OpenSubdiv uses Gregory patches to approximate the patches around
+extraordinary vertices at the maximum isolation level, this process is referred
+to as &quot;end-capping&quot;.</p>
+<p>If ENDCAP_BSPLINE_BASIS is specified to PatchTableFactory::Options, BSpline
+patches are used, which gives less accuracy, but it makes possible to render an
+entire mesh in a single draw call. Both patches require additional control
+points that are not part of the mesh, we refer to these as &quot;local points&quot;. In
+3.0, the local points of those patches are computed by applying a stencil table
+to refined vertices to construct a new stencil table for the local points.</p>
+<p>Since this new stencil table is topologically compatible with the primary
+stencil table for refinement, it is convenient and efficient to splice those
+stencil tables together. This splicing can be done in the following way:</p>
+<pre class="literal-block">
+Far::StencilTable const *refineStencils =
+                              Far::StencilTableFactory::Create(topologyRefiner);
+
+Far::PatchTable cosnt *patchTable =
+                              Far::PatchTableFactory::Create(topologyRefiner);
+
+Far::StencilTable const *localPointStencils =
+                                  patchTable-&gt;GetLocalPointStencilTable();
+
+Far::StencilTable const *splicedStencils =
+        Far::StencilTableFactory::AppendLocalPointStencilTables(topologyRefiner,
+                                                          refineStencils,
+                                                          localPointStencils);
+</pre>
+<p><strong>NOTE:</strong> Once the spliced stencil table is created, the refined stencils can be
+released, but the local point stencils are owned by patchTable, it should not be
+released.</p>
+<p>OpenSubdiv 3.0 also supports 2.x style Gregory patches, if ENDCAP_LEGACY_GREGORY
+is specified to PatchTableFactory::Options. In this case, such an extra stencil
+splicing isn't needed, however clients must still bind additional buffers
+(VertexValence buffer and QuadOffsets buffer).</p>
+<p>See Osd::GLLegacyGregoryPatchTable for additional details.</p>
+</div>
+</div>
+<div class="section" id="changes-to-subdivision">
+<h3>Changes to Subdivision</h3>
+<p>The refactoring of OpenSubdiv 3.0 data representations presented a unique
+opportunity to revisit some corners of the subdivision specification and
+remove or update some legacy features -- none of which was taken lightly.
+More details are provided in
+<a class="reference external" href="compatibility.html">Subdivision Compatibility</a>, while the
+following offers a quick overview:</p>
+<ul class="simple">
+<li>All face-varying interpolation options have been combined into a single enum.</li>
+<li>Vertex interpolation options have been renamed or removed:<ul>
+<li>The naming of the standard creasing method has changed from <em>Normal</em> to <em>Uniform</em>.</li>
+<li>Unused legacy modes of the <em>&quot;smoothtriangle&quot;</em> option have been removed.</li>
+</ul>
+</li>
+<li>The averaging of Chaikin creasing with infinitely sharp edges has changed.</li>
+<li>Support for Hierarchical Edits has been removed.</li>
+</ul>
+</div>
+<div class="section" id="build-support-for-combining-2-x-and-3-0">
+<h3>Build Support for Combining 2.x and 3.0</h3>
+<p>Running OpenSubdiv 2.0 and 3.0 in a single process is supported, however some
+special care must be taken to avoid namespace collisions, both in terms of
+run-time symbols (avoid &quot;using OpenSubdiv::Osd&quot;, for example) and in terms of
+build-time search paths.</p>
+<p>To support both OpenSubdiv 2.0 and 3.0 in your build environment, you can
+prefix the header install directory of OpenSubdiv 3.0. Do this using the build
+flag &quot;CMAKE_INCDIR_BASE&quot; when configuring cmake (i.e.
+-DCMAKE_INCDIR_BASE=include/opensubdiv3) and then including files from
+&quot;opensubdiv3/...&quot; in client code.</p>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 21:00 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

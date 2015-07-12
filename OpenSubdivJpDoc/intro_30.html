@@ -1,0 +1,380 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Overview of Release 3.0</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="overview-of-release-3-0">
+<h1 class="title">Overview of Release 3.0</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Overview of Release 3.0</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#id1" id="id9">バージョン 3.0</a><ul>
+<li><a class="reference internal" href="#sdc" id="id10">サブディビジョン・コア (Sdc)</a></li>
+<li><a class="reference internal" href="#id2" id="id11">トポロジーと分割</a></li>
+<li><a class="reference internal" href="#id3" id="id12">リミットプロパティとパッチ</a></li>
+<li><a class="reference internal" href="#id4" id="id13">高速な演算と描画</a></li>
+<li><a class="reference internal" href="#id5" id="id14">コードスタイルの更新</a></li>
+<li><a class="reference internal" href="#id6" id="id15">ドキュメント／チュートリアル</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#additional-resources" id="id16">Additional Resources</a><ul>
+<li><a class="reference internal" href="#id7" id="id17">移植ガイド</a></li>
+<li><a class="reference internal" href="#id8" id="id18">サブディビジョン互換性</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="id1">
+<h3>バージョン 3.0</h3>
+<p>OpenSubdiv 3.0 は根本的に変更されたコアアルゴリズム、簡単になったAPI、効率的に
+なったGPUカーネルなど多岐にわたる大きな変更を行った新バージョンになります。
+より高速、効率的でフレキシブルなサブディビジョンサーフェスのライブラリを提供する
+ことが私達の主な目的であることは変わっていませんが、そのために OpenSubdiv 3.0 は
+数多くの改良が施され以前のバージョンから大きく変わりました。</p>
+<hr class="docutils" />
+<div class="section" id="sdc">
+<h4>サブディビジョン・コア (Sdc)</h4>
+<p>過去・現在・未来に使われた、使われるであろう様々なトポロジ表現を考慮して、
+サブディジョンの根本的な規則と各種サブディビジョンスキームは新しい低レベルレイヤー <strong>Sdc</strong>
+（サブディビジョンコア） にまとめられました。このレイヤーは利用可能な
+オプション、例えばセミシャープクリースをサポートするための計算式、各種サブディビジョン
+スキームの分割重みなどを集約しています。これは「計算方法をメッシュから分離」する
+のが目的です。</p>
+<p>Sdc は OpenSubdiv で一貫性のあるサブディビジョンアルゴリズムを実装するための
+低レベルな機構です。OpenSubdiv 自身で使われる他、OpenSubdiv と同じになる実装を
+クライアントアプリケーションで実装するためにも使うことができます。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h4>トポロジーと分割</h4>
+<p>OpenSubdiv 3.0 は新たに <em>一時的に</em> 内部で利用するトポロジ表現、<strong>Vtr</strong>
+(ベクトル化トポロジ表現) を導入しました。以前のバージョンで使っていた Hbr
+に比べると、Vtr は Far で利用するトポロジ解析をより効率的に、柔軟に行うことが
+できます。Hbr は OpenSubdiv では利用しなくなりますが、レガシー互換や
+テストのためにライブラリ内に残してあります。</p>
+<p><strong>高速なサブディビジョン</strong></p>
+<p><strong>非多様体トポロジのサポート</strong></p>
+<p>トポロジ変換でHbr を使わなくなったため、OpenSubdiv は多様体メッシュ以外にも
+使えるようになりました。一つの例外（ループ分割での非三角形）を除き、一般的な
+ファイルフォーマット(obj や Alembic）で表現できるどんなフェイスや頂点の構成
+でも分割が可能です。ループ分割のサポートは今後充実する予定で、その例外もいずれ
+なくなります。</p>
+<p><strong>トポロジの簡単な変換</strong></p>
+<p>以前のように HbrMesh を構築するのではなく、いくつかの方法でクライアントアプリケーション
+からトポロジを与えることが可能です。単純に使える高レベルインターフェイス、あるいは
+より効率を求めるなら複雑な低レベルインタフェースを使ってトポロジを構築することが
+できます。</p>
+<p><strong>面変化(Face Varying)トポロジ</strong></p>
+<p>以前は面変化データは各面の各点について割り当てられ、値を比較することで繋ぎ目を
+検出していました。この場合、意図せず２つの値が共有されてしまう問題がありました。</p>
+<p>3.0 からは面変化データはトポロジで与えることになります。これは頂点のトポロジ
+が**頂点**集合と整数の頂点への参照(インデックス)で与えられるのと同じように、
+面変化データも**値**の集合とそれへのインデクス、で定義されるようになります。
+もしある頂点で面ごとに異なる値になる場合は、インデクスが変わる、ということ
+になります。このとき <strong>頂点</strong> の数と <strong>面変化データの値</strong> の数は異なる場合が
+ありますが、インデクスの総数は同じになる、ということに注意してください。</p>
+<p>面変化データトポロジは主要なファイルフォーマットである obj, Alembic, USD で
+使われている表現方法と同じになります。複数の面変化データのチャンネルはそれぞれ
+のトポロジで独立に表されます。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id3">
+<h4>リミットプロパティとパッチ</h4>
+<p>OpenSubdiv の根本的な目標は、正確かつ信頼性のあるリミットサーフェス表現を提供する
+ことにあります。サブディジョン階層中のコントロール点におけるリミットサーフェスの値
+（座標、接線）の計算、およびパッチを使った任意の場所でのリミットサーフェスの値の
+計算に様々な改良が行われました。</p>
+<p><strong>固定長の頂点価テーブルの廃止</strong></p>
+<blockquote>
+</blockquote>
+<p>特異頂点でのリミット値はどんな価数の頂点でも計算でき、新しい種類のパッチは
+組み込みの固定長テーブルを使わなくなりました。頂点価数を制約していたテーブルは
+削除されました。</p>
+<p>新しいトポロジ表現での価数に関する唯一の制約は、符号なし16ビット整数(65,535)
+の範囲になります。この制限は 32ビット整数にしてコンパイルすることで取り除くことが
+できますが、ほとんどの場合メモリの無駄になってしまうため、16ビット整数は合理的で
+あると考えています。</p>
+<p><strong>シングルクリースパッチ</strong></p>
+<p>OpenSubdiv 3.0 は新たに効率的にセミシャープクリース(*)を評価できる
+シングルクリースパッチを実装しました。この最適化により、高いシャープネスを
+持つエッジを非常に高速かつ省メモリに効率的に取り扱うことができます。</p>
+<blockquote>
+(*) Niessner et al., Efficient Evaluation of Semi-Smooth Creases in
+Catmull-Clark Subdivision Surfaces. Eurographics (Short Papers). 2012.
+<a class="reference external" href="http://research.microsoft.com/en-us/um/people/cloop/EG2012.pdf">http://research.microsoft.com/en-us/um/people/cloop/EG2012.pdf</a></blockquote>
+<p><strong>新たな非正則パッチの近似方法</strong></p>
+<p>以前のバージョンのグレゴリーパッチもレガシーとして残してありますが、幾つか
+新しく非正則パッチの表現に使う選択肢を追加しました。グレゴリー基底パッチ（新）、
+Bスプライン基底パッチが新しく選択可能です。グレゴリー基底パッチは以前の
+バージョンのグレゴリーパッチと同じ精度の近似を行いますが、パッチ頂点を
+ステンシルテーブルで事前処理することで以前より高速でシンプルなGPU描画が
+可能です。Bスプラインパッチはグレゴリー基底パッチより精度が落ちますが、
+適応分割メッシ全体を単一のシェーダで描画することが可能になります（グレゴリー基底
+パッチは正則パッチ以外に別のシェーダがひとつ必要です）</p>
+<p>新しいグレゴリー基底パッチとBスプラインパッチによる非正則パッチでは、以前にあった
+最大価数の制約がなくなります。レガシーグレゴリーパッチは依然として最大価数の
+制約があります（通常24、ハードウェアの GL_MAX_VARYING_VECTORS に依存）</p>
+<p>ただし、モデリングの際には価数を低く抑えておくことがクオリティとパフォーマンスの
+両面で重要であることは変わっていません。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id4">
+<h4>高速な演算と描画</h4>
+<p>OpenSubdiv 3.0 は CPU・GPU どちらの場合でも、繰り返しサブディビジョンを行う
+際のパフォーマンスを向上する新しいデータ構造とアルゴリズムを導入しました。</p>
+<p><strong>ステンシルテーブル</strong></p>
+<p>OpenSubdiv 3.0 は従来のサブディビジョンテーブルのかわりにステンシルテーブルを
+使います。サブディビジョンテーブルクラスはデータに相互依存があり並列実行の際に
+同期処理や別カーネルの実行が必要でした。これらの依存は事前計算で処理され、
+ステンシルテーブルになります。</p>
+<p>ステンシルはデータ依存がなく単一のシンプルなカーネルで処理されます。これにより
+事前計算、GPU実行ともに高速化され、ドライバのオーバヘッドも減りました。
+ステンシルテーブルのバックエンドは以前のバージョンと同様のものがサポートされて
+います（GCDを除く）</p>
+<p><strong>高速、シンプルなGPUカーネル</strong></p>
+<p>GPU側では、サブディビジョンテーブルのかわりにステンシルを使うことでボトルネックが
+解消され、4倍近くの高速化ができています。また複雑な補間がモデルごとに一回のカーネル
+実行になることで、モバイルプラットフォームなどで大きな性能向上が得られます。</p>
+<p>結果として演算のバッチ実行は単純化され、Osd レイヤーのAPIがシンプルになりました。</p>
+<p><strong>統合パッチシェーダ</strong></p>
+<p>適応型テセレーションシェーダの構成は劇的に単純化されました。シェーダの数は
+以前のパッチ構成の組み合わせ数から、１つあるいは２つに減りました。この大きな改良
+により 2.x に比べてロード時間が激減し、描画コストも減ります。</p>
+<p>演算カーネルの単純化と同様に、シェーダの単純化により Osd レイヤーはよりシンプルに
+なりました。s</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id5">
+<h4>コードスタイルの更新</h4>
+<p>OpenSubdiv 3.0 から、識別子のプレフィックスがC++名前空間になりました。</p>
+<p>このリリースでの大幅な変更により既存のクライアントコードは互換性がなくなりましたが、
+各所でコーディングスタイルの不一致を更新することができました。これにより品質、
+一貫性、読みやすさなどが向上していると期待しています。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id6">
+<h4>ドキュメント／チュートリアル</h4>
+<p>ドキュメントは一新されました。また本リリースより幾つかのチュートリアルが追加
+されています。チュートリアルはサンプルプログラムより簡単に API を学ぶことができます。
+チュートリアルの次はサンプルプログラムが参考になることかと思います。</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="additional-resources">
+<h3>Additional Resources</h3>
+<div class="section" id="id7">
+<h4>移植ガイド</h4>
+<p>OpenSubdiv 2.x で書かれた既存のコードを 3.0 に更新する方法は
+<a class="reference external" href="porting.html">Porting Guide</a> をご覧ください。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id8">
+<h4>サブディビジョン互換性</h4>
+<p>3.0 リリースはサブディビジョンの仕様に幾つか小変更を行っています。
+<a class="reference external" href="compatibility.html">Subdivision Compatibility</a>  をご覧ください。</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 21:00 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Hierarchical Edits</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="hierarchical-edits">
+<h1 class="title">Hierarchical Edits</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Hierarchical Edits</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#id1" id="id2">Hierarchical Edits</a><ul>
+<li><a class="reference internal" href="#hierarchical-edits-paths" id="id3">Hierarchical Edits Paths</a></li>
+<li><a class="reference internal" href="#vertex-edits" id="id4">Vertex Edits</a></li>
+<li><a class="reference internal" href="#edge-edits" id="id5">Edge Edits</a></li>
+<li><a class="reference internal" href="#face-edits" id="id6">Face Edits</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="id1">
+<h3>Hierarchical Edits</h3>
+<p>To understand the hierarchical aspect of subdivision, we realize that
+subdivision itself leads to a natural hierarchy: after the first level of
+subdivision, each face in a subdivision mesh subdivides to four quads (in the
+Catmull-Clark scheme), or four triangles (in the Loop scheme). This creates a
+parent and child relationship between the original face and the resulting four
+subdivided faces, which in turn leads to a hierarchy of subdivision as each
+child in turn subdivides. A hierarchical edit is an edit made to any one of the
+faces, edges, or vertices that arise anywhere during subdivision. Normally
+these subdivision components inherit values from their parents based on a set
+of subdivision rules that depend on the subdivision scheme.</p>
+<p>A hierarchical edit overrides these values. This allows for a compact
+specification of localized detail on a subdivision surface, without having to
+express information about the rest of the subdivision surface at the same level
+of detail.</p>
+<a class="reference external image-reference" href="images/hedit_example1.png"><img alt="images/hedit_example1.png" class="align-center" src="images/hedit_example1.png" style="height: 300px;" /></a>
+<hr class="docutils" />
+<div class="notebox container">
+<p><strong>Release Notes (3.0.0)</strong></p>
+<p>Hierarchical Edits have been marked as &quot;extended specification&quot; and support for
+hierarchical features has been removed from the 3.0 release. This decision
+allows for great simplifications of many areas of the subdivision algorithms.
+If we can identify legitimate use-cases for hierarchical tags, we will consider
+re-implementing them in future releases, as time and resources allow.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="hierarchical-edits-paths">
+<h4>Hierarchical Edits Paths</h4>
+<p>In order to perform a hierarchical edit, we need to be able to name the
+subdivision component we are interested in, no matter where it may occur in the
+subdivision hierarchy. This leads us to a hierarchical path specification for
+faces, since once we have a face we can navigate to an incident edge or vertex
+by association. We note that in a subdivision mesh, a face always has incident
+vertices, which are labelled (in relation to the face) with an integer index
+starting at zero and in consecutive order according to the usual winding rules
+for subdivision surfaces. Faces also have incident edges, and these are
+labelled according to the origin vertex of the edge.</p>
+<a class="reference external image-reference" href="images/face_winding.png"><img alt="images/face_winding.png" class="align-center" src="images/face_winding.png" /></a>
+<p>In this diagram, the indices of the vertices of the base face are marked in
+<span class="red">red</span>; so on the left we have an extraordinary Catmull-Clark face with
+five vertices (labeled <span class="red">0-4</span>) and on the right we have a regular
+Catmull-Clark face with four vertices (labelled <span class="red">0-3</span>). The indices of the
+child faces are <span class="blue">blue</span>; note that in both the extraordinary and regular
+cases, the child faces are indexed the same way, i.e. the sub-face labeled
+<span class="blue">n</span> has one incident vertex that is the result of the subdivision of the
+parent vertex also labeled <span class="red">n</span> in the parent face. Specifically, we note
+that the sub-face <span class="blue">1</span> in both the regular and extraordinary face is
+nearest to the vertex labelled <span class="red">1</span> in the parent.</p>
+<p>The indices of the vertices of the child faces are labeled <span class="green">green</span>, and
+this is where the difference lies between the extraordinary and regular case;
+in the extraordinary case, vertex to vertex subdivision always results in a
+vertex labeled <span class="green">0</span>, while in the regular case, vertex to vertex
+subdivision assigns the same index to the child vertex. Again, specifically, we
+note that the parent vertex indexed <span class="red">1</span> in the extraordinary case has a
+child vertex <span class="green">0</span>, while in the regular case the parent vertex indexed
+<span class="red">1</span> actually has a child vertex that is indexed <span class="green">1</span>. Note that this
+indexing scheme was chosen to maintain the property that the vertex labeled 0
+always has the lowest u/v parametric value on the face.</p>
+<a class="reference external image-reference" href="images/hedit_path.gif"><img alt="images/hedit_path.gif" class="align-center" src="images/hedit_path.gif" /></a>
+<p>By appending a vertex index to a face index, we can create a vertex path
+specification. For example, (<span class="blue">655</span> <span class="green">2</span> <span class="red">3</span> 0) specifies the
+1st. vertex of the <span class="red">3</span> rd. child face of the <span class="green">2</span> nd. child face of
+the of the <span class="blue">655</span> th. face of the subdivision mesh.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="vertex-edits">
+<h4>Vertex Edits</h4>
+<p>Vertex hierarchical edits can modify the value or the sharpness of primitive
+variables for vertices and sub-vertices anywhere in the subdivision hierarchy.</p>
+<a class="reference external image-reference" href="images/hedit_example1.png"><img alt="images/hedit_example1.png" class="align-center" src="images/hedit_example1.png" style="height: 300px;" /></a>
+<p>The edits are performed using either an &quot;add&quot; or a &quot;set&quot; operator. &quot;set&quot;
+indicates the primitive variable value or sharpness is to be set directly to
+the values specified. &quot;add&quot; adds a value to the normal result computed via
+standard subdivision rules. In other words, this operation allows value offsets
+to be applied to the mesh at any level of the hierarchy.</p>
+<a class="reference external image-reference" href="images/hedit_example2.png"><img alt="images/hedit_example2.png" class="align-center" src="images/hedit_example2.png" style="height: 300px;" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="edge-edits">
+<h4>Edge Edits</h4>
+<p>Edge hierarchical edits can only modify the sharpness of primitive variables for edges
+and sub-edges anywhere in the subdivision hierarchy.</p>
+<a class="reference external image-reference" href="images/hedit_example4.png"><img alt="images/hedit_example4.png" class="align-center" src="images/hedit_example4.png" style="height: 300px;" /></a>
+</div>
+<hr class="docutils" />
+<div class="section" id="face-edits">
+<h4>Face Edits</h4>
+<p>Face hierarchical edits can modify several properties of faces and sub-faces
+anywhere in the subdivision hierarchy.</p>
+<p>Modifiable properties include:</p>
+<blockquote>
+<ul class="simple">
+<li>The &quot;set&quot; or &quot;add&quot; operators modify the value of primitive variables
+associated with faces.</li>
+<li>The &quot;hole&quot; operation introduces holes (missing faces) into the subdivision
+mesh at any level in the subdivision hierarchy. The faces will be deleted,
+and none of their children will appear (you cannot &quot;unhole&quot; a face if any
+ancestor is a &quot;hole&quot;). This operation takes no float or string arguments.</li>
+</ul>
+</blockquote>
+<a class="reference external image-reference" href="images/hedit_example5.png"><img alt="images/hedit_example5.png" class="align-center" src="images/hedit_example5.png" style="height: 300px;" /></a>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 21:00 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

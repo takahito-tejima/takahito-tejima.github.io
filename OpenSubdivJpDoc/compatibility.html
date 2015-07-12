@@ -1,0 +1,593 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>Subdivision Compatibility</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="subdivision-compatibility">
+<h1 class="title">Subdivision Compatibility</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">Subdivision Compatibility</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#id1" id="id2">Subdivision Compatibility</a></li>
+<li><a class="reference internal" href="#compatibility-with-opensubdiv-2-x" id="id3">Compatibility with OpenSubdiv 2.x</a></li>
+<li><a class="reference internal" href="#compatibility-with-renderman" id="id4">Compatibility with RenderMan</a><ul>
+<li><a class="reference internal" href="#incompatibilities" id="id5">Incompatibilities</a></li>
+<li><a class="reference internal" href="#other-differences" id="id6">Other Differences</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h3>Subdivision Compatibility</h3>
+<p>This document highlights areas of compatibility with other software that makes
+use of subdivision surfaces, including previous versions of OpenSubdiv.</p>
+<p>The &quot;compatibility&quot; here refers to the choice of subdivision rules that define
+the shape of the resulting surfaces.  Different subdivision rules will lead to
+different shapes.  Choices affecting shape include:</p>
+<ul class="simple">
+<li>the types of subdivision schemes supported (e.g. Catmull-Clark, Loop, etc.)</li>
+<li>the basic rules applied for these schemes</li>
+<li>any extended rules to affect sharpness or creasing</li>
+<li>rules applied separately to face-varying data</li>
+</ul>
+<p>Ensuring all of these rules are consistent provides the basis for consistent
+shapes, but further approximations to the limit surface create the potential
+for subtle deviations.  Even within OpenSubdiv, multiple approximations are
+possible and vary.  For now we focus on the compatibility of subdivision rules
+and deal with the limit approximations only when noteworthy.</p>
+</div>
+<div class="section" id="compatibility-with-opensubdiv-2-x">
+<h3>Compatibility with OpenSubdiv 2.x</h3>
+<p>The refactoring of OpenSubdiv 3.0 data representations presented a unique
+opportunity to revisit some corners of the subdivision specification and
+remove or update some legacy features.</p>
+<p><strong>Face-varying Interpolation Options</strong></p>
+<p>Face-varying interpolation options have been consolidated into a single enum
+with one additional choice new to 3.0.  No functionality from 2.x has been
+removed -- just re-expressed in a simpler and more comprehensible form.</p>
+<p>Face-varying interpolation was previously defined by a &quot;boundary interpolation&quot;
+enum with four modes and an additional boolean &quot;propagate corners&quot; option,
+which was little understood, i.e.:</p>
+<ul class="simple">
+<li>void HbrMesh::SetFVarInterpolateBoundarMethod(InterpolateBoundaryMethod) const;</li>
+<li>void HbrMesh::SetFVarPropagateCorners(bool) const;</li>
+</ul>
+<p>The latter was only used in conjunction with one
+of the four modes (&quot;edge and corner&quot;), so it was effectively a unique fifth
+choice.  Closer inspection of all of these modes also revealed some unexpected
+and undesirable behavior in some common cases -- to an extent that could not
+simply be changed -- and so an additional mode was added to avoid such behavior.</p>
+<p>All choices are now provided through a single &quot;linear interpolation&quot; enum,
+described and illustrated in more detail in the overview of
+<a class="reference external" href="subdivision_surfaces.html#face-varying-interpolation-rules">Face-Varying Interpolation</a>.
+The use of &quot;boundary&quot; in the name of the enum was intentionally removed
+as the choice also affects interior interpolation.  The new use of &quot;linear&quot;
+is now intended to reflect the fact that interpolation is constrained to be
+linear where specified by the choice applied.</p>
+<p>All five of Hbr's original modes of face-varying interpolation are supported
+(with minor modifications where Hbr was found to be incorrect in the presence
+of semi-sharp creasing).  An additional mode (&quot;corners only&quot;) has also been
+added to avoid some of the undesired side-effects of some existing modes
+(illustrated below).</p>
+<p>The new values for the <em>&quot;Sdc::Options::FVarLinearInterpolation&quot;</em> enum and its
+equivalents for HbrMesh's InterpolateBoundaryMethod and PropagateCorners flag
+are as follows (ordered such that the set of linear constraints applied is
+always increasing -- from completely smooth to completely linear):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="39%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Sdc FVarLinearInterpolation</th>
+<th class="head">Hbr FVarInterpolateBoundaryMethod</th>
+<th class="head">Hbr FVarPropogateCorners</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>FVAR_LINEAR_NONE</td>
+<td>k_InterpolateBoundaryEdgeOnly</td>
+<td>N/A (ignored)</td>
+</tr>
+<tr><td>FVAR_LINEAR_CORNERS_ONLY</td>
+<td>N/A</td>
+<td>N/A</td>
+</tr>
+<tr><td>FVAR_LINEAR_CORNERS_PLUS1</td>
+<td>k_InterpolateBoundaryEdgeAndCorner</td>
+<td>false</td>
+</tr>
+<tr><td>FVAR_LINEAR_CORNERS_PLUS2</td>
+<td>k_InterpolateBoundaryEdgeAndCorner</td>
+<td>true</td>
+</tr>
+<tr><td>FVAR_LINEAR_BOUNDARIES</td>
+<td>k_InterpolateBoundaryAlwaysSharp</td>
+<td>N/A (ignored)</td>
+</tr>
+<tr><td>FVAR_LINEAR_ALL</td>
+<td>k_InterpolateBoundaryNone</td>
+<td>N/A (ignored)</td>
+</tr>
+</tbody>
+</table>
+<p>Aside from the two &quot;corners plus&quot; modes that preserve Hbr behavior, all other
+modes are designed so that the interpolation of a disjoint face-varying region
+is not affected by changes to other regions that may share the same vertex. So
+the behavior of a disjoint region should be well understood and predictable
+when looking at it in isolation (e.g. with &quot;corners only&quot; one would expect to
+see linear constraints applied where there are topological corners or infinitely
+sharp creasing applied within the region, and nowhere else).</p>
+<p>This is not true of the &quot;plus&quot; modes, and they are named to reflect the fact
+that more is taken into account where disjoint regions meet.</p>
+<p>The following example illustrates some undesired effects of the &quot;plus&quot; modes,
+which in part motivated the addition of the new &quot;corners only&quot; mode.  The
+example uses the &quot;catmark_fvar_bound0&quot; and &quot;catmark_fvar_bound1&quot; shapes from
+the suite of regression shapes.  Both shapes are a simple regular 4x4 grid of
+quads with face-varying UV data partitioned into multiple disjoint regions.
+The &quot;bound0&quot; shape has two disjoint UV regions -- an upper and lower region --
+while the &quot;bound1&quot; shape further splits the lower region in two.</p>
+<p>This first figure illustrates the effect of the original &quot;plus1&quot; mode (which
+is also the same for &quot;plus2&quot;):</p>
+<a class="reference external image-reference" href="images/fvar_corners_plus1.png"><img alt="images/fvar_corners_plus1.png" class="align-center" src="images/fvar_corners_plus1.png" style="width: 60%;" /></a>
+<p>Note that the effect of splitting the lower UV region in two has the undesired
+side effect of sharpening the boundary of the upper region.  This is the result
+of the &quot;plus1&quot; mode making collective decisions about the sharpness of all
+face-varying boundaries at the vertex rather than decisions local to each
+region.  In both the &quot;plus1&quot; and &quot;plus2&quot; cases, all face-varying boundaries
+sharing a vertex will be sharpened if there are more than two regions meeting
+at that vertex.</p>
+<p>The second figure illustrates the effect of the new &quot;corners only&quot; mode:</p>
+<a class="reference external image-reference" href="images/fvar_corners_only.png"><img alt="images/fvar_corners_only.png" class="align-center" src="images/fvar_corners_only.png" style="width: 60%;" /></a>
+<p>As expected, the splitting of the lower region does not impact the upper
+region.  In this case the decision to sharpen a face-varying boundary is made
+based on the local topology of each region.</p>
+<p><strong>Vertex Interpolation Options</strong></p>
+<p>Since the various options are now presented through a new API (Sdc rather than
+Hbr), based on the history of some of these options and input from interested
+parties, the following changes have been implemented:</p>
+<ul class="simple">
+<li>The naming of the standard creasing method has been changed from <em>Normal</em>
+to <em>Uniform</em>.  Values for <em>&quot;Sdc::Options::CreasingMethod&quot;</em> are now:</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>CREASE_UNIFORM</td>
+<td>standard integer subtraction per level (default)</td>
+</tr>
+<tr><td>CREASE_CHAIKIN</td>
+<td>Chaikin (non-uniform) averaging around vertices</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>Legacy modes of the <em>&quot;smoothtriangle&quot;</em> rule have been removed (as they
+were never actually enabled in the code). Values for
+<em>&quot;Sdc::Options::TriangleSubdivision&quot;</em> are now:</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>TRI_SUB_CATMARK</td>
+<td>Catmull-Clark weights (default)</td>
+</tr>
+<tr><td>TRI_SUB_SMOOTH</td>
+<td>&quot;smooth triangle&quot; weights</td>
+</tr>
+</tbody>
+</table>
+<p>These should have little impact since one is a simple change in terminology
+as part of a new API while the other was removal of an option that was never
+used.</p>
+<p><strong>Change to Chaikin creasing method</strong></p>
+<p>In the process of re-implementing the Chaikin creasing method, observations
+lead to a conscious choice to change the behavior of Chaikin creasing in the
+presence of infinitely sharp edges (most noticeable at boundaries).</p>
+<p>Previously, the inclusion of infinite sharpness values in the Chaikin method's
+computation of edge sharpness around a vertex would prevent a
+semi-sharp edge from decaying to zero.  Infinitely sharp edges are now
+excluded from the Chaikin (non-uniform) averaging yielding a much more
+predictable and desirable result.  For example, where the sharpness assignment
+is actually uniform at such a vertex, the result will now behave the same as
+the Uniform method.</p>
+<p>Since this feature has received little use (only recently activated in
+RenderMan), now seemed the best time to make the change before more widespread
+adoption.</p>
+<p><strong>Hierarchical Edits</strong></p>
+<p>While extremely powerful, Hierarchical Edits come with additional maintenance
+and implementation complexity.  Support for them in popular interchange formats
+and major DCC applications has either been dropped or was never implemented.
+As a result, the need for Hierarchical Edits is too limited to justify the cost
+and support for them, and they have therefore been removed from the 3.0 release
+of OpenSubdiv. Dropping support for Hierarchical Edits allows for significant
+simplifications of many areas of the subdivision algorithms.</p>
+<p>While the 3.0 release does not offer direct support for Hierarchical Edits,
+the architectural changes and direction of 3.0 still facilitate the application
+of the most common value edits for those wishing to use them -- though not
+always in the same optimized context.  Of course, support for Hierarchical
+Edits in the future will be considered based on demand and resources.</p>
+<p><strong>Non-Manifold Topology</strong></p>
+<p>OpenSubdiv 2.x and earlier was limited to dealing with meshes whose topology
+was manifold -- a limitation imposed by the use of Hbr.  With 3.0 no longer
+using Hbr, the manifold restriction has also been removed.</p>
+<p>OpenSubdiv 3.0, therefore, supports a superset of the meshes supported by 2.x
+and earlier versions (with one known exception noted below).</p>
+<p>Non-manifold meshes that are acceptable to 3.0 however will likely not work
+with 2.x or earlier.</p>
+<p>The one known case that 3.0 will not represent the same as 2.x is ironically
+a case that is non-manifold, and for which Hbr did make special accommodation.</p>
+<p>That case occurs at a non-manifold vertex where two or more faces meet
+at a common vertex, but do not share a common edge, <em>and</em> when the boundary
+interpolation mode is set for smooth corners (i.e. &quot;edge only&quot;), as
+illustrated below:</p>
+<a class="reference external image-reference" href="images/bowtie_vertex.png"><img alt="images/bowtie_vertex.png" class="align-center" src="images/bowtie_vertex.png" style="width: 80%;" /></a>
+<p>The cage is on the left and is refined to level 2 on the right.  On the immediate
+right, boundary interpolation is set to sharp corners and the results appear
+the same for 2.x and 3.0.  The center and far right illustrate the affects of
+setting boundary interpolation to smooth corners with 2.x and 3.0 respectively.
+Note that the 2.x result allows the refined mesh (and so the limit surface) to
+split into two while the 3.0 result keeps it connected.</p>
+<p>When Hbr encounters such vertices, regardless of the boundary mode it &quot;splits&quot;
+the vertex -- creating a separate instance of it for each face.  So when
+building an HbrMesh, after &quot;finalizing&quot; the mesh, it will result in having
+more vertices than were originally defined (termed &quot;split vertices&quot;).</p>
+<p>OpenSubdiv 2.x (and earlier) successfully hid the presence of these extra
+vertices from users.</p>
+<p>This case behaves in such a way that violates certain properties of the
+surface that 3.0 has attempted to emphasize.  One of these relates to the
+nature of the limit surface (and becomes more significant in the context of
+face varying):  if the cage is connected then so too is its limit surface,
+or similarly, if the cage consists of <em>N</em> connected regions then the limit
+surface similarly consists of <em>N</em> connected regions.  Another undesirable
+property here is that the vertex <em>V</em> at which these faces meet must have
+more than one child vertex <em>V'</em>.  This makes it difficult to &quot;hide&quot; split
+vertices -- OpenSubdiv 2.x tables had an extra level of indirection that
+made it possible to do this relatively easily, but 3.0 has dispensed with
+such indirection where possible to streamline performance.</p>
+</div>
+<div class="section" id="compatibility-with-renderman">
+<h3>Compatibility with RenderMan</h3>
+<p>Since RenderMan and OpenSubdiv versions prior to 3.0 share a common library
+(Hbr), most differences between RenderMan and OpenSubdiv 3.0 are covered in the
+preceding section of compatibility with OpenSubdiv 2.x.</p>
+<p>In addition to some features between RenderMan and OpenSubdiv that are not
+compatible, there are also other differences that may be present due to
+differences in the implementations of similar features.</p>
+<p>For most use cases, OpenSubdiv 3.0 is largely compatible with RenderMan.  There
+are however some cases where some differences can be expected.  These are
+highlighted below for completeness.</p>
+<div class="section" id="incompatibilities">
+<h4>Incompatibilities</h4>
+<p>OpenSubdiv and RenderMan will be incompatible when certain features are used
+that are not common to both.  They are fully described in the 2.x compatibility
+section and are listed briefly here.</p>
+<p><strong>OpenSubdiv 3.0 Features Not Supported by RenderMan</strong></p>
+<ul class="simple">
+<li>Non-manifold meshes</li>
+<li>Choice of the &quot;corners only&quot; face varying interpolation option</li>
+</ul>
+<p><strong>RenderMan Features Not Supported by OpenSubdiv 3.0</strong></p>
+<ul class="simple">
+<li>Hierarchical Edits</li>
+</ul>
+</div>
+<div class="section" id="other-differences">
+<h4>Other Differences</h4>
+<p>Some differences can occur due to the differing implementations of the
+feature sets.  Additionally, OpenSubdiv 3.0's implementation fixes some
+issues discovered in Hbr.</p>
+<p><strong>Smooth Face-Varying Interpolation with Creasing</strong></p>
+<p>There have been two discrepancies noted in the way that face-varying data is
+interpolated smoothly in the presence of creases.  Smooth face-varying
+interpolation is expected to match vertex interpolation in the interior and
+only differ along the boundaries or discontinuities where the face-varying
+topology is intentionally made to differ from the vertex topology.</p>
+<p>A simple and effective way to identify discrepancies is to use the X and Y
+coordinates of vertex positions as the U and V of texture coordinates.  If
+these U and V coordinates are assigned to a face-varying channel, smooth
+interpolation of U and V is expected to exactly match interpolation of X
+and Y, regardless of the presence of any sharpness and creasing.</p>
+<p>Two discrepancies can be seen with Hbr when superimposing the XY vertex
+interpolation with the &quot;projected&quot; UV face-varying interpolation.</p>
+<p>The first discrepancy occurs with interpolation around dart vertices:</p>
+<a class="reference external image-reference" href="images/fvar_hbr_dart.png"><img alt="images/fvar_hbr_dart.png" class="align-center" src="images/fvar_hbr_dart.png" style="width: 80%;" /></a>
+<p>This example shows a simple regular XY grid on the left with an interior sharp
+edge creating a dart vertex in the center.  With no asymmetry in the vertices,
+the sharpness has no asymmetric affect and the XY vertex interpolation on
+the immediate right shows the regular grid expected from refinement.  On the
+far right is the UV interpolation from Hbr, which exhibits distortion around
+the center dart vertex.</p>
+<p>The second discrepancy occurs with interpolation involving any fractional
+sharpness values.  Hbr effectively ignores any fractional sharpness value
+in its face-varying interpolation.  So edges of vertices with sharpness of
+say 2.5, will be treated as though their sharpness is 2.0 when face-varying
+values are interpolated.  Similarly, any non-zero sharpness value less than
+1.0 is treated as zero by truncation and so is essentially ignored.</p>
+<a class="reference external image-reference" href="images/fvar_hbr_integer.png"><img alt="images/fvar_hbr_integer.png" class="align-center" src="images/fvar_hbr_integer.png" style="width: 80%;" /></a>
+<p>This example shows an asymmetric 2x2 grid of quads on the left with the center
+vertex progressively sharpened from 0.5 to 1.0.  The three cases of the vertex
+smooth and sharpened are superimposed on the immediate right to display the
+three distinct interpolation results.  On the far right the interpolation from
+Hbr displays the same three cases, but only two are visibly distinct -- the
+sharpness of 0.5 being treated the same as if it were 0.0.</p>
+<p>Both of these cases are corrected in OpenSubdiv 3.0.  Smooth face-varying
+interpolation in the presence of creasing should match the expected behavior
+of the vertex interpolation, except where the face-varying topology is
+explicitly made to differ.</p>
+<p><strong>The Chaikin Creasing Method</strong></p>
+<p>At least two discrepancies are know to exist between the implementations of
+Hbr in RenderMan and OpenSubdiv 3.0:</p>
+<ul class="simple">
+<li>Use of Chaikin creasing with boundaries or infinitely sharp edges</li>
+<li>Subtle shape differences due to Hbr's use of &quot;predictive sharpness&quot;</li>
+</ul>
+<p>Fortunately, this feature was only recently added to Hbr and RenderMan and is
+little used, so it is expected these differences will have little impact.</p>
+<p>The first discrepancy is mentioned briefly in the previous section on
+compatibility between OpenSubdiv 2.x and 3.0.  A conscious decision was
+made to change the averaging of sharpness values involving infinitely
+sharp edges in order to make results more predictable and favorable.
+The effects can be seen comparing the regression shape &quot;catmark_chaikin2&quot;.</p>
+<p>The second is more subtle and results from an oversight within Hbr's
+implementation that is not easily corrected.</p>
+<p>When determining what subdivision rule to apply from one level to the
+next, the sharpness values at the next level must be known in order to
+determine whether or not a transition between differing rules is required.
+If the rule at the next level differs from the previous, a combination of
+the two is applied.  Such a change results from the sharpness values of
+one or more edges (or the vertex itself) decaying to zero.</p>
+<p>Rather than compute the sharpness values at the next level accurately,
+Hbr &quot;predicts&quot; it by simply subtracting 1.0 from it, as is done with the
+uniform creasing method, and it bases decisions on that predicted result.
+This does not work for Chaikin though.  A sharpness value less than 1.0
+may not decay to 0 if it is averaged with neighboring sharpness values
+greater than 1.0, so this sharpness prediction can result in the wrong
+rule being chosen for the next level.</p>
+<p>A typical case would have the subdivision rules for Chaikin creasing
+transition from Corner to Crease at one level, then from Crease to
+Smooth at the next.  Hbr's predictive creasing might mistakenly detect
+the transition as Corner to Smooth at one level, then after properly
+computing the sharpness values for the next level later, from Crease to
+Smooth for the next.  One of the regression shapes (&quot;catmark_chakin1&quot;)
+was disabled from the regression suite because of this effect.  The
+differences in shape that trigger its regression failure were
+investigated and determined to be the result of this issue.</p>
+<p>From observations thus far these differences are subtle but can be
+noticeable.</p>
+<p><strong>Numerical Precision</strong></p>
+<p>Since its inception, OpenSubdiv has sought to produce results that were
+numerically consistent to RenderMan.  A regression suite to ensure a
+certain level of accuracy was provided to detect any substantial deviation.</p>
+<p>At some point in the development of OpenSubdiv, the point was made that
+numerical accuracy of Hbr could be improved by changing the order of
+operations and combining the vertex with the lowest coefficient first in
+one of the subdivision rules.  This was applied more thoroughly in the
+independent implementation of 3.0 (there seemed no reason not to).  In
+most cases the relative magnitudes of the coefficients of subdivision and
+limit masks is clear so no overhead was necessary to detect them.</p>
+<p>At a certain point though, this greater accuracy came in conflict with the
+regression suite.  It turned out that high-valence vertices could not be
+computed to within the desired tolerances set within the suite.  The
+summation of many small coefficients for the adjacent vertices first, before
+the addition of the much larger coefficient for the primary vertex, allowed
+for the accumulation of precision that was being truncated by adding the
+much larger coefficient first in the Hbr implementation.  With extremely
+high valence vertices, a difference in magnitude between the most and least
+significant coefficients of several orders of magnitude is likely, and that
+has a significant impact on the single-precision floating point computations.</p>
+<p>The improved accuracy of OpenSubdiv 3.0 can reach a magnitude that will
+not go undetected.  Whether or not this can lead to visual artifacts is
+unclear.</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 20:59 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>

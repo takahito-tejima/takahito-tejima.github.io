@@ -1,0 +1,415 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>OSD Tessellation shader Interface</title>
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="stylesheet" href="css/rst.css" type="text/css" />
+<link rel="stylesheet" href="css/default.css" type="text/css" />
+<link rel="stylesheet" href="css/flavor.css" type="text/css" />
+<link rel="stylesheet" href="css/renderman-university.css" type="text/css" />
+<link rel="stylesheet" href="css/pygments.css" type="text/css" />
+<style>
+#mainContentContainer {
+    left: 15px;
+    margin-left: 255px;
+}
+ul.creatorFooterNav {
+    margin-left: 100px;
+}
+.navigation {
+    background-color: #333333;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+ul.creatorMainNav li a {
+    font-size: 12px !important;
+}
+</style>
+</head>
+<body>
+
+<div class="navigation">
+    <br>
+    <div class="searchBar">
+        <form action="search.html">
+            <input type="text" name="q" id="searchInput" />
+            <input type="button" id="searchButton" onclick="this.form.submit();" value="Search" />
+        </form>
+    </div>
+    <div class="quickLinks">
+        <ul>
+            <li><a href="intro.html">はじめに</a></li>
+                <ul>
+                    <li><a href="license.html">ライセンス (en)</a></li>
+                    <li><a href="getting_started.html">始めよう (en)</a></li>
+                    <li><a href="contributing.html">参加しよう (en)</a></li>
+                    <li><a href="cmake_build.html">ビルド方法 (en)</a></li>
+                    <li><a href="code_examples.html">コード例 (en)</a></li>
+                    <li><a href="roadmap.html">ロードマップ (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="intro_30.html">リリース 3.0</a></li>
+                <ul>
+                    <li><a href="intro_30.html">概要</a></li>
+                    <li><a href="porting.html">2.0から3.0への移植ガイド (en)</a></li>
+                    <li><a href="compatibility.html">サブディビジョンの互換性 (en)</a></li>
+                </ul>
+            <p></p>
+            <li><a href="subdivision_surfaces.html">サブディビジョンサーフェス</a>
+                <ul>
+                    <li><a href="subdivision_surfaces.html#introduction">はじめに</a></li>
+                    <li><a href="subdivision_surfaces.html#arbitrary-topology">トポロジ</a></li>
+                    <li><a href="subdivision_surfaces.html#uniform-subdivision">均一分割</a></li>
+                    <li><a href="subdivision_surfaces.html#feature-adaptive-subdivision">適応分割</a></li>
+                    <li><a href="subdivision_surfaces.html#boundary-interpolation-rules">境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#face-varying-interpolation-rules">面変化境界補間則</a></li>
+                    <li><a href="subdivision_surfaces.html#semi-sharp-creases">セミシャープクリース</a></li>
+                    <li><a href="mod_notes.html">モデリングのコツ (en)</a></li>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="api_overview.html">OpenSubdiv ユーザーガイド</a>
+                <ul>
+                    <li><a href="api_overview.html">API概要</a>
+                        <li><a href="sdc_overview.html">Sdc (en)</a></li>
+                        <li><a href="vtr_overview.html">Vtr (en)</a></li>
+                        <li><a href="far_overview.html">Far (en)</a></li>
+                        <ul>
+                            <li><a href="far_overview.html#far-topologyrefiner">Topology Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-topologyrefinerfactory">Topology Refiner Factory (en)</a></li>
+                            <li><a href="far_overview.html#far-primvarrefiner">Primvar Refiner (en)</a></li>
+                            <li><a href="far_overview.html#far-patchtable">Patch Table (en)</a></li>
+                            <li><a href="far_overview.html#far-stenciltable">Stencil Table v</a></li>
+                        </ul>
+                        <li><a href="osd_overview.html">Osd (en)</a></li>
+                        <ul>
+                            <li><a href="osd_shader_interface.html">シェーダインタフェース (en)</a></li>
+                        </ul>
+                    </li>
+                    <p></p>
+                    <li><a href="tutorials.html">チュートリアル (en)</a>
+                    <p></p>
+                    <li><a href="hbr_overview.html">過去の情報 (en)</a></li>
+                    <ul>
+                        <li><a href="hbr_overview.html">Hbr (en)</a></li>
+                        <ul>
+                            <li><a href="using_osd_hbr.html">Using Hbr (en)</a></li>
+                        </ul>
+                        <li><a href="hedits.html">階層エディット (en)</a></li>
+                    </ul>
+                </ul>
+            </li>
+            <p></p>
+            <li><a href="additional_resources.html">追加情報 (en)</a>
+                <ul>
+                    <li><a href="http://graphics.pixar.com/opensubdiv/forum.html">フォーラム</a>
+                    <li><a href="additional_resources.html#links">リンク</a>
+                    <li><a href="additional_resources.html#videos">ビデオ</a>
+                </ul>
+            <p></p>
+            <li><a href="release_notes.html">リリースノート</a>
+            <p></p>
+            <li><a href="doxy_html/index.html" target="_blank">Doxygen</a></li>
+        </ul>
+    </div>
+    <br>
+</div>
+
+<div class="document" id="osd-tessellation-shader-interface">
+<h1 class="title">OSD Tessellation shader Interface</h1>
+
+
+    <div id="mainContentContainer">
+        <div class="fullWidth headerColor">
+            <div class="center">
+                <div id="mainSiteNavigation">
+                    <div class="homeRenderManLink">
+                        <a href="http://graphics.pixar.com/opensubdiv/index.html"><img alt="OpenSubdiv Logo" src="images/opensubdiv_logo_header.png"></a>
+                    </div>
+          
+					<!-- TOP NAVIGATION MENU -->
+                    <ul class="creatorMainNav floatLeft" id="menu">
+                        <li class="creatorMainNav">
+                            <a href="release_notes.html">3.0.0</a>
+                        </li>
+                    </ul>
+                    <ul class="creatorMainNav floatNav" id="menu">
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23704">
+                            <a href="intro.html">User Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23887">
+                            <a href="doxy_html/index.html">API Docs</a>
+                        </li>
+                        <li class="mainSubNavigation marginR12 marginL12" id="navbarId-23944">
+                            <a href="release_notes.html">Release Notes</a>
+                        </li>
+                        <li class="mainSubNavigation marginR15 marginL12" id="navbarId-23703">
+                            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+                        </li>
+                        <a class="blueButton marginR0 marginL0" style="width:70px" href="https://github.com/PixarAnimationStudios/OpenSubdiv">Github</a>
+                    </ul>
+                </div><!-- close mainSiteNavigation -->
+            </div><!-- close center -->
+        </div><!-- close fullWidth -->
+
+
+        <div class="clearBoth"></div>
+        
+        <h1 class="articleContentTitle">OSD Tessellation shader Interface</h1>
+        
+        <div class="clearBoth"></div>
+        
+        <hr>
+        
+        <div class="clearBoth"></div>
+        
+        <div class="coursewareBackground">
+
+          <!-- <div class="topicLeftData-IntroPara"></div> -->
+          <div class="topicLeftData-MainData">
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#basic" id="id1">Basic</a><ul>
+<li><a class="reference internal" href="#tessellation-control-shader-example-for-bspline-patches" id="id2">Tessellation Control Shader Example (for BSpline patches)</a></li>
+<li><a class="reference internal" href="#tessellation-evaluation-shader-example-for-bspline-patches" id="id3">Tessellation Evaluation Shader Example (for BSpline patches)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#basis-conversion" id="id4">Basis Conversion</a><ul>
+<li><a class="reference internal" href="#b-spline-patch" id="id5">B-spline Patch</a></li>
+<li><a class="reference internal" href="#gregory-basis-patch" id="id6">Gregory Basis Patch</a></li>
+<li><a class="reference internal" href="#legacy-gregory-patch-2-x-compatibility" id="id7">Legacy Gregory Patch (2.x compatibility)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tessellation-levels" id="id8">Tessellation levels</a></li>
+</ul>
+</div>
+<div class="section" id="basic">
+<h3>Basic</h3>
+<p>Starting with 3.0, <strong>Osd</strong> tessellation shaders can be used as a set of functions from
+client shader code. In order to tessellate <strong>Osd</strong> patches, client shader
+code should perform the following steps (regular B-spline patch case):</p>
+<ul>
+<li><dl class="first docutils">
+<dt>In a tessellation control shader</dt>
+<dd><ol class="first last arabic simple">
+<li>fetch a PatchParam for the current patch</li>
+<li>call OsdComputePerPatchVertexBSpline() to compute OsdPerPatchVertexBezier.</li>
+<li>compute tessellation level. To prevent cracks on transition patches,
+two vec4 parameters (tessOuterHi, tessOuterLo) will be needed in addition to built-in gl_TessLevelInner/Outers.</li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>In a tessellation evaluation shader</dt>
+<dd><ol class="first last arabic simple">
+<li>call OsdGetTessParameterization() to remap gl_TessCoord to a patch parameter at which to evaluate.</li>
+<li>call OsdEvalPatchBezier()/OsdEvalPatchGregory() to evaluate the current patch.</li>
+</ol>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The following is a minimal example of GLSL code explaining how client shader code
+uses OpenSubdiv shader functions to tessellate patches of a patch table.</p>
+<div class="section" id="tessellation-control-shader-example-for-bspline-patches">
+<h4>Tessellation Control Shader Example (for BSpline patches)</h4>
+<pre class="code glsl literal-block">
+<span class="name">layout</span> <span class="punctuation">(</span><span class="name">vertices</span> <span class="operator">=</span> <span class="literal number integer">16</span><span class="punctuation">)</span> <span class="keyword">out</span><span class="punctuation">;</span>
+<span class="keyword">in</span> <span class="keyword">vec3</span> <span class="name">position</span><span class="punctuation">[];</span>
+<span class="name">patch</span> <span class="keyword">out</span> <span class="keyword">vec4</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="name">tessOuterHi</span><span class="punctuation">;</span>
+<span class="keyword">out</span> <span class="name">OsdPerPatchVertexBezier</span> <span class="name">v</span><span class="punctuation">;</span>
+
+<span class="keyword">void</span> <span class="name">main</span><span class="punctuation">()</span>
+<span class="punctuation">{</span>
+    <span class="comment single">// Get a patch param from texture buffer.</span>
+    <span class="keyword">ivec3</span> <span class="name">patchParam</span> <span class="operator">=</span> <span class="name">OsdGetPatchParam</span><span class="punctuation">(</span><span class="name">gl_PrimitiveID</span><span class="punctuation">);</span>
+
+    <span class="comment single">// Compute per-patch vertices.</span>
+    <span class="name">OsdComputePerPatchVertexBSpline</span><span class="punctuation">(</span><span class="name">patchParam</span><span class="punctuation">,</span> <span class="name">gl_InvocationID</span><span class="punctuation">,</span> <span class="name">position</span><span class="punctuation">,</span> <span class="name">v</span><span class="punctuation">);</span>
+
+    <span class="comment single">// Compute tessellation factors.</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span><span class="name">gl_InvocationID</span> <span class="operator">==</span> <span class="literal number oct">0</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">vec4</span> <span class="name">tessLevelOuter</span> <span class="operator">=</span> <span class="keyword">vec4</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">);</span>
+        <span class="keyword">vec2</span> <span class="name">tessLevelInner</span> <span class="operator">=</span> <span class="keyword">vec2</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">);</span>
+        <span class="name">OsdGetTessLevelsUniform</span><span class="punctuation">(</span><span class="name">patchParam</span><span class="punctuation">,</span>
+                                <span class="name">tessLevelOuter</span><span class="punctuation">,</span> <span class="name">tessLevelInner</span><span class="punctuation">,</span>
+                                <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="name">tessOuterHi</span><span class="punctuation">);</span>
+
+        <span class="name">gl_TessLevelOuter</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelOuter</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">];</span>
+        <span class="name">gl_TessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+        <span class="name">gl_TessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">2</span><span class="punctuation">];</span>
+        <span class="name">gl_TessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelOuter</span><span class="punctuation">[</span><span class="literal number integer">3</span><span class="punctuation">];</span>
+
+        <span class="name">gl_TessLevelInner</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelInner</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">];</span>
+        <span class="name">gl_TessLevelInner</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="name">tessLevelInner</span><span class="punctuation">[</span><span class="literal number integer">1</span><span class="punctuation">];</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</pre>
+</div>
+<div class="section" id="tessellation-evaluation-shader-example-for-bspline-patches">
+<h4>Tessellation Evaluation Shader Example (for BSpline patches)</h4>
+<pre class="code glsl literal-block">
+<span class="name">layout</span><span class="punctuation">(</span><span class="name">quads</span><span class="punctuation">)</span> <span class="keyword">in</span><span class="punctuation">;</span>
+<span class="name">patch</span> <span class="keyword">in</span> <span class="keyword">vec4</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="name">tessOuterHi</span><span class="punctuation">;</span>
+<span class="keyword">in</span> <span class="name">OsdPerPatchVertexBezier</span> <span class="name">v</span><span class="punctuation">[];</span>
+<span class="keyword">uniform</span> <span class="name">mat4</span> <span class="name">mvpMatrix</span><span class="punctuation">;</span>
+
+<span class="keyword">void</span> <span class="name">main</span><span class="punctuation">()</span>
+<span class="punctuation">{</span>
+    <span class="comment single">// Compute tesscoord.</span>
+    <span class="keyword">vec2</span> <span class="name">UV</span> <span class="operator">=</span> <span class="name">OsdGetTessParameterization</span><span class="punctuation">(</span><span class="name">gl_TessCoord</span><span class="punctuation">.</span><span class="name">xy</span><span class="punctuation">,</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="name">tessOuterHi</span><span class="punctuation">);</span>
+
+    <span class="keyword">vec3</span> <span class="name">P</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">),</span> <span class="name">dPu</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">),</span> <span class="name">dPv</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">);</span>
+    <span class="keyword">vec3</span> <span class="name">N</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">),</span> <span class="name">dNu</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">),</span> <span class="name">dNv</span> <span class="operator">=</span> <span class="keyword">vec3</span><span class="punctuation">(</span><span class="literal number oct">0</span><span class="punctuation">);</span>
+    <span class="keyword">ivec3</span> <span class="name">patchParam</span> <span class="operator">=</span> <span class="name">inpt</span><span class="punctuation">[</span><span class="literal number oct">0</span><span class="punctuation">].</span><span class="name">v</span><span class="punctuation">.</span><span class="name">patchParam</span><span class="punctuation">;</span>
+
+    <span class="comment single">// Evaluate patch at the tess coord UV</span>
+    <span class="name">OsdEvalPatchBezier</span><span class="punctuation">(</span><span class="name">patchParam</span><span class="punctuation">,</span> <span class="name">UV</span><span class="punctuation">,</span> <span class="name">v</span><span class="punctuation">,</span> <span class="name">P</span><span class="punctuation">,</span> <span class="name">dPu</span><span class="punctuation">,</span> <span class="name">dPv</span><span class="punctuation">,</span> <span class="name">N</span><span class="punctuation">,</span> <span class="name">dNu</span><span class="punctuation">,</span> <span class="name">dNv</span><span class="punctuation">);</span>
+
+    <span class="comment single">// Apply model-view-projection matrix.</span>
+    <span class="name">gl_Position</span> <span class="operator">=</span> <span class="name">mvpMatrix</span> <span class="operator">*</span> <span class="keyword">vec4</span><span class="punctuation">(</span><span class="name">P</span><span class="punctuation">,</span> <span class="literal number integer">1</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+</pre>
+</div>
+</div>
+<div class="section" id="basis-conversion">
+<h3>Basis Conversion</h3>
+<div class="section" id="b-spline-patch">
+<h4>B-spline Patch</h4>
+<p>The following diagram shows how the <strong>Osd</strong> shaders process b-spline patches.</p>
+<img alt="images/osd_shader_bspline.png" src="images/osd_shader_bspline.png" />
+<p>While regular patches are expressed as b-spline patches in Far::PatchTable,
+the <strong>Osd</strong> shader converts them into Bezier basis patches for simplicity and efficiency.
+This conversion is performed in the tessellation control stage. The boundary edge evaluation
+and single crease matrix evaluation are also resolved during this conversion.
+OsdComputePerPatchVertexBSpline() can be used for this process.
+The resulting Bezier control vertices are stored in OsdPerPatchVertexBezier struct.</p>
+<pre class="code glsl literal-block">
+<span class="keyword">void</span>  <span class="name">OsdComputePerPatchVertexBSpline</span><span class="punctuation">(</span>
+    <span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span> <span class="keyword">int</span> <span class="name">ID</span><span class="punctuation">,</span> <span class="keyword">vec3</span> <span class="name">cv</span><span class="punctuation">[</span><span class="literal number integer">16</span><span class="punctuation">],</span> <span class="keyword">out</span> <span class="name">OsdPerPatchVertexBezier</span> <span class="name">result</span><span class="punctuation">);</span>
+</pre>
+<p>The tessellation evaluation shader takes an array of OsdPerPatchVertexBezier struct,
+and then evaluates the patch using the OsdEvalPatchBezier() function.</p>
+<pre class="code glsl literal-block">
+<span class="keyword">void</span> <span class="name">OsdEvalPatchBezier</span><span class="punctuation">(</span><span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span> <span class="keyword">vec2</span> <span class="name">UV</span><span class="punctuation">,</span>
+                        <span class="name">OsdPerPatchVertexBezier</span> <span class="name">cv</span><span class="punctuation">[</span><span class="literal number integer">16</span><span class="punctuation">],</span>
+                        <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">P</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dPu</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dPv</span><span class="punctuation">,</span>
+                        <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">N</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dNu</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dNv</span><span class="punctuation">)</span>
+</pre>
+</div>
+<div class="section" id="gregory-basis-patch">
+<h4>Gregory Basis Patch</h4>
+<p>In a similar way, Gregory basis patches are processed as follows:</p>
+<img alt="images/osd_shader_gregory.png" src="images/osd_shader_gregory.png" />
+<p>OsdComputePerPatchVertexGregoryBasis() can be used for the Gregory patches
+(although no basis conversion involved for the Gregory patches) and the resulting vertices
+are stored in a OsdPerPatchVertexGreogryBasis struct.</p>
+<pre class="code glsl literal-block">
+<span class="keyword">void</span> <span class="name">OsdComputePerPatchVertexGregoryBasis</span><span class="punctuation">(</span>
+    <span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span> <span class="keyword">int</span> <span class="name">ID</span><span class="punctuation">,</span> <span class="keyword">vec3</span> <span class="name">cv</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="name">OsdPerPatchVertexGregoryBasis</span> <span class="name">result</span><span class="punctuation">)</span>
+</pre>
+<p>The tessellation evaluation shader takes an array of OsdPerPatchVertexGregoryBasis struct,
+and then evaluates the patch using the OsdEvalPatchGregory() function.</p>
+<pre class="code glsl literal-block">
+<span class="keyword">void</span>
+<span class="name">OsdEvalPatchGregory</span><span class="punctuation">(</span><span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span> <span class="keyword">vec2</span> <span class="name">UV</span><span class="punctuation">,</span> <span class="keyword">vec3</span> <span class="name">cv</span><span class="punctuation">[</span><span class="literal number integer">20</span><span class="punctuation">],</span>
+                    <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">P</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dPu</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dPv</span><span class="punctuation">,</span>
+                    <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">N</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dNu</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec3</span> <span class="name">dNv</span><span class="punctuation">)</span>
+</pre>
+</div>
+<div class="section" id="legacy-gregory-patch-2-x-compatibility">
+<h4>Legacy Gregory Patch (2.x compatibility)</h4>
+<p>OpenSubdiv 3.0 also supports 2.x style Gregory patch evaluation (see far_overview).
+In order to evaluate a legacy Gregory patch, client needs to bind extra buffers and
+to perform extra steps in the vertex shader as shown in the following diagram:</p>
+<img alt="images/osd_shader_legacy_gregory.png" src="images/osd_shader_legacy_gregory.png" />
+</div>
+</div>
+<div class="section" id="tessellation-levels">
+<h3>Tessellation levels</h3>
+<p><strong>Osd</strong> provides both uniform and screen-space adaptive tessellation level computation.</p>
+<dl class="docutils">
+<dt>Uniform tessellation</dt>
+<dd>OsdGetTessLevelsUniform()</dd>
+<dt>Screen-space adaptive tessellation</dt>
+<dd>OsdGetTessLevelsAdaptiveLimitPoints()</dd>
+</dl>
+<p>Because of the nature of <a class="reference external" href="far_overview.html">feature adaptive subdivision</a>,
+we need to pay extra attention for a patch's outer tessellation level for the screen-space
+adaptive case so that cracks don't appear.</p>
+<p>An edge of the patch marked as a transition edge is split into two segments (Hi and Lo).</p>
+<img alt="images/osd_shader_patch.png" src="images/osd_shader_patch.png" />
+<p>The <strong>Osd</strong> shaders uses these two segments to ensure the same tessellation along the
+edge between different levels of subdivision. In the following example, suppose the left hand side
+patch has determined the tessellation level of its right edge to be 5. gl_TessLevelOuter is set to
+5 for the edge, and at the same time we also pass 2 and 3 to the tessellation evaluation shader
+as separate levels for the two segments of the edge split at the middle.</p>
+<img alt="images/osd_shader_transition.png" src="images/osd_shader_transition.png" />
+<p>Then the tessellation evaluation shader takes gl_TessCoord and those two values, and remaps
+gl_TessCoord using OsdGetTessParameterization() to ensure the parameters are consistent
+across adjacent patches.</p>
+<img alt="images/osd_shader_param_remap.png" src="images/osd_shader_param_remap.png" />
+<pre class="code glsl literal-block">
+<span class="keyword">vec2</span> <span class="name">OsdGetTessParameterization</span><span class="punctuation">(</span><span class="keyword">vec2</span> <span class="name">uv</span><span class="punctuation">,</span> <span class="keyword">vec4</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="keyword">vec4</span> <span class="name">tessOuterHi</span><span class="punctuation">)</span>
+</pre>
+<p>These tessellation levels can be computed by OsdGetTessLevelsAdaptiveLimitPoints()
+in the tessellation control shader. Note that this function requires all 16 bezier control
+points, you need to call barrier() to ensure the conversion is done for all invocations.
+See osd/glslPatchBSpline.glsl for more details.</p>
+<pre class="code glsl literal-block">
+<span class="keyword">void</span> <span class="name">OsdGetTessLevelsAdaptiveLimitPoints</span><span class="punctuation">(</span><span class="name">OsdPerPatchVertexBezier</span> <span class="name">cpBezier</span><span class="punctuation">[</span><span class="literal number integer">16</span><span class="punctuation">],</span>
+                                         <span class="keyword">ivec3</span> <span class="name">patchParam</span><span class="punctuation">,</span>
+                                         <span class="keyword">out</span> <span class="keyword">vec4</span> <span class="name">tessLevelOuter</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec2</span> <span class="name">tessLevelInner</span><span class="punctuation">,</span>
+                                         <span class="keyword">out</span> <span class="keyword">vec4</span> <span class="name">tessOuterLo</span><span class="punctuation">,</span> <span class="keyword">out</span> <span class="keyword">vec4</span> <span class="name">tessOuterHi</span><span class="punctuation">)</span>
+</pre>
+<div class="notebox container">
+<p><strong>Release Notes (3.0.0)</strong></p>
+<ul class="simple">
+<li>Currently OsdGetTessParameterization doesn't support fraction spacing.
+It will be fixed in a future release.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2015-06-24 21:00 UTC.
+
+</div>
+</body>
+</html>
+
+          </div><!-- close topicLeftData-MainData -->
+        </div><!-- close coursewareBackground -->
+    </div> <!-- close mainContentContainer -->
+</div> <!-- close center -->
+
+<div class="clearBoth"></div>
+
+
+<div class="center">
+
+    <div class="copyrightFooter">
+    </div>
+
+
+<!-- BOTTOM NAVIGATION MENU -->
+    <ul class="creatorFooterNav">
+        <li class="" id="navbarId-23704">
+            <a href="intro.html">User Docs</a>
+        </li>
+        <li class="" id="navbarId-23887">
+            <a href="doxy_html/index.html">API Docs</a>
+        </li>
+        <li class="" id="navbarId-23944">
+            <a href="release_notes.html">Release Notes</a>
+        </li>
+        <li class="" id="navbarId-23703">
+            <a href="http://graphics.pixar.com/opensubdiv/forum.html">Forum</a>
+        </li>
+    </ul><!-- end bottom navigation menu -->
+
+<div class="clearBoth"></div>
