@@ -49,6 +49,9 @@ canvas#main
     height: 100%;
     cursor: default;
     background-color: #020208;
+    background: url(img/background.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 
 #loading
