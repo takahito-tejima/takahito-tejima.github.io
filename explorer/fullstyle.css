@@ -7,6 +7,9 @@ body {
     font-size: 10pt;
     margin:0;
     padding:0;
+    background: url(img/background.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 
 #header {
@@ -48,10 +51,8 @@ canvas#main
     width: 100%;
     height: 100%;
     cursor: default;
-    background-color: #020208;
-    background: url(img/background.png);
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
+    opacity: .7;
+    mix-blend-mode: difference;
 }
 
 #loading

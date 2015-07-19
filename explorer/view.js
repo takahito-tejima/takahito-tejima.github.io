@@ -459,7 +459,6 @@ function redraw()
 
     // Clear to transparent, bg is layered in css.
     gl.clearColor(0, 0, 0, 0);
-    //gl.clearColor(.1, .1, .2, 1);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
