@@ -52,7 +52,8 @@ canvas#main
     height: 100%;
     cursor: default;
     opacity: .7;
-    mix-blend-mode: difference;
+    /*mix-blend-mode: hard-light;*/
+    /**/mix-blend-mode: difference;
 }
 
 #loading
