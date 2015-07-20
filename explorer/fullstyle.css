@@ -27,6 +27,7 @@ body {
   text-shadow: -6px -6px 1px rgba(34, 142, 184, 0.10),
                 0px 0px 4px rgba(114, 150, 147, 0.75);
   color: rgb(34, 142, 184);
+  mix-blend-mode: screen;
 }
 
 #level {
@@ -121,7 +122,9 @@ canvas#main
     cursor: default;
     opacity: .7;
     /*mix-blend-mode: hard-light;*/
-    /**/mix-blend-mode: difference;
+    mix-blend-mode: difference;
+    mix-blend-mode: overlay;
+    mix-blend-mode: hard-light;
 }
 
 #loading

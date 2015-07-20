@@ -187,7 +187,7 @@ void main()
     float edge = clamp(min(uvEdge.x, uvEdge.y)/width, 0.0, 1.0);
 
     // smoothstep to clean up the edge interpolation.
-    c = mix(vec4(0,0,0,1), c, smoothstep(0.0, 
+    c = mix(vec4(0,0,0,0), c, smoothstep(0.0, 
                         /*full range is 1.0, but .5 looks nice*/.5, edge));
 
 #elif DISPLAY_MODE == 4
