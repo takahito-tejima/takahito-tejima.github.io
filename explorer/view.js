@@ -728,6 +728,7 @@ function loadModel(modelName)
 mesh.rebuild = function() {
     var data = eval("("+toJS(mesh.data, app.level)+")");
 
+    $("#level").text(app.level);
     setModel(data.model, this.modelName);
     initShaders();
     redraw();

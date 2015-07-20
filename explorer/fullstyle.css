@@ -29,6 +29,20 @@ body {
   color: rgb(34, 142, 184);
 }
 
+#level {
+  bottom: 7.5%;
+  right: 84.9%;
+  text-align: center;
+  font-size: 10vh;
+  width: 20vh;
+}
+#levelLabel {
+  bottom: 19.3%;
+  right: 87.6%;
+  text-align: right;
+  font-size: 2.3vh;
+}
+
 #fps {
   bottom: 5.4%;
   left: 79.6%;
