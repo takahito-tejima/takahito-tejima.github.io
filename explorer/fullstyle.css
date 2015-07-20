@@ -37,10 +37,11 @@ body {
   width: 20vh;
 }
 #levelLabel {
+  right: 84.9%;
   bottom: 19.3%;
-  right: 87.6%;
-  text-align: right;
+  text-align: center;
   font-size: 2.3vh;
+  width: 20vh;
 }
 
 #fps {
