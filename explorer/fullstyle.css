@@ -90,8 +90,8 @@ body {
 }
 
 .selected { 
-    background-color: blue;
     background-blend-mode: multiply;
+    background-color: rgb(34, 142, 184);
 }
 
 .button {
