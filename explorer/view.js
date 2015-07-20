@@ -457,7 +457,9 @@ function redraw()
 {
     if (mesh == null || mesh.patches == null) return;
 
-    gl.clearColor(.1, .1, .2, 1);
+    // Clear to transparent, bg is layered in css.
+    gl.clearColor(0, 0, 0, 0);
+
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
@@ -513,6 +515,8 @@ function redraw()
 
     //fps = (29 * fps + 1000.0/drawTime)/30.0;
     fps = 1000.0/drawTime;
+    if (fps > 99)
+        fps = 99.0;
     $('#fps').text(Math.round(fps));
 
     if (drawTris > 100000)

@@ -2,16 +2,23 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <link rel="icon" type="image/png" href="img/favicon.png">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui">
     <meta name="format-detection" content="telephone=no">
 
     <title>OpenSubdiv 3.0 WebGL viewer</title>
 
+    <!-- Font: Audiowide Normal 400 -->
+    <link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>
+
+    <!--
     <link media="only screen and (max-device-width:480px)"
           href="smartstyle.css" type="text/css" rel="stylesheet" />
     <link media="screen and (min-device-width:481px)" href="fullstyle.css"
           type="text/css" rel="stylesheet" />
+    -->
+    <link media="screen" href="fullstyle.css" type="text/css" rel="stylesheet" />
     <!--[if IE]>
         <link href="fullstyle.css" type="text/css" rel="stylesheet" />
     <![endif]-->
@@ -33,16 +40,24 @@
   <body>
     <canvas id="main"></canvas>
     <div id="header">
-      <span id="title">OpenSubdiv 3.0 WebGL viewer</span>
-      </br>
       <span id="status"></span>
     </div>
 
     <div id="credit"></div>
     <div id="version">version</div>
     <div id="footer">
-      <span id="triangles"></span> triangles /
-      <span id="fps">--</span> fps
+      <span id="triangles"></span>
+      <span id="trianglesLabel">triangles</span>
+      <span id="fps">--</span>
+      <span id="fpsLabel">FPS</span>
+      <div id="displayMode">
+          <div class="button" id="mode0Shade"></div>
+          <div class="button" id="mode1Patch"></div>
+          <div class="button" id="mode2Wire"></div>
+          <div class="button selected" id="mode3PatchWire"></div>
+          <div class="button" id="mode4Normal"></div>
+          <div class="button" id="mode5Coord"></div>
+      </div>
       <span id="repolink">
         <a href="https://github.com/takahito-tejima/takahito-tejima.github.io">Repository</a>
         <a href="LICENSE">License</a>

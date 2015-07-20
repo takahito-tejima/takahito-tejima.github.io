@@ -183,9 +183,12 @@ void main()
 #endif
     uvEdge = uvEdge / dist;
 
-    float width = 2.0;
+    float width = 5.0;
     float edge = clamp(min(uvEdge.x, uvEdge.y)/width, 0.0, 1.0);
-    c = mix(vec4(0,0,0,1), c, edge);
+
+    // smoothstep to clean up the edge interpolation.
+    c = mix(vec4(0,0,0,1), c, smoothstep(0.0, 
+                        /*full range is 1.0, but .5 looks nice*/.5, edge));
 
 #elif DISPLAY_MODE == 4
     // ---------------- normal -------------------
