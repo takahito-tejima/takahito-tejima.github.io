@@ -948,6 +948,22 @@ $(function(){
 
     $("#version").text(version);
 
+    // For each button, assign click event.
+    // In each click event, assign the display mode and toggle selected.
+    // Disable selected for all other buttons.
+    $(".button").each(function(i) {
+        $("#" + this.id).click(function(e) {
+            app.displayMode = i;
+            initShaders();
+            redraw();
+            $(".button").each(function(i) {
+                $("#" + this.id).removeClass("selected")
+            })
+            $("#" + this.id).addClass("selected")
+
+        });
+    });
+
     // events
     camera.ty = 0;
     camera.tz = 2;
