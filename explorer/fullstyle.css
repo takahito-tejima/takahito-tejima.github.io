@@ -75,8 +75,18 @@ body {
   position: fixed;
   bottom: 10%;
   right: 50%;
-  margin-right: -93px;
-  width: 186px;
+  margin-right: -150px;
+  width: 300px;
+  text-align:center;
+}
+
+#displayModeLabel{
+  font-family: 'Audiowide', Impact, Charcoal, sans-serif;
+  color: #ccc;
+  opacity: .5;
+  font-size: 10px;
+  letter-spacing: 6px;
+  margin-right: -7px;
 }
 
 .selected { 
@@ -86,8 +96,8 @@ body {
   background-image: url(img/button.png);
   height: 11px;
   width: 11px;
-  float: left;
   margin: 10px;
+  display: inline-block;
 }
 
 #version {
