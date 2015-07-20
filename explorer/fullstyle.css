@@ -30,6 +30,16 @@ position: fixed;
   font-size: 10vh;
   color: rgb(34, 142, 184);
 }
+#fpsLabel {
+  position: fixed;
+  font-family: 'Audiowide', Impact, Charcoal, sans-serif;
+  bottom: 2.3%;
+  left: 79.9%;
+  text-align: right;
+  font-size: 2.3vh;
+  color: rgb(34, 142, 184);
+}
+
 #triangles {
   position: fixed;
   font-family: 'Audiowide', Impact, Charcoal, sans-serif;
@@ -37,6 +47,15 @@ position: fixed;
   right: 67%;
   text-align: right;
   font-size: 5vh;
+  color: rgb(34, 142, 184);
+}
+#trianglesLabel {
+  position: fixed;
+  font-family: 'Audiowide', Impact, Charcoal, sans-serif;
+  bottom: 3.3%;
+  right: 67.2%;
+  text-align: right;
+  font-size: 2.3vh;
   color: rgb(34, 142, 184);
 }
 

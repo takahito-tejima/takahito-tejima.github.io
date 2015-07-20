@@ -515,6 +515,8 @@ function redraw()
 
     //fps = (29 * fps + 1000.0/drawTime)/30.0;
     fps = 1000.0/drawTime;
+    if (fps > 99)
+        fps = 99.0;
     $('#fps').text(Math.round(fps));
 
     if (drawTris > 100000)
