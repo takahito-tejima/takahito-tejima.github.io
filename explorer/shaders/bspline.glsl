@@ -168,7 +168,8 @@ void main()
     float sc = min(dist.x, dist.y);
     edge = clamp(edge / sc, 0.0, 1.0);
 
-    c = mix(vec4(0,0,0,1), c, edge);
+    c = mix(vec4(34./256., 142./256., 184./256.,1.), c, smoothstep(0.0, 
+                    /*full range is 1.0, but .5 looks nice*/.5, edge));
 #elif DISPLAY_MODE == 3
     // ---------------- patch wire -------------------
 
