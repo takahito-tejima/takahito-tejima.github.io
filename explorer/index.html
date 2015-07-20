@@ -36,8 +36,6 @@
   <body>
     <canvas id="main"></canvas>
     <div id="header">
-      <span id="title">OpenSubdiv 3.0 WebGL viewer</span>
-      </br>
       <span id="status"></span>
     </div>
 
@@ -46,6 +44,14 @@
     <div id="footer">
       <span id="triangles"></span> triangles /
       <span id="fps">--</span> fps
+      <div id="displayMode">
+          <div class="button" id="mode0Shade"></div>
+          <div class="button" id="mode1Patch"></div>
+          <div class="button" id="mode2Wire"></div>
+          <div class="button selected" id="mode3PatchWire"></div>
+          <div class="button" id="mode4Normal"></div>
+          <div class="button" id="mode5Coord"></div>
+      </div>
       <span id="repolink">
         <a href="https://github.com/takahito-tejima/takahito-tejima.github.io">Repository</a>
         <a href="LICENSE">License</a>

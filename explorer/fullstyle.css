@@ -40,6 +40,25 @@ position: fixed;
   color: rgb(34, 142, 184);
 }
 
+#displayMode {
+  position: fixed;
+  bottom: 10%;
+  right: 50%;
+  margin-right: -93px;
+  width: 186px;
+}
+
+.selected { 
+}
+
+.button {
+  background-image: url(img/button.png);
+  height: 11px;
+  width: 11px;
+  float: left;
+  margin: 10px;
+}
+
 #version {
     position:absolute;
     bottom:0;
