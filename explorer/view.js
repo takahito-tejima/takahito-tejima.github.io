@@ -1,6 +1,6 @@
 "use strict"
 
-var version = "last updated:2015/07/11-22:58:35"
+var version = "last updated:2015/07/20-21:28:20"
 
 // Returns current time in milliseconds
 // May be implemented as Date.now() or performance.now()
@@ -182,15 +182,6 @@ function initShaders()
 function deleteModel()
 {
     if (mesh == null) return;
-    if (mesh.batches == null) return;
-
-    for(var i=0; i<mesh.batches.length; ++i) {
-        gl.deleteBuffer(mesh.batches[i].ibo);
-        gl.deleteBuffer(mesh.batches[i].vbo);
-        gl.deleteBuffer(mesh.batches[i].vboUnvarying);
-    }
-    mesh.batches = [];
-
     if (mesh.hullVerts) gl.deleteBuffer(mesh.hullVerts);
     if (mesh.hullIndices) gl.deleteBuffer(mesh.hullIndices);
 
