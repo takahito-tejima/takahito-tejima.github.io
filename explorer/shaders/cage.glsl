@@ -16,7 +16,7 @@ void main() {
 #ifdef FRAGMENT_SHADER
 
 void main() {
-    gl_FragColor = vec4(1, 1, 0, 1);
+    gl_FragColor = vec4(178./256., 197./256., 218./256., 1.);
 }
 
 #endif

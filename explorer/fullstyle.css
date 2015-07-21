@@ -21,61 +21,85 @@ body {
     color: #00ff00;
 }
 
-#fps {
-position: fixed;
+.fuiText {
+  position: fixed;
   font-family: 'Audiowide', Impact, Charcoal, sans-serif;
+  text-shadow: -6px -6px 1px rgba(34, 142, 184, 0.10),
+                0px 0px 4px rgba(114, 150, 147, 0.75);
+  color: rgb(34, 142, 184);
+  mix-blend-mode: screen;
+}
+
+#level {
+  bottom: 7.5%;
+  right: 84.9%;
+  text-align: center;
+  font-size: 10vh;
+  width: 20vh;
+}
+#levelLabel {
+  right: 84.9%;
+  bottom: 19.3%;
+  text-align: center;
+  font-size: 2.3vh;
+  width: 20vh;
+}
+
+#fps {
   bottom: 5.4%;
   left: 79.6%;
   text-align: right;
   font-size: 10vh;
-  color: rgb(34, 142, 184);
 }
 #fpsLabel {
-  position: fixed;
-  font-family: 'Audiowide', Impact, Charcoal, sans-serif;
   bottom: 2.3%;
   left: 79.9%;
   text-align: right;
   font-size: 2.3vh;
-  color: rgb(34, 142, 184);
 }
 
 #triangles {
-  position: fixed;
-  font-family: 'Audiowide', Impact, Charcoal, sans-serif;
   bottom: 7%;
   right: 67%;
   text-align: right;
   font-size: 5vh;
-  color: rgb(34, 142, 184);
 }
 #trianglesLabel {
-  position: fixed;
-  font-family: 'Audiowide', Impact, Charcoal, sans-serif;
   bottom: 3.3%;
   right: 67.2%;
   text-align: right;
   font-size: 2.3vh;
-  color: rgb(34, 142, 184);
 }
 
 #displayMode {
   position: fixed;
   bottom: 10%;
   right: 50%;
-  margin-right: -93px;
-  width: 186px;
+  margin-right: -150px;
+  width: 300px;
+  text-align:center;
+}
+
+#displayModeLabel{
+  font-family: 'Audiowide', Impact, Charcoal, sans-serif;
+  color: #ccc;
+  opacity: .5;
+  font-size: 10px;
+  letter-spacing: 6px;
+  margin-right: -7px;
 }
 
 .selected { 
+    background-blend-mode: multiply;
+    background-color: rgb(34, 142, 184);
 }
 
 .button {
   background-image: url(img/button.png);
   height: 11px;
   width: 11px;
-  float: left;
   margin: 10px;
+  display: inline-block;
 }
 
 #version {
@@ -110,7 +134,9 @@ canvas#main
     cursor: default;
     opacity: .7;
     /*mix-blend-mode: hard-light;*/
-    /**/mix-blend-mode: difference;
+    mix-blend-mode: difference;
+    mix-blend-mode: overlay;
+    mix-blend-mode: hard-light;
 }
 
 #loading

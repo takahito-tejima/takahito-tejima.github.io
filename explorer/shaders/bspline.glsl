@@ -166,9 +166,10 @@ void main()
 #endif
 
     float sc = min(dist.x, dist.y);
-    edge = clamp(edge / sc, 0.0, 1.0);
+    edge = clamp(edge / sc-.2, 0.0, 1.0);
 
-    c = mix(vec4(0,0,0,1), c, edge);
+    c = mix(vec4(94./256., 194./256., 228./256., 1.), vec4(0,0,0,0), smoothstep(0.0, 
+                    /*full range is 1.0, but .5 looks nice*/.75, edge));
 #elif DISPLAY_MODE == 3
     // ---------------- patch wire -------------------
 
@@ -187,7 +188,7 @@ void main()
     float edge = clamp(min(uvEdge.x, uvEdge.y)/width, 0.0, 1.0);
 
     // smoothstep to clean up the edge interpolation.
-    c = mix(vec4(0,0,0,1), c, smoothstep(0.0, 
+    c = mix(vec4(0,0,0,0), c, smoothstep(0.0, 
                         /*full range is 1.0, but .5 looks nice*/.5, edge));
 
 #elif DISPLAY_MODE == 4
