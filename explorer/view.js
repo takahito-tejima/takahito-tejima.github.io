@@ -2,6 +2,10 @@
 
 var version = "last updated:2015/07/11-22:58:35"
 
+// Returns current time in milliseconds
+// May be implemented as Date.now() or performance.now()
+var Now = function() { return Date.now(); };
+
 var toJS;
 var gl;
 var app = {
@@ -508,20 +512,31 @@ function redraw()
     gl.activeTexture(gl.TEXTURE5);
     gl.bindTexture(gl.TEXTURE_2D, null);
 
-
-    var time = Date.now();
+    var time = Now();
     var drawTime = time - prevTime;
     prevTime = time;
 
-    //fps = (29 * fps + 1000.0/drawTime)/30.0;
-    fps = 1000.0/drawTime;
+    // Kalman/low-pass filter to stabilize FPS
+    var newFps = Math.min(99.0, 1000.0/drawTime);
+    var weight = 0.95;
+
+    // When we get frame hitches, skew the filter to show the lower framerate.
+    // This also isn't correct, but it reflects the slowdown to the user.
+    if (newFps < fps)
+        weight = .5;
+    fps = weight*fps 
+        + (1-weight)*newFps;
+
+    // Limit FPS to 2 digits for display purposes
     if (fps > 99)
         fps = 99.0;
+
     $('#fps').text(Math.round(fps));
 
-    if (drawTris > 100000)
-        drawTris = Math.floor(drawTris/100000)/10+" M";
-    $('#triangles').text(drawTris);
+    //if (drawTris > 100000)
+    //    drawTris = Math.floor(drawTris/100000)/10+" M";
+    drawTris = Math.floor(drawTris/10000)/100+" M";
+    $('#triangles').text(drawTris.toLocaleString());
 }
 
 function GetTessLevels(p0, p1, p2, p3, level, transition,
@@ -975,5 +990,12 @@ $(function(){
 
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
+
+    if (typeof window.performance !== 'undefined' 
+             && typeof window.performance.now !== 'undefined')
+    {
+        Now = function() { return window.performance.now(); };
+        console.info("High performance timer supported");
+    }
 });
 
