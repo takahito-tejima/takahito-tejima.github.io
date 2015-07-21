@@ -827,6 +827,8 @@ $(function(){
 
     // GUI build
     var gui = new dat.GUI();
+    gui.close();
+    $(".dg.ac").css({opacity:.4});
 
     // kernel select
     gui.add(app, 'adaptive')
