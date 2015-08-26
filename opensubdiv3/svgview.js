@@ -3,7 +3,7 @@
 //
 //
 
-var version = "last updated:2015/06/13-11:39:56"
+var version = "last updated:2015/06/13-23:01:51"
 
 var app = {
     level : 3,
@@ -72,7 +72,7 @@ function display() {
             // but we prefer perspective and it actually looks not bad.
             var sx = (sp[0]/sp[3])*w*0.5;
             var sy = (-sp[1]/sp[3])*h*0.5;
-            d += sx.toFixed(3) + ' ' + sy.toFixed(3);
+            d += sx.toFixed(1) + ' ' + sy.toFixed(1);
         }
         mesh.paths[i].setAttribute("d", d);
     }

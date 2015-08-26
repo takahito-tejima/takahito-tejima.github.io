@@ -10,7 +10,7 @@ var app = {
     IsGPU : function() {
         return (this.kernel == "GPU Uniform" || this.kernel == "GPU Adaptive");
     },
-    kernel : 'GPU Uniform',
+    kernel : 'GPU Adaptive',
     //kernel : 'JS',
     tessFactor : 3,
     displayMode : 2,
