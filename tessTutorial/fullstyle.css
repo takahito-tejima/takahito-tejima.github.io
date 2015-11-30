@@ -1,0 +1,65 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    color:white;
+    font-size: 10pt;
+    margin:0;
+    padding:0;
+}
+
+#header {
+    position:absolute;
+    top: 0;
+    left: 1em;
+}
+#header {
+    color: #000000;
+}
+
+#version {
+    position:absolute;
+    bottom:0;
+    left:1em;
+    font-size: 5pt;
+}
+
+#credit {
+    position:absolute;
+    bottom:1em;
+    left:1em;
+    font-size: 9pt;
+    color: #000000;
+}
+
+#footer {
+    position: absolute;
+    clear: left;
+    bottom: 0;
+    right: 3em;
+    font-size: 9pt;
+    color: #000000;
+}
+
+#main
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: default;
+    background-color: #ffffff;
+}
+
+#loading
+{
+    position:absolute;
+    top: 100px;
+    left:100px;
+}
+
+a:link { color: #000000; }
+a:visited { color: #000080; }
