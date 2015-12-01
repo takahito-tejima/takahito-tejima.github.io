@@ -7,8 +7,11 @@
 var gl;
 
 var app = {
+    nPatches : 1,
     tessFactor : 16,
+    wireframe : true,
     OES_standard_derivatives : false,
+    ANGLE_instanced_arrays : false,
     time : 0,
     dpr : 1,
 };
@@ -17,45 +20,75 @@ var cpTexture = null;
 var tessMesh = {};
 var drawProgram = {};
 
-function getShaderSource(url)
+function initShader()
 {
-    var now = new Date();
-    url += "?" +now.getTime();
-
     var req = new XMLHttpRequest();
-    req.open("GET", url, false);
-    req.send(null);
-    return (req.status == 200) ? req.responseText : null;
-};
+    req.open("GET", "bspline.glsl");
+    req.onreadystatechange = function() {
+        if (req.readyState == 4) {
+            var shaderSource = req.responseText;
+            var define = '';
+            if (app.OES_standard_derivatives)
+                define += "#extension GL_OES_standard_derivatives : enable\n"
+                + "#define HAS_OES_STANDARD_DERIVATIVES\n";
 
-function initShaders()
+            var program = glUtil.linkProgram(
+                "#define VERTEX_SHADER\n" + define + shaderSource,
+                "#define FRAGMENT_SHADER\n" + define + shaderSource,
+                {inUV : 0, patchIndices: 1} );
+
+            drawProgram.modelViewMatrix
+                = gl.getUniformLocation(program, "modelViewMatrix");
+            drawProgram.projectionMatrix
+                = gl.getUniformLocation(program, "projectionMatrix");
+            drawProgram.nPatches
+                = gl.getUniformLocation(program, "nPatches");
+            drawProgram.wireframe
+                = gl.getUniformLocation(program, "wireframe");
+            drawProgram.program = program;
+        }
+    }
+    req.send();
+}
+
+function morton(index)
 {
-    var shaderSource = getShaderSource("bspline.glsl");
-    var define = '';
-    if (app.OES_standard_derivatives)
-        define += "#extension GL_OES_standard_derivatives : enable\n"
-        + "#define HAS_OES_STANDARD_DERIVATIVES\n";
-
-    drawProgram.program = glUtil.linkProgram(
-        "#define VERTEX_SHADER\n" + define + shaderSource,
-        "#define FRAGMENT_SHADER\n" + define + shaderSource,
-        {inUV : 0} );
-
-    drawProgram.modelViewMatrix
-        = gl.getUniformLocation(drawProgram.program, "modelViewMatrix");
-    drawProgram.projectionMatrix
-        = gl.getUniformLocation(drawProgram.program, "projectionMatrix");
+    var value1 = index;
+    var value2 = value1 >> 1;
+    value1 &= 0x00000155;
+    value2 &= 0x00000155;
+    value1 |= ( value1 >> 1 );
+    value2 |= ( value2 >> 1 );
+    value1 &= 0x00000133;
+    value2 &= 0x00000133;
+    value1 |= ( value1 >> 2 );
+    value2 |= ( value2 >> 2 );
+    value1 &= 0x0000010f;
+    value2 &= 0x0000010f;
+    return [value1, value2];
 }
 
 function animate(time)
 {
-    // create 16 control points.
-    var cp = new Float32Array(16*3);
-    for (var i = 0; i < 4; ++i) {
-        for (var j = 0; j < 4; ++j) {
-            cp[(i*4+j)*3+0] = i-1.5;
-            cp[(i*4+j)*3+1] = 0.5*(Math.cos(i*4+time) + Math.sin(j*4+time));
-            cp[(i*4+j)*3+2] = j-1.5;
+    // create 16 control points for each patch
+    var cp = new Float32Array(16*3*app.nPatches);
+    var idx = 0;
+    var center = Math.sqrt(app.nPatches)*0.5;
+    for (var p = 0; p < app.nPatches; ++p) {
+        var loc = morton(p);
+        var xOffset = loc[0] - center;
+        var zOffset = loc[1] - center;
+        for (var i = 0; i < 4; ++i) {
+            for (var j = 0; j < 4; ++j) {
+                var x = i/3.0 + xOffset;
+                var z = j/3.0 + zOffset;
+                var r = Math.sqrt(x*x+z*z);
+                var y = 0.2*Math.sin(4*r+time);
+                cp[idx+0] = x;
+                cp[idx+1] = y;
+                cp[idx+2] = z;
+                idx += 3;
+            }
         }
     }
 
@@ -72,7 +105,7 @@ function animate(time)
     } else {
         gl.bindTexture(gl.TEXTURE_2D, cpTexture);
     }
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 16, 1, 0, gl.RGB, gl.FLOAT, cp);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 16, app.nPatches, 0, gl.RGB, gl.FLOAT, cp);
 }
 
 function createUVmesh()
@@ -117,6 +150,19 @@ function createUVmesh()
     tessMesh.numTris = numTris;
 }
 
+function createPatchIndices()
+{
+    if (app.ANGLE_instanced_arrays) {
+        var patches = [];
+        for (var i = 0; i < app.nPatches; ++i) patches.push(i);
+
+        tessMesh.PatchVBO = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, tessMesh.PatchVBO);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(patches), gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    }
+}
+
 function idle()
 {
     app.time = app.time + 0.05;
@@ -137,6 +183,8 @@ function redraw()
     var aspect = w / h;
     gl.viewport(0, 0, w, h);
 
+    if (drawProgram.program == null) return;
+
     gl.useProgram(drawProgram.program);
 
     camera.setAspect(aspect);
@@ -144,6 +192,8 @@ function redraw()
 
     gl.uniformMatrix4fv(drawProgram.projectionMatrix, false, camera.proj);
     gl.uniformMatrix4fv(drawProgram.modelViewMatrix, false, camera.modelView);
+    gl.uniform1f(drawProgram.nPatches, app.nPatches);
+    gl.uniform1i(drawProgram.wireframe, app.wireframe);
 
     camera.setMatrixUniforms(drawProgram);
 
@@ -156,10 +206,28 @@ function redraw()
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
 
-    gl.drawElements(gl.TRIANGLES,
-                    tessMesh.numTris*3,
-                    gl.UNSIGNED_SHORT,
-                    0);
+    if (app.ANGLE_instanced_arrays) {
+        gl.enableVertexAttribArray(1);
+        gl.bindBuffer(gl.ARRAY_BUFFER, tessMesh.PatchVBO);
+        gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 0, 0);
+
+        app.ANGLE_instanced_arrays.vertexAttribDivisorANGLE(1, 1);
+
+        app.ANGLE_instanced_arrays.drawElementsInstancedANGLE(
+            gl.TRIANGLES,
+            tessMesh.numTris*3,
+            gl.UNSIGNED_SHORT,
+            0, app.nPatches);
+
+        gl.disableVertexAttribArray(1);
+        app.ANGLE_instanced_arrays.vertexAttribDivisorANGLE(1, 0);
+    } else {
+        gl.drawElements(gl.TRIANGLES,
+                        tessMesh.numTris*3,
+                        gl.UNSIGNED_SHORT,
+                        0);
+    }
+
 
     gl.disableVertexAttribArray(0);
     gl.bindTexture(gl.TEXTURE_2D, null);
@@ -207,22 +275,32 @@ $(function(){
     }
     app.OES_standard_derivatives =
         gl.getExtension('OES_standard_derivatives');
+    app.ANGLE_instanced_arrays =
+        gl.getExtension('ANGLE_instanced_arrays');
 
     // GUI build
     var gui = new dat.GUI();
 
+    gui.add(app, 'wireframe');
+    
     // tess factor
     gui.add(app, 'tessFactor', 2, 64)
         .step(1)
         .onChange(function(value) {
             createUVmesh();
         });
+    gui.add(app, 'nPatches', 1, 256)
+        .step(1)
+        .onChange(function(value) {
+            createPatchIndices();
+        });
     createUVmesh();
+    createPatchIndices();
 
     camera.bindControl("#main", redraw);
     document.oncontextmenu = function(e){ return false; }
 
-    initShaders();
+    initShader();
 
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
