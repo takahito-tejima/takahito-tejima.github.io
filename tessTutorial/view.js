@@ -257,7 +257,7 @@ $(function(){
     var canvas = $("#main").get(0);
 
     // initialize WebGL
-    $.each(["webgl2", "experimental-webgl2", "webgl", "experimental-webgl",
+    $.each([ "webgl", "experimental-webgl",
             "webkit-3d", "moz-webgl"], function(i, name){
         try {
             gl = canvas.getContext(name);
